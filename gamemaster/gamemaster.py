@@ -3,6 +3,7 @@
 from logging import getLogger
 from os import getenv
 from typing import TYPE_CHECKING, TypeAlias
+from platform import system
 
 from discord import Intents
 from discord.ext.commands import Bot
@@ -13,6 +14,15 @@ from .logger import add_file_handler, get_gamemaster_logger
 if TYPE_CHECKING:
     from datetime import datetime
     from logging import Logger
+
+# suppress weird Windows warning
+try:
+    from asyncio import WindowsSelectorEventLoopPolicy, set_event_loop_policy
+    if system() == "Windows":
+        set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+except ImportError:
+    get_gamemaster_logger().warning("Could not import 'WindowsSelectorEventLoopPolicy', "
+                                    "probably because this is not Windows.")
 
 VersionTuple: TypeAlias = tuple[int, int, int]
 
