@@ -6,13 +6,15 @@ Can be triggered manually, but is mainly designed to be called from the package 
 from os import getenv
 from sys import argv
 
-# from .db import init_database
-# from .logger import AssistLogger
+from .logger import get_gamemaster_logger
 from .gamemaster import GameMaster
 
 
 def main(*args: str) -> int:
     "Main function."
+
+    sep = "=" * 25
+    get_gamemaster_logger().info(f"{sep} Initializing GameMaster {sep}")
 
     GameMaster(
         verbose=("-v" in args or "--verbose" in args)
