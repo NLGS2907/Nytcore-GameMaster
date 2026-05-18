@@ -113,3 +113,10 @@ class GameMaster(Bot):
         if sync:
             self.log.info("Syncing command tree...")
             await self.tree.sync()
+
+
+    async def shutdown(self):
+        """Closes all the bot's resources gracefully and shuts down in an orderly manner."""
+
+        self.log.info(f"Shutting down {self.user}...")
+        self.close()
