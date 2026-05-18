@@ -4,6 +4,7 @@
 # caching
 .ruff_cache/**
 .vscode/**
+**/__pycache__/**
 
 # personal notes
 todo.md
