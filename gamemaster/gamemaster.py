@@ -2,13 +2,14 @@
 
 from logging import getLogger
 from os import getenv
-from typing import TYPE_CHECKING, TypeAlias
 from platform import system
+from typing import TYPE_CHECKING, TypeAlias
 
 from discord import Intents
 from discord.ext.commands import Bot
 from discord.utils import utcnow
 
+from .files import search_files
 from .logger import add_file_handler, get_gamemaster_logger
 
 if TYPE_CHECKING:
@@ -25,6 +26,8 @@ except ImportError:
                                     "probably because this is not Windows.")
 
 VersionTuple: TypeAlias = tuple[int, int, int]
+
+COGS_PATH: str = "./gamemaster/cogs"
 
 
 class GameMaster(Bot):
@@ -74,3 +77,39 @@ class GameMaster(Bot):
         self.ds_log: "Logger" = getLogger("discord")
 
         add_file_handler(self.ds_log)
+
+
+    async def setup_hook(self):
+        """Initial actions to do before the bot fully wakes up."""
+
+        self.update_cogs(sync=True)
+
+
+    async def update_cogs(self, *, sync: bool=True):
+        """Dynamically loads or reloads the cogs in the extensions directory.
+        
+        Args:
+            sync: A boolean value indicating if it should sync the modules here discovered with
+                  the server's command tree. This is usually not recommended when the changes
+                  are within the logic of a command. If the commands' syntax is altered or a new
+                  one is added then yes, it needs to sync.
+        """
+
+        self.log.info("Loading cogs")
+
+        ext = ".py"
+        for cog_path in search_files(pattern=f"*{ext}",
+                                     path_name=COGS_PATH,
+                                     ignore_patterns=("__init__.*", "*_abc.*")):
+
+            cog_module = cog_path.removesuffix(f"{ext}").replace("/", ".")
+            if cog_module in self.extensions:
+                self.log.debug(f"[COG] Reloading cog '{cog_module}'")
+                await self.reload_extension(cog_module)
+            else:
+                self.log.debug(f"[COG] Loading cog '{cog_module}'")
+                await self.load_extension(cog_module)
+
+        if sync:
+            self.log.info("Syncing command tree...")
+            await self.tree.sync()
