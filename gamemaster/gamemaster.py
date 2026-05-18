@@ -13,7 +13,7 @@ from .files import search_files
 from .logger import add_file_handler, get_gamemaster_logger
 
 if TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import datetime, timedelta
     from logging import Logger
 
 # suppress weird Windows warning
@@ -120,3 +120,10 @@ class GameMaster(Bot):
 
         self.log.info(f"Shutting down {self.user}...")
         self.close()
+
+
+    @property
+    def uptime(self) -> "timedelta":
+        """Calculates the uptime of the bot."""
+
+        return utcnow() - self.booted_at
