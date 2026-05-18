@@ -3,7 +3,7 @@
 In essence, it reads, loads and/or saves vars as needed.
 """
 
-from os import environ
+from os import environ, getenv
 from typing import Self, TypeAlias
 
 FilePath: TypeAlias = str
@@ -11,7 +11,8 @@ EnvKey: TypeAlias = str
 EnvVal: TypeAlias = str
 EnvDict: TypeAlias = dict[EnvKey, EnvVal]
 
-ENV_SEP: str = '='
+ENV_SEP: str = "="
+ENV_EXT: str = ".env"
 
 
 class EnvManager:
@@ -19,6 +20,13 @@ class EnvManager:
     
     It can read from files and load them later.
     """
+
+    @staticmethod
+    @property
+    def env_path():
+        bot_mode = getenv("BOT_MODE", "test").lower()
+        return f"./{bot_mode}{ENV_EXT}"
+
 
     @classmethod
     def read_from_file(cls, file_path: FilePath) -> Self:
