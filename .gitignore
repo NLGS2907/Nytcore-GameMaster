@@ -1,0 +1,9 @@
+# uploading envs is a big no-no
+*.env
+
+# caching
+.ruff_cache/**
+.vscode/**
+
+# personal notes
+todo.md
