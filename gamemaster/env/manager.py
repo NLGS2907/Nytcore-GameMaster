@@ -22,7 +22,6 @@ class EnvManager:
     """
 
     @staticmethod
-    @property
     def env_path():
         bot_mode = getenv("BOT_MODE", "test").lower()
         return f"./{bot_mode}{ENV_EXT}"
