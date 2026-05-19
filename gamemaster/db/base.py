@@ -9,6 +9,7 @@ MODEL_SUFFIX: str = "dataset"
 
 db = SqliteDatabase(getenv("DATABASE_PATH"))
 
+
 class BaseModel(Model):
     """Base class for creating all object models."""
 
@@ -24,3 +25,10 @@ class BaseModel(Model):
 
     def __init_subclass__(cls):
         __class__.children.append(cls)
+
+
+    @classmethod
+    def unique_columns(cls) -> list[str]:
+        """Returns a list of columns that have the UNIQUE constraint."""
+
+        return [field.column_name for field in cls._meta.fields.values() if field.unique]
