@@ -5,7 +5,7 @@ from os import getenv
 from platform import system
 from typing import TYPE_CHECKING, TypeAlias
 
-from discord import Intents
+from discord import Intents, Permissions
 from discord.ext.commands import Bot
 from discord.utils import utcnow
 
@@ -60,6 +60,48 @@ class GameMaster(Bot):
         return Intents.all()
 
 
+    @staticmethod
+    def preferred_permissions() -> Permissions:
+        """Reports the preferred perms that the bot intends to ask for.
+        
+        The layout of the perms is designed to reflect that of the developer portal.
+        """
+
+        perms = Permissions.none()
+
+        perms.update(
+            # General Perms
+            view_channel=True,
+            # ...
+            view_guild_insights=True,
+            # --------------------
+
+            # Text Perms
+            send_messages=True,
+            create_public_threads=True,
+            create_private_threads=True,
+            send_messages_in_threads=True,
+            # ...
+            manage_messages=True,
+            pin_messages=True,
+            manage_threads=True,
+            embed_links=True,
+            attach_files=True,
+            read_message_history=True,
+            # ...
+            use_external_emojis=True,
+            use_external_stickers=True,
+            add_reactions=True,
+            use_application_commands=True,
+            # ...
+            use_external_apps=True,
+            create_polls=True
+            # --------------------
+        )
+
+        return perms
+
+
     def __init__(self, verbose: bool=True, **options):
         """Initializes the GameMaster.
         
@@ -102,7 +144,7 @@ class GameMaster(Bot):
         ext = ".py"
         for cog_path in search_files(pattern=f"*{ext}",
                                      path_name=COGS_PATH,
-                                     ignore_patterns=("__init__.*", "*_abc.*")):
+                                     ignore_patterns=("__init__.*", "*_base.*")):
 
             cog_module = cog_path.removesuffix(f"{ext}").replace("/", ".")
             if cog_module in self.extensions:
