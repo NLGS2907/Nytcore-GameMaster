@@ -19,7 +19,7 @@ def make_migrations():
     db_dir = Path(getenv("DATABASE_PATH")).parent
     ext = ".py"
 
-    with db:
+    with db.connection_context():
         db.create_tables(BaseModel.children)
         migrator = SqliteMigrator(db)
 
@@ -32,7 +32,7 @@ def make_migrations():
                         key=lambda mod: mod.__name__)
 
         for module in modules:
-            with db.atomic():
+            with db.transaction():
                 if hasattr(module, "migration"):
                     module.migration(migrator)
 
