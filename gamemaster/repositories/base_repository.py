@@ -18,7 +18,7 @@ class BaseRepository[ModelType](ABC):
 
     @staticmethod
     @abstractmethod
-    def dataset() -> DatasetClassType:
+    def dataset_cls() -> DatasetClassType:
         """Returns the linked dataset of this repository."""
 
         raise NotImplementedError
@@ -38,14 +38,14 @@ class BaseRepository[ModelType](ABC):
         """
 
         rowid = (
-            self.dataset().insert(**insert_args).on_conflict(
-                conflict_target=self.dataset().unique_columns(),
+            self.dataset_cls().insert(**insert_args).on_conflict(
+                conflict_target=self.dataset_cls().unique_columns(),
                 preserve=preserve_args,
                 update=update_args
             ).execute()
         )
 
-        return self.dataset().get_by_id(rowid)
+        return self.dataset_cls().get_by_id(rowid)
 
 
     @abstractmethod
