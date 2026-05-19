@@ -1,7 +1,5 @@
 """Module for generating base models for the database."""
 
-__all__ = ["db"]
-
 from os import getenv
 from typing import Self
 
