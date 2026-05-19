@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Optional, TypeAlias, Union
 
 if TYPE_CHECKING:
-    from peewee import Field, Expression
+    from peewee import Expression, Field
 
     from ..db.base import BaseModel
 
@@ -26,8 +26,8 @@ class BaseRepository[ModelType](ABC):
 
     def _create_dataset(self,
                         insert_args: InsertDict,
-                        preserve_args: PreserveList,
-                        update_args: UpdateDict) -> DatasetType:
+                        preserve_args: Optional[PreserveList]=None,
+                        update_args: Optional[UpdateDict]=None) -> DatasetType:
         """Creates the dataset for this repository, or updates the existing one if needed.
         
         Args:

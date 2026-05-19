@@ -31,6 +31,32 @@ class PlayerRepository(BaseRepository):
                       img_file)
 
 
+    def create(self,
+               username: str,
+               discord_user_id: int,
+               emoji: Optional[str]=None,
+               profile_img: Optional["BytesIO"]=None) -> Player:
+        """Creates a new player, or retrieves it if it already exists.
+        
+        Args:
+            username: The name of the player.
+            discord_user_id: The discord user ID tied to the player.
+            emoji: An optional emoji to be used in some minigames.
+            profile_img: The custom profile image that the player chose.
+        """
+
+        dataset = self.dataset_cls()
+        result = self._create_dataset(dict(username=username,
+                                           discord_id=discord_user_id,
+                                           emoji=emoji,
+                                           profile_img=profile_img),
+                                      preserve_args=[dataset.username,
+                                                     dataset.emoji,
+                                                     dataset.profile_img])
+
+        return self._dataset_to_model(result)
+
+
     def get_by_discord_id(self, discord_id: int) -> Optional[Player]:
         """Tries to retrieve a player based on its discord user ID.
 

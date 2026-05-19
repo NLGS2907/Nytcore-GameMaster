@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from discord import User
     from io import BytesIO
 
 
@@ -17,7 +16,7 @@ class Player:
 
     def __init__(self,
                  username: str,
-                 discord_user_id: "User",
+                 discord_user_id: int,
                  emoji: Optional[str]=None,
                  profile_img: Optional["BytesIO"]=None):
         """Initializes the player user.
@@ -30,6 +29,6 @@ class Player:
         """
 
         self.username: str = username
-        self.discord_user_id: "User" = discord_user_id
+        self.discord_user_id: int = discord_user_id
         self.emoji: Optional[str] = emoji
         self.profile_img: Optional["BytesIO"] = profile_img
