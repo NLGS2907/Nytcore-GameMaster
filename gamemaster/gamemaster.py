@@ -82,7 +82,7 @@ class GameMaster(Bot):
     async def setup_hook(self):
         """Initial actions to do before the bot fully wakes up."""
 
-        self.update_cogs(sync=True)
+        await self.update_cogs(sync=True)
 
 
     async def update_cogs(self, *, sync: bool=True):
