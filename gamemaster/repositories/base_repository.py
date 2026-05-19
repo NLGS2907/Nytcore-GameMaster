@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 if TYPE_CHECKING:
-    from peewee import Field
+    from peewee import Field, Expression
 
     from ..db.base import BaseModel
 
@@ -35,6 +35,9 @@ class BaseRepository[ModelType](ABC):
             preserve_args: A list of dataset fields to update FROM THE NEW INCOMING DATA,
                            in case of conflict.
             update_args: A dictionary of values to update into the new row, in case of conflict.
+
+        Returns:
+            The dataset of the relevant data.
         """
 
         rowid = (
@@ -60,6 +63,19 @@ class BaseRepository[ModelType](ABC):
         """Transform the dataset into the functional model."""
 
         raise NotImplementedError
+
+
+    def _exists(self, *filters: "Expression") -> bool:
+        """Makes a query and checks if it returned something.
+        
+        Args:
+            *filters: The collection of expressions to filter the result.
+
+        Returns:
+            A boolean value checking if the result exists or not.
+        """
+
+        return self.dataset_cls().select().where(*filters).exists()
 
 
     def save(self, model: ModelType):

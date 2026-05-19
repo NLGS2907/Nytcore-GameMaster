@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import Optional
 
 from ..db.datasets import PlayerDataset
 from ..models import Player
@@ -28,3 +29,17 @@ class PlayerRepository(BaseRepository):
                       dataset.discord_id,
                       (dataset.emoji if dataset.emoji is None else chr(int(dataset.emoji[2:]), 16)),
                       img_file)
+
+
+    def get_by_discord_id(self, discord_id: int) -> Optional[Player]:
+        """Tries to retrieve a player based on its discord user ID.
+
+        Args:
+            discord_id: The discord user's ID to use.
+
+        Returns:
+            A player object if found, `None` if not.
+        """
+
+        dataset = self.dataset_cls().get_or_none(self.dataset_cls().discord_id == discord_id)
+        return (dataset if dataset is None else self._dataset_to_model(dataset))
