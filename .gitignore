@@ -9,5 +9,8 @@
 # logging
 *.log
 
+# database
+**.db
+
 # personal notes
 todo.md

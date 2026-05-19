@@ -9,6 +9,7 @@ from discord import Intents
 from discord.ext.commands import Bot
 from discord.utils import utcnow
 
+from .db import make_migrations
 from .files import search_files
 from .logger import add_file_handler, get_gamemaster_logger
 
@@ -82,6 +83,7 @@ class GameMaster(Bot):
     async def setup_hook(self):
         """Initial actions to do before the bot fully wakes up."""
 
+        make_migrations()
         await self.update_cogs(sync=True)
 
 
