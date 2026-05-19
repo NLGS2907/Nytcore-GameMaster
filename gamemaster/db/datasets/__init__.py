@@ -3,4 +3,4 @@
 Ideally, all of this classes' names should en with `"Dataset"`.
 """
 
-from .player_model import *
+from .player_dataset import *
