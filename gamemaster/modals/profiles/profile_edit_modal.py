@@ -91,7 +91,9 @@ class ProfileEditModal(Modal):
 
             raise err from err
 
-        await interaction.response.send_message("_Your profile was updated successfully!_",
-                                                ephemeral=True)
+        no_changes = not (player_name.value or emoji_selection.value or files_upload.values)
+        message_content = ("No changes made." if no_changes
+                           else "Your profile was updated successfully!")
+        await interaction.response.send_message(f"_{message_content}_", ephemeral=True)
 
         
