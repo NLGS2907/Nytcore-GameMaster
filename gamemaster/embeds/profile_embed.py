@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Optional
 from discord import Colour, Embed, File
 from PIL.Image import open as img_open
 
+from ..models import IMG_FORMAT
+
 if TYPE_CHECKING:
     from discord.abc import User
 
@@ -33,7 +35,8 @@ class ProfileEmbed(Embed):
         """Preconfigures this embed to send it later."""
 
         author_img = BytesIO()
-        await self.discord_user.display_avatar.save(author_img, seek_begin=True)
+        await self.discord_user.display_avatar.with_format(IMG_FORMAT).save(author_img,
+                                                                            seek_begin=True)
 
         user_img = self.player.profile_img
 
@@ -49,8 +52,8 @@ class ProfileEmbed(Embed):
                    if user_img is not None
                    else "*None*")
 
-        self.thumbnail_file = File(thumbnail, filename="thumbnail.png")
-        self.set_thumbnail(url="attachment://thumbnail.png")\
+        self.thumbnail_file = File(thumbnail, filename=f"thumbnail.{IMG_FORMAT}")
+        self.set_thumbnail(url=f"attachment://thumbnail.{IMG_FORMAT}")\
             .set_author(name=self.discord_user.display_name,
                         icon_url=self.discord_user.display_avatar.url)\
             .add_field(name="Name", value=self.player.username, inline=True)\

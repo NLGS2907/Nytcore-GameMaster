@@ -12,8 +12,10 @@ ProfileImgType: TypeAlias = BytesIO
 
 NAME_MIN_LENGTH: int = 3
 NAME_MAX_LENGTH: int = 30
+
 IMG_MIN_SIZE: int = 250
 IMG_MAX_SIZE: int = 1500
+IMG_FORMAT: str = "webp"
 
 
 class Player:
@@ -199,7 +201,7 @@ class Player:
             elif height > width:
                 img = img.resize((width, width))
 
-            img.convert("RGBA").save(result_img, format="PNG")
+            img.convert("RGBA").save(result_img, format=IMG_FORMAT, lossless=True)
             result_img.seek(0)
         finally:
             img.close()
