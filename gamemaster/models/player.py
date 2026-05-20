@@ -1,15 +1,19 @@
-from typing import TYPE_CHECKING, Optional, TypeAlias
+from typing import Optional, TypeAlias
 
-if TYPE_CHECKING:
-    from io import BytesIO
+from emoji import is_emoji
+from PIL.Image import open as img_open
+from io import BytesIO
+    
 
 UsernameType: TypeAlias = str
 DiscordUserIdType: TypeAlias = int
 EmojiType: TypeAlias = str
-ProfileImageType: TypeAlias = "BytesIO"
+ProfileImgType: TypeAlias = BytesIO
 
 NAME_MIN_LENGTH: int = 3
 NAME_MAX_LENGTH: int = 30
+IMG_MIN_SIZE: int = 250
+IMG_MAX_SIZE: int = 1500
 
 
 class Player:
@@ -27,7 +31,7 @@ class Player:
                  username: UsernameType,
                  discord_user_id: DiscordUserIdType,
                  emoji: Optional[EmojiType]=None,
-                 profile_img: Optional[ProfileImageType]=None):
+                 profile_img: Optional[ProfileImgType]=None):
         """Initializes the player user.
         
         Args:
@@ -41,7 +45,7 @@ class Player:
         self._username: UsernameType = username
         self._discord_user_id: DiscordUserIdType = discord_user_id
         self._emoji: Optional[EmojiType] = emoji
-        self._profile_img: Optional[ProfileImageType] = profile_img
+        self._profile_img: Optional[ProfileImgType] = profile_img
 
 
     @property
@@ -64,14 +68,24 @@ class Player:
         return self._emoji
 
 
+    @emoji.setter
+    def emoji(self, new_emoji: Optional[EmojiType]):
+        self._emoji = self.validate_emoji(new_emoji)
+
+
     @property
-    def profile_img(self) ->  Optional[ProfileImageType]:
+    def profile_img(self) ->  Optional[ProfileImgType]:
         return self._profile_img
+
+
+    @profile_img.setter
+    def profile_img(self, new_img: Optional[ProfileImgType]):
+        self._profile_img = self.validate_profile_img(new_img)
 
 
     @staticmethod
     def validate_name(candidate_name: UsernameType) -> UsernameType:
-        """Validates if the given name is valid.
+        """Validates if the given name is correct.
         
         Args:
             candidate_name: The name to validate.
@@ -102,3 +116,92 @@ class Player:
                              f"up to {NAME_MAX_LENGTH} is allowed.")
 
         return sanitized_name
+
+
+    @staticmethod
+    def validate_emoji(candidate_emoji: Optional[EmojiType]) -> Optional[EmojiType]:
+        """Validates if the given emoji is correct.
+
+        The input must be an emoji character, or `None` if it is omitted.
+
+        Args:
+            candidate_emoji: The emoji to validate.
+
+        Raises:
+            TypeError: If the emoji isn't a string.
+            ValueError: If the input is empty, not an emoji char, or not a single char.
+
+        Returns:
+            A stripped version of the emoji, provided it was successfully validated.
+        """
+
+        if candidate_emoji is None:
+            return candidate_emoji
+
+        if not isinstance(candidate_emoji, EmojiType):
+            raise TypeError(f"candidate emoji is of type {type(candidate_emoji).__name__!r}, "
+                            f"but a name of type {EmojiType.__name__!r} is required.")
+
+        stripped_emoji = candidate_emoji.strip()
+        if not stripped_emoji:
+            raise ValueError("given emoji appears to be blank space")
+
+        stripped_emoji_len = len(stripped_emoji)
+        if stripped_emoji_len > 1:
+            raise ValueError(f"The given input {stripped_emoji!r} must be comprised of only one "
+                             f"char, yet it appears to be made of {stripped_emoji_len}")
+
+        if not is_emoji(stripped_emoji):
+            raise ValueError(f"The given input {stripped_emoji!r} does not seem to correspond "
+                             "to an emoji character")
+
+        return stripped_emoji
+
+
+    @staticmethod
+    def validate_profile_img(candidate_img: Optional[ProfileImgType]) -> Optional[ProfileImgType]:
+        """Validates if the given profile image is correct.
+
+        Args:
+            candidate_img: The profile image to validate.
+
+        Raises:
+            TypeError: If the image is not a file-like object.
+            ValueError: If the image is too small or too big.
+
+        Returns:
+            An image compatible with the player object. If needed, it is transformed to size.
+        """
+
+        if candidate_img is None:
+            return candidate_img
+
+        if not isinstance(candidate_img, ProfileImgType):
+            raise TypeError(f"candidate emoji is of type {type(candidate_img).__name__!r}, "
+                            f"but a name of type {ProfileImgType.__name__!r} is required.")
+
+        result_img = ProfileImgType()
+        try:
+            img = img_open(candidate_img)
+            width = img.width
+            height = img.height
+
+            if width < IMG_MIN_SIZE or height < IMG_MIN_SIZE:
+                raise ValueError("Image too small. Should be at least "
+                                 f"{IMG_MIN_SIZE}x{IMG_MIN_SIZE} but is {width}x{height} instead")
+
+            if width > IMG_MAX_SIZE or height > IMG_MAX_SIZE:
+                raise ValueError(f"Image too big. Should be {IMG_MAX_SIZE}x{IMG_MAX_SIZE} "
+                                 f"maximum, but is {width}x{height} instead")
+
+            if width > height:
+                img = img.resize((height, height))
+            elif height > width:
+                img = img.resize((width, width))
+
+            img.convert("RGBA").save(result_img, format="PNG")
+            result_img.seek(0)
+        finally:
+            img.close()
+
+        return result_img

@@ -5,6 +5,7 @@ from discord import Member
 from discord.app_commands import command, describe
 
 from ...embeds import ProfileEmbed
+from ...modals import ProfileEditModal
 from ...repositories import PlayerRepository
 from ..cog_base import _BaseCog, _BaseGroup
 
@@ -57,6 +58,17 @@ class ProfileGroup(_BaseGroup):
 
         if not ephemeral:
             await msg.delete(delay=15.0)
+
+
+    @command(name="edit",
+             description="Edit profile details.")
+    async def edit_profile(self, interaction: "Interaction"):
+        """Edits the player profile with a pop-up."""
+
+        player_repo = PlayerRepository()
+        game_player = player_repo.create(interaction.user.name, interaction.user.id)
+
+        await interaction.response.send_modal(ProfileEditModal(game_player))
 
 
 class ProfileCog(_BaseCog):
