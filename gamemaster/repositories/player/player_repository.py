@@ -1,17 +1,17 @@
 from io import BytesIO
 from typing import Optional, TYPE_CHECKING
 
-from ..db.datasets import PlayerDataset
-from ..models import Player
-from .base_repository import BaseRepository
+from ...db.datasets import PlayerDataset
+from ...models import Player
+from .interface import IPlayerRepository
 
 if TYPE_CHECKING:
-    from ..models import EmojiType
+    from ...models import EmojiType
 
 UNICODE_PREFIX: str = "U+"
 
 
-class PlayerRepository(BaseRepository):
+class PlayerRepository(IPlayerRepository):
     @staticmethod
     def dataset_cls():
         return PlayerDataset
@@ -42,28 +42,10 @@ class PlayerRepository(BaseRepository):
 
 
     def emoji_to_unicode(self, emoji: "EmojiType") -> str:
-        """Converts an emoji char into the form 'U+XXXX'.
-        
-        Args:
-            emoji: The emoji to convert. It is assumed the emoji is composed of only one character.
-
-        Returns:
-            The parsed string, ready to be stored.
-        """
-
         return f"{UNICODE_PREFIX}{ord(emoji):X}"
 
 
     def unicode_to_emoji(self, unicode_str: str) -> "EmojiType":
-        """Converts a string of form 'U+XXXX' to an emoji char.
-
-        Args:
-            unicode_str: The string to parse.
-
-        Returns:
-            A raw emoji char.
-        """
-
         prefix_len = len(UNICODE_PREFIX)
         hex_base = 16
         return chr(int(unicode_str[prefix_len:], hex_base))
@@ -74,15 +56,6 @@ class PlayerRepository(BaseRepository):
                discord_user_id: int,
                emoji: Optional[str]=None,
                profile_img: Optional["BytesIO"]=None) -> Player:
-        """Creates a new player, or retrieves it if it already exists.
-        
-        Args:
-            username: The name of the player.
-            discord_user_id: The discord user ID tied to the player.
-            emoji: An optional emoji to be used in some minigames.
-            profile_img: The custom profile image that the player chose.
-        """
-
         validated_username = Player.validate_name(username)
         validated_emoji = Player.validate_emoji(emoji)
         validated_img = Player.validate_profile_img(profile_img)
@@ -98,14 +71,5 @@ class PlayerRepository(BaseRepository):
 
 
     def get_by_discord_id(self, discord_id: int) -> Optional[Player]:
-        """Tries to retrieve a player based on its discord user ID.
-
-        Args:
-            discord_id: The discord user's ID to use.
-
-        Returns:
-            A player object if found, `None` if not.
-        """
-
         dataset = self.dataset_cls().get_or_none(self.dataset_cls().discord_id == discord_id)
         return (dataset if dataset is None else self._dataset_to_model(dataset))

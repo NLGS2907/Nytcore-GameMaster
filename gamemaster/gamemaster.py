@@ -14,6 +14,7 @@ from discord.utils import utcnow
 from .db import db, make_migrations
 from .files import search_files
 from .logger import add_file_handler, add_terminal_handler, get_gamemaster_logger
+from .repositories import PlayerRepository, RepositoryConfiguration
 
 if TYPE_CHECKING:
     from datetime import datetime, timedelta
@@ -117,6 +118,9 @@ class GameMaster(Bot):
                          application_id=getenv("BOT_ID"),
                          options=options)
 
+        self.repositories: RepositoryConfiguration = RepositoryConfiguration(
+            player_repository=PlayerRepository()
+        )
         self.booted_at: "datetime" = utcnow()
         self.log: "Logger" = get_gamemaster_logger()
         self.ds_log: "Logger" = getLogger("discord")

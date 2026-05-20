@@ -1,2 +1,2 @@
-from .base_repository import *
-from .player_repository import *
+from .player import *
+from .repositories_config import *

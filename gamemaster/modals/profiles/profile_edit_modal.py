@@ -7,26 +7,33 @@ from discord import TextStyle
 from discord.ui import FileUpload, Label, Modal, TextInput
 
 from ...models import IMG_MAX_SIZE, IMG_MIN_SIZE
-from ...repositories import PlayerRepository
 
 if TYPE_CHECKING:
     from discord import Attachment, Interaction
 
     from ...models import Player
+    from ...repositories import IPlayerRepository
 
 
 class ProfileEditModal(Modal):
-    """Asks for info to edit the profile of a user."""
+    """Asks for info to edit the profile of a user.
 
-    def __init__(self, player: "Player"):
+    Attributes:
+        player: A player to hold the profile details with.
+        player_repo: A player repository to actually save the changed properties.
+    """
+
+    def __init__(self, player: "Player", player_repository: "IPlayerRepository"):
         """Initializes the profile editing modal.
         
         Args:
             player: The player whose details to edit.
+            player_repository: The repository from which to load and save players.
         """
 
         super().__init__(title=f"{player.username} Profile Details", timeout=None)
         self.player: "Player" = player
+        self.player_repo: "IPlayerRepository" = player_repository
 
         image_description = (f"Square image of {IMG_MIN_SIZE}x{IMG_MIN_SIZE} "
                              f"- {IMG_MAX_SIZE}x{IMG_MAX_SIZE} in size. "
@@ -73,8 +80,6 @@ class ProfileEditModal(Modal):
                                                          self.children)
         
         try:
-            player_repo = PlayerRepository()
-
             if player_name.value:
                 self.player.username = player_name.value.strip()
 
@@ -84,7 +89,7 @@ class ProfileEditModal(Modal):
             if files_upload.values:
                 await self._change_profile_image(files_upload.values[0])
 
-            player_repo.save(self.player)
+            self.player_repo.save(self.player)
         except (TypeError, ValueError) as err:
             msg = f"**[ERROR]** It seems there was an error updating your profile.\n\n> _{err}_"
             await interaction.response.send_message(msg, ephemeral=True)

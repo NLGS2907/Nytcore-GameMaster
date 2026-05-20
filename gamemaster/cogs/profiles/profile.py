@@ -6,7 +6,6 @@ from discord.app_commands import command, describe
 
 from ...embeds import ProfileEmbed
 from ...modals import ProfileEditModal
-from ...repositories import PlayerRepository
 from ..cog_base import _BaseCog, _BaseGroup
 
 if TYPE_CHECKING:
@@ -43,9 +42,8 @@ class ProfileGroup(_BaseGroup):
 
         await interaction.response.defer(ephemeral=ephemeral)
 
-        player_repo = PlayerRepository()
         player_user = player or interaction.user
-        game_player = player_repo.create(player_user.name, player_user.id)
+        game_player = self.bot.repositories.player.create(player_user.name, player_user.id)
 
         profile_embed = ProfileEmbed(game_player, player_user)
         await profile_embed.prepare()
@@ -65,10 +63,11 @@ class ProfileGroup(_BaseGroup):
     async def edit_profile(self, interaction: "Interaction"):
         """Edits the player profile with a pop-up."""
 
-        player_repo = PlayerRepository()
-        game_player = player_repo.create(interaction.user.name, interaction.user.id)
+        game_player = self.bot.repositories.player.create(interaction.user.name,
+                                                          interaction.user.id)
 
-        await interaction.response.send_modal(ProfileEditModal(game_player))
+        await interaction.response.send_modal(ProfileEditModal(game_player,
+                                                               self.bot.repositories.player))
 
 
 class ProfileCog(_BaseCog):
