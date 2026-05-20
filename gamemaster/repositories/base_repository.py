@@ -48,7 +48,10 @@ class BaseRepository[ModelType](ABC):
             ).execute()
         )
 
-        return self.dataset_cls().get_by_id(rowid)
+        if rowid:
+            return self.dataset_cls().get_by_id(rowid)
+
+        return self.dataset_cls().get(**insert_args)
 
 
     @abstractmethod
