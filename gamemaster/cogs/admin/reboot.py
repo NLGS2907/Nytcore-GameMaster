@@ -1,8 +1,9 @@
+from importlib import reload as module_reload
 from os import execl
-from sys import executable
+from sys import executable, modules
 from typing import TYPE_CHECKING
 
-from discord.app_commands import command
+from discord.app_commands import command, describe
 from discord.app_commands.errors import CheckFailure
 
 from ..cog_base import _BaseCog, _BaseGroup
@@ -79,6 +80,30 @@ class DevGroup(_BaseGroup):
         await interaction.response.send_message(content=f"Shutting {self.bot.user.name} down...",
                                                 ephemeral=True)
         await self.bot.shutdown()
+
+
+    @command(name="reload",
+             description="Tries to reload all of GameMaster's extensions without rebooting.")
+    @describe(sync=("Wether to synchronize the command tree with Discord. Only do it if there was "
+                    "a change of syntax in the commands."))
+    async def reload(self, interaction: "Interaction", sync: bool=True):
+        """Attemps reloading all the extensions to this bot's name."""
+
+        await interaction.response.defer(ephemeral=True)
+
+        reloading_msg = "Reloading extensions..."
+        reloaded_msg = "Extensions successfully reloaded"
+        # we copy the keys to avoid nytating during iteration
+        for module_name in list(modules.keys()):
+            if module_name.startswith("gamemaster"):
+                self.bot.log.debug(f"[MODULE] reloading module {module_name!r}")
+                module_reload(modules[module_name])
+
+        self.bot.log.debug(reloading_msg)
+        await self.bot.update_cogs(sync=sync)
+        self.bot.log.info(reloaded_msg)
+
+        await interaction.followup.send(f"_{reloaded_msg}_", ephemeral=True)
 
 
 class AdminCog(_BaseCog):
