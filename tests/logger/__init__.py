@@ -1,1 +1,1 @@
-from .test_gamemaster import *
+from .test_gamemaster_logger import *
