@@ -9,7 +9,7 @@ from discord import Intents, Permissions
 from discord.ext.commands import Bot
 from discord.utils import utcnow
 
-from .db import make_migrations
+from .db import db, make_migrations
 from .files import search_files
 from .logger import add_file_handler, get_gamemaster_logger
 
@@ -162,8 +162,12 @@ class GameMaster(Bot):
     async def shutdown(self):
         """Closes all the bot's resources gracefully and shuts down in an orderly manner."""
 
+        if not db.is_closed():
+            self.log.debug("Closing connection to database...")
+            db.close()
+
         self.log.info(f"Shutting down {self.user}...")
-        self.close()
+        await self.close()
 
 
     @property
