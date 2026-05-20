@@ -23,6 +23,7 @@ class Player:
     """
 
     def __init__(self,
+                 id: int,
                  username: UsernameType,
                  discord_user_id: DiscordUserIdType,
                  emoji: Optional[EmojiType]=None,
@@ -36,6 +37,7 @@ class Player:
             profile_img: The custom profile image that the player chose.
         """
 
+        self._id: int = id
         self._username: UsernameType = username
         self._discord_user_id: DiscordUserIdType = discord_user_id
         self._emoji: Optional[EmojiType] = emoji

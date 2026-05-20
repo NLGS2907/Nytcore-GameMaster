@@ -12,9 +12,11 @@ class PlayerRepository(BaseRepository):
         return PlayerDataset
 
     def _model_to_dataset(self, model: Player) -> PlayerDataset:
-        return PlayerDataset(username=model.username,
-                             discord_id=model.discord_user.id,
-                             emoji=f"U+{ord(model.emoji):X}",
+        return PlayerDataset(id=model._id,
+                             username=model.username,
+                             discord_id=model.discord_user_id,
+                             emoji=(f"U+{ord(model.emoji):X}"
+                                    if model.emoji is not None else model.emoji),
                              profile_img=model.profile_img)
 
 
@@ -25,7 +27,8 @@ class PlayerRepository(BaseRepository):
             img_file = BytesIO(dataset.profile_img)
             img_file.seek(0)
 
-        return Player(dataset.username,
+        return Player(dataset.get_id(),
+                      dataset.username,
                       dataset.discord_id,
                       (dataset.emoji if dataset.emoji is None else chr(int(dataset.emoji[2:]), 16)),
                       img_file)
@@ -45,14 +48,11 @@ class PlayerRepository(BaseRepository):
             profile_img: The custom profile image that the player chose.
         """
 
-        dataset = self.dataset_cls()
         result = self._create_dataset(dict(username=Player.validate_name(username),
                                            discord_id=discord_user_id,
                                            emoji=emoji,
                                            profile_img=profile_img),
-                                      preserve_args=[dataset.username,
-                                                     dataset.emoji,
-                                                     dataset.profile_img])
+                                      get_args=dict(discord_id=discord_user_id))
 
         return self._dataset_to_model(result)
 

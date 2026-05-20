@@ -27,7 +27,8 @@ class BaseRepository[ModelType](ABC):
     def _create_dataset(self,
                         insert_args: InsertDict,
                         preserve_args: Optional[PreserveList]=None,
-                        update_args: Optional[UpdateDict]=None) -> DatasetType:
+                        update_args: Optional[UpdateDict]=None,
+                        get_args: Optional[InsertDict]=None) -> DatasetType:
         """Creates the dataset for this repository, or updates the existing one if needed.
         
         Args:
@@ -35,6 +36,8 @@ class BaseRepository[ModelType](ABC):
             preserve_args: A list of dataset fields to update FROM THE NEW INCOMING DATA,
                            in case of conflict.
             update_args: A dictionary of values to update into the new row, in case of conflict.
+            get_args: When a conflict was resolved and getting an updated row, use these filters
+                      to retrieve it. If not defined, defaults to `insert_args`.
 
         Returns:
             The dataset of the relevant data.
@@ -42,6 +45,7 @@ class BaseRepository[ModelType](ABC):
 
         rowid = (
             self.dataset_cls().insert(**insert_args).on_conflict(
+                action=("NOTHING" if (not preserve_args and not update_args) else None),
                 conflict_target=self.dataset_cls().unique_columns(),
                 preserve=preserve_args,
                 update=update_args
@@ -51,7 +55,8 @@ class BaseRepository[ModelType](ABC):
         if rowid:
             return self.dataset_cls().get_by_id(rowid)
 
-        return self.dataset_cls().get(**insert_args)
+        get_options = get_args or insert_args
+        return self.dataset_cls().get(**get_options)
 
 
     @abstractmethod
@@ -88,5 +93,6 @@ class BaseRepository[ModelType](ABC):
             model: The functional object.
         """
 
-        self._model_to_dataset(model).save()
+        ds = self._model_to_dataset(model)
+        ds.save()
 
