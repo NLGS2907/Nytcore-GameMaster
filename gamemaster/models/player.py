@@ -1,7 +1,12 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
 if TYPE_CHECKING:
     from io import BytesIO
+
+UsernameType: TypeAlias = str
+DiscordUserIdType: TypeAlias = int
+EmojiType: TypeAlias = str
+ProfileImageType: TypeAlias = "BytesIO"
 
 
 class Player:
@@ -15,10 +20,10 @@ class Player:
     """
 
     def __init__(self,
-                 username: str,
-                 discord_user_id: int,
-                 emoji: Optional[str]=None,
-                 profile_img: Optional["BytesIO"]=None):
+                 username: UsernameType,
+                 discord_user_id: DiscordUserIdType,
+                 emoji: Optional[EmojiType]=None,
+                 profile_img: Optional[ProfileImageType]=None):
         """Initializes the player user.
         
         Args:
@@ -28,7 +33,28 @@ class Player:
             profile_img: The custom profile image that the player chose.
         """
 
-        self.username: str = username
-        self.discord_user_id: int = discord_user_id
-        self.emoji: Optional[str] = emoji
-        self.profile_img: Optional["BytesIO"] = profile_img
+        self._username: UsernameType = username
+        self._discord_user_id: DiscordUserIdType = discord_user_id
+        self._emoji: Optional[EmojiType] = emoji
+        self._profile_img: Optional[ProfileImageType] = profile_img
+
+
+    @property
+    def username(self) ->  UsernameType:
+        return self._username
+
+
+    @property
+    def discord_user_id(self) ->  DiscordUserIdType:
+        return self._discord_user_id
+
+
+    @property
+    def emoji(self) ->  Optional[EmojiType]:
+        return self._emoji
+
+
+    @property
+    def profile_img(self) ->  Optional[ProfileImageType]:
+        return self._profile_img
+
