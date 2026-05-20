@@ -1,11 +1,13 @@
 """The module for holding the GameMaster."""
 
+from io import BytesIO
 from logging import getLogger
 from os import getenv
 from platform import system
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, Union
 
 from discord import Intents, Permissions
+from discord.abc import User  # NOT the same as `discord.User`
 from discord.ext.commands import Bot
 from discord.utils import utcnow
 
@@ -175,3 +177,20 @@ class GameMaster(Bot):
         """Calculates the uptime of the bot."""
 
         return utcnow() - self.booted_at
+
+
+    async def fetch_avatar(self, candidate: Union[int, User]) -> BytesIO:
+        """Returns an in-memory file that is the avatar image of a user.
+        
+        If the avatar URL is needed, use `User.avatar.url` instead.
+
+        Args:
+            candidate: The Discord user to retrieve the image from.
+                       It can be either a `User` object or its ID.
+        """
+
+        user = (candidate if isinstance(candidate, User) else await self.fetch_user(candidate))
+        img = BytesIO()
+        await user.display_avatar.save(img, seek_begin=True)
+
+        return img

@@ -1,19 +1,22 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from discord.app_commands import command
+# discord.py actually uses these classes, even if here it's only for type hints
+from discord import Member
+from discord.app_commands import command, describe
 
+from ...embeds import ProfileEmbed
 from ...repositories import PlayerRepository
 from ..cog_base import _BaseCog, _BaseGroup
 
 if TYPE_CHECKING:
-    from discord import Interaction
+    from discord import Interaction, Member
 
     from ...gamemaster import GameMaster
     from ..cog_base import GroupsList
 
 
 class ProfileGroup(_BaseGroup):
-    """Group for commands related to profile commands"""
+    """Group for commands related to player profiles."""
 
     def __init__(self, bot: "GameMaster") -> None:
         """Initializes the profile command group.
@@ -29,11 +32,31 @@ class ProfileGroup(_BaseGroup):
 
     @command(name="show",
              description="Shows all profile info.")
-    async def show_profile(self, interaction: "Interaction"):
-        player_repo = PlayerRepository()
-        player = player_repo.create(interaction.user.name, interaction.user.id)
+    @describe(player="The player whose profile to fetch.",
+              ephemeral="Wether the message generated can only be seen by you or by others.")
+    async def show_profile(self,
+                           interaction: "Interaction",
+                           player: Optional[Member]=None,
+                           ephemeral: bool=True):
+        """Show the profile info of a player to the user."""
 
-        await interaction.response.send_message(f"PONG:\n{player.username = }\n{player.discord_user_id = }")
+        await interaction.response.defer(ephemeral=ephemeral)
+
+        player_repo = PlayerRepository()
+        player_user = player or interaction.user
+        game_player = player_repo.create(player_user.name, player_user.id)
+
+        profile_embed = ProfileEmbed(game_player, player_user)
+        await profile_embed.prepare()
+
+        msg = await interaction.followup.send(wait=True, # So it returns the message
+                                              # needed for embed to use local image URL
+                                              file=profile_embed.thumbnail_file,
+                                              embed=profile_embed,
+                                              ephemeral=ephemeral)
+
+        if not ephemeral:
+            await msg.delete(delay=15.0)
 
 
 class ProfileCog(_BaseCog):
