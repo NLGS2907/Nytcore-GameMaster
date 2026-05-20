@@ -7,7 +7,7 @@ class TestPlayer(TestCase):
     def test_1_has_attributes_properly_setup(self):
         player_name = "John"
         player_discord_id = 12345678
-        player = Player(player_name, player_discord_id, None, None)
+        player = Player(0, player_name, player_discord_id, None, None)
 
         self.assertTrue(hasattr(player, "username"))
         self.assertEqual(player.username, player_name)
