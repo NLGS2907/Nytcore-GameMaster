@@ -46,7 +46,7 @@ class PlayerRepository(BaseRepository):
         """
 
         dataset = self.dataset_cls()
-        result = self._create_dataset(dict(username=username,
+        result = self._create_dataset(dict(username=Player.validate_name(username),
                                            discord_id=discord_user_id,
                                            emoji=emoji,
                                            profile_img=profile_img),
