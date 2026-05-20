@@ -13,7 +13,7 @@ from discord.utils import utcnow
 
 from .db import db, make_migrations
 from .files import search_files
-from .logger import add_file_handler, get_gamemaster_logger
+from .logger import add_file_handler, add_terminal_handler, get_gamemaster_logger
 
 if TYPE_CHECKING:
     from datetime import datetime, timedelta
@@ -121,6 +121,7 @@ class GameMaster(Bot):
         self.log: "Logger" = get_gamemaster_logger()
         self.ds_log: "Logger" = getLogger("discord")
 
+        add_terminal_handler(self.ds_log)
         add_file_handler(self.ds_log)
 
 
@@ -164,9 +165,8 @@ class GameMaster(Bot):
     async def shutdown(self):
         """Closes all the bot's resources gracefully and shuts down in an orderly manner."""
 
-        if not db.is_closed():
-            self.log.debug("Closing connection to database...")
-            db.close()
+        self.log.debug("Closing connection to database...")
+        db.close()
 
         self.log.info(f"Shutting down {self.user}...")
         await self.close()
