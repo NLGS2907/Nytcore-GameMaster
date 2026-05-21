@@ -52,4 +52,4 @@ class ProfileEmbed(Embed):
             .add_field(name="Name", value=self.player.username, inline=True)\
             .add_field(name="Discord User", value=self.discord_user.mention, inline=True)\
             .add_field(name="Emoji", value=emoji_val, inline=True)\
-            .add_field(name="Image", value=img_val, inline=True)
+            .add_field(name="Image Details", value=img_val, inline=True)
