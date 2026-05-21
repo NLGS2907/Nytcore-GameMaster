@@ -58,6 +58,9 @@ class IPlayerRepository(BaseRepository, ABC):
             discord_user_id: The discord user ID tied to the player.
             emoji: An optional emoji to be used in some minigames.
             profile_img: The custom profile image that the player chose.
+
+        Returns:
+            A player object, newly created or retrieved.
         """
 
         raise NotImplementedError
