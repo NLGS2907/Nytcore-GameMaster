@@ -1,4 +1,3 @@
-from io import BytesIO
 from typing import TYPE_CHECKING, Optional
 
 from discord import Colour, Embed, File
@@ -8,13 +7,14 @@ from ..models import IMG_FORMAT
 if TYPE_CHECKING:
     from discord.abc import User
 
+    from ..gamemaster import GameMaster
     from ..models import Player
 
 
 class ProfileEmbed(Embed):
     """Exclusive embed for detailing player information."""
 
-    def __init__(self, player: "Player", user: "User"):
+    def __init__(self, bot: "GameMaster", player: "Player", user: "User"):
         """Initializes the profile embed.
         
         Args:
@@ -25,6 +25,7 @@ class ProfileEmbed(Embed):
         super().__init__(title=f"{player.username} information",
                          colour=Colour.random())
 
+        self.bot: "GameMaster" = bot
         self.player: "Player" = player
         self.discord_user: "User" = user
         self.thumbnail_file: Optional[File] = None
@@ -32,10 +33,8 @@ class ProfileEmbed(Embed):
 
     async def prepare(self):
         """Preconfigures this embed to send it later."""
-
-        author_img = BytesIO()
-        await self.discord_user.display_avatar.with_format(IMG_FORMAT).save(author_img,
-                                                                            seek_begin=True)
+        
+        author_img = await self.bot.fetch_avatar(self.discord_user)
 
         user_img = self.player.profile_img
         img_props = self.player.image_properties
@@ -51,6 +50,6 @@ class ProfileEmbed(Embed):
             .set_author(name=self.discord_user.display_name,
                         icon_url=self.discord_user.display_avatar.url)\
             .add_field(name="Name", value=self.player.username, inline=True)\
-            .add_field(name="id", value=self.player.discord_user_id, inline=True)\
+            .add_field(name="Discord User ID", value=self.player.discord_user_id, inline=True)\
             .add_field(name="Emoji", value=emoji_val, inline=True)\
             .add_field(name="Image", value=img_val, inline=True)
