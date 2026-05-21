@@ -108,6 +108,7 @@ class Player:
             return None
 
         if self.__img_props is None:
+            self.__img_props = {}
             with img_open(self.profile_img) as img:
                 self.__img_props["format"] = img.format
                 width, height = img.size
