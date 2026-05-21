@@ -1,19 +1,9 @@
 from io import BytesIO
 from typing import TYPE_CHECKING, Optional, Union
 
-from discord import ButtonStyle, Colour, File, PartialEmoji, SeparatorSpacing
-from discord.ui import (
-    ActionRow,
-    Button,
-    Container,
-    MediaGallery,
-    Section,
-    Separator,
-    TextDisplay,
-    Thumbnail,
-)
+from discord import Colour, File, SeparatorSpacing
+from discord.ui import ActionRow, Container, Section, Separator, TextDisplay, Thumbnail
 
-from ...modals import ProfileEditModal
 from ...models import IMG_FORMAT
 from ..base_view import BaseView
 from .mention_user_btn import MentionUserButton
@@ -21,7 +11,7 @@ from .show_user_img_btn import ShowUserImageButton
 
 if TYPE_CHECKING:
 
-    from discord import Interaction, InteractionMessage, Member, User
+    from discord import InteractionMessage
 
     from ...gamemaster import GameMaster
     from ...models import Player
