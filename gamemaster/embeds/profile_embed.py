@@ -41,7 +41,7 @@ class ProfileEmbed(Embed):
 
         thumbnail = (user_img if user_img is not None else author_img)
         emoji_val = (self.player.emoji if self.player.emoji is not None else "*None*")
-        img_val = (f"*{img_props["format"].upper()} of size "
+        img_val = (f"*{img_props["format"].upper()} of dimensions "
                    f"{img_props['width']}x{img_props['height']} px*"
                    if user_img is not None else "*None*")
 
