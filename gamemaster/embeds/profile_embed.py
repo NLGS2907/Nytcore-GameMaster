@@ -2,7 +2,6 @@ from io import BytesIO
 from typing import TYPE_CHECKING, Optional
 
 from discord import Colour, Embed, File
-from PIL.Image import open as img_open
 
 from ..models import IMG_FORMAT
 
@@ -39,18 +38,13 @@ class ProfileEmbed(Embed):
                                                                             seek_begin=True)
 
         user_img = self.player.profile_img
-
-        if user_img is not None:
-            with img_open(user_img) as im:
-                fmt = im.format
-                img_w, img_h = im.size
-            user_img.seek(0)
+        img_props = self.player.image_properties
 
         thumbnail = (user_img if user_img is not None else author_img)
         emoji_val = (self.player.emoji if self.player.emoji is not None else "*None*")
-        img_val = (f"*{fmt.upper()} of size {img_w}x{img_h} px*"
-                   if user_img is not None
-                   else "*None*")
+        img_val = (f"*{img_props["format"].upper()} of size "
+                   f"{img_props['width']}x{img_props['height']} px*"
+                   if user_img is not None else "*None*")
 
         self.thumbnail_file = File(thumbnail, filename=f"thumbnail.{IMG_FORMAT}")
         self.set_thumbnail(url=f"attachment://thumbnail.{IMG_FORMAT}")\
