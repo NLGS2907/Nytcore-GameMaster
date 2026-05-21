@@ -57,7 +57,7 @@ class ProfileGroup(_BaseGroup):
                                                   ephemeral=not public)
         else:
             profile_view = ProfileView(self.bot, await interaction.original_response(),
-                                       game_player, player_user)
+                                       interaction.user, game_player, player_user, is_public=public)
             await profile_view.prepare()
             msg = await interaction.followup.send(wait=True, # So it returns the message
                                                   # needed for view to use local image URL

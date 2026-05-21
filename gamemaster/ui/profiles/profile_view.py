@@ -6,6 +6,7 @@ from discord.ui import ActionRow, Container, Section, Separator, TextDisplay, Th
 
 from ...models import IMG_FORMAT
 from ..base_view import BaseView
+from .edit_profile_btn import EditProfileButton
 from .mention_user_btn import MentionUserButton
 from .show_user_img_btn import ShowUserImageButton
 
@@ -30,13 +31,34 @@ class ProfileView(BaseView):
     def __init__(self,
                  bot: "GameMaster",
                  parent_msg: "InteractionMessage",
-                 player: "Player",
                  origin_user: "PossibleUser",
+                 player: "Player",
+                 player_user: "PossibleUser",
+                 *,
+                 is_public: bool,
                  timeout: Optional[float]=None):
+        """Initializes the profile view.
+        
+        Besides those of the parent class, there's a few extra arguments to consider.
+
+        Args:
+            bot: A reference to the bot user.
+            parent_msg: A reference to the parent message that spawned this view.
+            origin_user: The orignal user who sent the interaction. The parent message not
+                         necessarily holds this information, as the bot is the author most of
+                         the time.
+            player: The player object to extract the data from.
+            player_user: A helper object that is the Discord user object tied to the player.
+                         Not necessarily the same as `origin_user`.
+            is_public: Wether the profile is intended to be seen by others.
+            timeout: Timeout, in seconds, from last interaction until the view becomes unresponsive.
+        """
         super().__init__(bot, parent_msg, origin_user, timeout=timeout)
 
         self.player: "Player" = player
+        self.player_user: "PossibleUser" = player_user
         self.all_files: list[File] = []
+        self.__is_public: bool = is_public
 
         self.discord_user_section: Optional[Section] = None
         self.mention_user_component: Optional[EitherButtonOrText] = None
@@ -110,15 +132,15 @@ class ProfileView(BaseView):
         """
 
         self.discord_user_section = Section("## Discord User",
-                                            f"### Username: **{self.user.display_name}**",
-                                            f"### User ID: `{self.user.id}`",
+                                            f"### Username: **{self.player_user.display_name}**",
+                                            f"### User ID: `{self.player_user.id}`",
                                             accessory=ShowUserImageButton(self,
                                                                           Thumbnail(profile_img_file)))
         container.add_item(self.discord_user_section)
 
         if self.mention_user_component is None:
             self.mention_user_component = ActionRow(
-                MentionUserButton(self,f"### Details: {self.user.mention}"))
+                MentionUserButton(self,f"### Details: {self.player_user.mention}"))
         container.add_item(self.mention_user_component)
 
         return self.discord_user_section, self.mention_user_component
@@ -186,7 +208,7 @@ class ProfileView(BaseView):
     async def prepare(self):
         """Poblates the view with all the info about the player."""
 
-        author_img = await self.bot.fetch_avatar(self.user)
+        author_img = await self.bot.fetch_avatar(self.player_user)
         # we can't use the same image, it has to be a copy
         author_file = File(BytesIO(author_img.getvalue()), f"user.{IMG_FORMAT}")
         self.all_files.append(author_file)
@@ -201,4 +223,9 @@ class ProfileView(BaseView):
         self._small_separator(master_container)
         self._image_details_section(master_container)
 
+        if not self.__is_public and (self.user == self.player_user):
+            master_container.add_item(ActionRow(EditProfileButton(self.player,
+                                                                  self.bot.repositories.player)))
+
         self.add_item(master_container)
+        
