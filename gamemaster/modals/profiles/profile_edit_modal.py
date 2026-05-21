@@ -31,7 +31,7 @@ class ProfileEditModal(Modal):
             player_repository: The repository from which to load and save players.
         """
 
-        super().__init__(title=f"{player.username} Profile Details", timeout=None)
+        super().__init__(title=f" Edit {player.username} Profile Details", timeout=None)
         self.player: "Player" = player
         self.player_repo: "IPlayerRepository" = player_repository
 
