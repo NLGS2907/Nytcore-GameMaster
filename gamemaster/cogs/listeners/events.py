@@ -33,8 +33,7 @@ class EventsCog(_BaseCog):
     async def on_resumed(self) -> None:
         """The bot has resumed a session, having lost it prior."""
 
-        # This one is DEBUG level, since discord already logs it as well
-        self.bot.log.debug("Recovered connection. Resuming session...")
+        self.bot.log.info("Recovered connection. Resuming session...")
 
 
     @Cog.listener()
