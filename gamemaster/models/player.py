@@ -52,10 +52,10 @@ class Player:
         """
 
         self._id: int = id
-        self._username: UsernameType = username
+        self._username: UsernameType = self._validate_name(username)
         self._discord_user_id: DiscordUserIdType = discord_user_id
-        self._emoji: Optional[EmojiType] = emoji
-        self._profile_img: Optional[ProfileImgType] = profile_img
+        self._emoji: Optional[EmojiType] = self._validate_emoji(emoji)
+        self._profile_img: Optional[ProfileImgType] = self._validate_profile_img(profile_img)
 
         self.__img_props: Optional[_ImageProperties] = None
 
@@ -67,7 +67,7 @@ class Player:
 
     @username.setter
     def username(self, new_name: UsernameType):
-        self._username = self.validate_name(new_name)
+        self._username = self._validate_name(new_name)
 
 
     @property
@@ -82,7 +82,7 @@ class Player:
 
     @emoji.setter
     def emoji(self, new_emoji: Optional[EmojiType]):
-        self._emoji = self.validate_emoji(new_emoji)
+        self._emoji = self._validate_emoji(new_emoji)
 
 
     @property
@@ -92,7 +92,7 @@ class Player:
 
     @profile_img.setter
     def profile_img(self, new_img: Optional[ProfileImgType]):
-        self._profile_img = self.validate_profile_img(new_img)
+        self._profile_img = self._validate_profile_img(new_img)
         self.__img_props = None
 
 
@@ -121,7 +121,7 @@ class Player:
 
 
     @staticmethod
-    def validate_name(candidate_name: UsernameType) -> UsernameType:
+    def _validate_name(candidate_name: UsernameType) -> UsernameType:
         """Validates if the given name is correct.
         
         Args:
@@ -156,7 +156,7 @@ class Player:
 
 
     @staticmethod
-    def validate_emoji(candidate_emoji: Optional[EmojiType]) -> Optional[EmojiType]:
+    def _validate_emoji(candidate_emoji: Optional[EmojiType]) -> Optional[EmojiType]:
         """Validates if the given emoji is correct.
 
         The input must be an emoji character, or `None` if it is omitted.
@@ -196,7 +196,7 @@ class Player:
 
 
     @staticmethod
-    def validate_profile_img(candidate_img: Optional[ProfileImgType]) -> Optional[ProfileImgType]:
+    def _validate_profile_img(candidate_img: Optional[ProfileImgType]) -> Optional[ProfileImgType]:
         """Validates if the given profile image is correct.
 
         Args:

@@ -56,14 +56,14 @@ class PlayerRepository(IPlayerRepository):
                discord_user_id: int,
                emoji: Optional[str]=None,
                profile_img: Optional["BytesIO"]=None) -> Player:
-        validated_username = Player.validate_name(username)
-        validated_emoji = Player.validate_emoji(emoji)
-        validated_img = Player.validate_profile_img(profile_img)
-        validated_img_data = (validated_img.getvalue() if validated_img is not None else None)
+        # dummy object to runs the  validations
+        validator = Player(0, username, discord_user_id, emoji, profile_img)
+        validated_img_data = (validator.profile_img.getvalue()
+                              if validator.profile_img is not None else None)
 
-        result = self._create_dataset(dict(username=validated_username,
+        result = self._create_dataset(dict(username=validator.username,
                                            discord_id=discord_user_id,
-                                           emoji=validated_emoji,
+                                           emoji=validator.emoji,
                                            profile_img=validated_img_data),
                                       get_args=dict(discord_id=discord_user_id))
 
