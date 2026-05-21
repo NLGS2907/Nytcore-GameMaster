@@ -1,4 +1,4 @@
-from typing import Optional, TypeAlias
+from typing import Optional, TypeAlias, TypedDict
 
 from emoji import is_emoji
 from PIL.Image import open as img_open
@@ -16,6 +16,14 @@ NAME_MAX_LENGTH: int = 30
 IMG_MIN_SIZE: int = 250
 IMG_MAX_SIZE: int = 1500
 IMG_FORMAT: str = "webp"
+
+
+class _ImageProperties(TypedDict):
+    """Helper type to hold a profile image's properties."""
+
+    format: str
+    width: int
+    height: int
 
 
 class Player:
@@ -48,6 +56,8 @@ class Player:
         self._discord_user_id: DiscordUserIdType = discord_user_id
         self._emoji: Optional[EmojiType] = emoji
         self._profile_img: Optional[ProfileImgType] = profile_img
+
+        self.__img_props: Optional[_ImageProperties] = None
 
 
     @property
@@ -83,6 +93,29 @@ class Player:
     @profile_img.setter
     def profile_img(self, new_img: Optional[ProfileImgType]):
         self._profile_img = self.validate_profile_img(new_img)
+        self.__img_props = None
+
+
+    @property
+    def image_properties(self) -> Optional[_ImageProperties]:
+        """Returns a dictionary with some properties about the profile's image, if available.
+        
+        This is a helper property that lazy loads the image when it is first fetched,
+        and then refers to it from memory.
+        """
+
+        if self.profile_img is None:
+            return None
+
+        if self.__img_props is None:
+            with img_open(self.profile_img) as img:
+                self.__img_props["format"] = img.format
+                width, height = img.size
+                self.__img_props["width"] = width
+                self.__img_props["height"] = height
+            self.profile_img.seek(0)
+
+        return self.__img_props
 
 
     @staticmethod
