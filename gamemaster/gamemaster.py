@@ -197,6 +197,6 @@ class GameMaster(Bot):
 
         user = (candidate if isinstance(candidate, User) else await self.fetch_user(candidate))
         img = BytesIO()
-        await user.display_avatar.with_format(img_fmt).save(img, seek_begin=True)
+        await user.display_avatar.save(img, seek_begin=True)
 
         return img
