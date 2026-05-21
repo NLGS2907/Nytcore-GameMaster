@@ -1,9 +1,8 @@
+from io import BytesIO
 from typing import Optional, TypeAlias, TypedDict
 
 from emoji import is_emoji
 from PIL.Image import open as img_open
-from io import BytesIO
-    
 
 UsernameType: TypeAlias = str
 DiscordUserIdType: TypeAlias = int
@@ -24,6 +23,7 @@ class _ImageProperties(TypedDict):
     format: str
     width: int
     height: int
+    size: int
 
 
 class Player:
@@ -114,6 +114,7 @@ class Player:
                 width, height = img.size
                 self.__img_props["width"] = width
                 self.__img_props["height"] = height
+            self.__img_props["size"] = self.profile_img.getbuffer().nbytes
             self.profile_img.seek(0)
 
         return self.__img_props
