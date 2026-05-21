@@ -22,7 +22,7 @@ class ProfileEmbed(Embed):
             user: The discord user linked to the player.
         """
 
-        super().__init__(title=f"{player.username} information",
+        super().__init__(title=f"\"{player.username}\" Profile",
                          colour=Colour.random())
 
         self.bot: "GameMaster" = bot
