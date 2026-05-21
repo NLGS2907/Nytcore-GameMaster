@@ -50,6 +50,6 @@ class ProfileEmbed(Embed):
             .set_author(name=self.discord_user.display_name,
                         icon_url=self.discord_user.display_avatar.url)\
             .add_field(name="Name", value=self.player.username, inline=True)\
-            .add_field(name="Discord User ID", value=self.player.discord_user_id, inline=True)\
+            .add_field(name="Discord User", value=self.discord_user.mention, inline=True)\
             .add_field(name="Emoji", value=emoji_val, inline=True)\
             .add_field(name="Image", value=img_val, inline=True)
