@@ -46,7 +46,7 @@ class ProfileEmbed(Embed):
                    if user_img is not None else "*None*")
 
         self.thumbnail_file = File(thumbnail, filename=f"thumbnail.{IMG_FORMAT}")
-        self.set_thumbnail(url=f"attachment://thumbnail.{IMG_FORMAT}")\
+        self.set_thumbnail(url=f"attachment://{self.thumbnail_file.filename}")\
             .set_author(name=self.discord_user.display_name,
                         icon_url=self.discord_user.display_avatar.url)\
             .add_field(name="Name", value=self.player.username, inline=True)\
