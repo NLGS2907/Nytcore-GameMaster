@@ -1,0 +1,77 @@
+from abc import ABC, abstractmethod
+from random import choice
+from typing import TYPE_CHECKING, Collection, Optional, TypeAlias
+
+if TYPE_CHECKING:
+    from discord.abc import User
+
+    from ..gamemaster import GameMaster
+
+TitleType: TypeAlias = str
+DescriptionType: TypeAlias = str
+EmojiType: TypeAlias = str
+EmojisCollection: TypeAlias = Collection[EmojiType]
+
+
+class BaseGame[OptionsType](ABC):
+    """Base abstract class for a game.
+    
+    Any game to be created for the bot ought to inherit this.
+
+    Attributes:
+        bot: A reference to the bot user.
+        host_user: The original user that started the game.
+        options: The options object of this game, if available.
+    """
+
+    def __init__(self,
+                 bot: "GameMaster",
+                 host_user: "User",
+                 *,
+                 options: OptionsType):
+        """Initializes the game object.
+        
+        Args:
+            bot: A reference to the bot user.
+            host_user: The original user that started the game.
+            options: The options object of this game.
+        """
+
+        self.bot: "GameMaster" = bot
+        self.host_user: "User" = host_user
+        self.options: OptionsType = options
+
+
+    @staticmethod
+    @abstractmethod
+    def title_name() -> str:
+        """The title by which the game will be referenced."""
+
+        raise NotImplementedError
+
+
+    @staticmethod
+    def description() -> Optional[str]:
+        """An optional short description for the game.
+        
+        Set it to `None` to omit it.
+        """
+
+        raise None
+
+
+    @staticmethod
+    @abstractmethod
+    def emojis_collection(self) -> EmojisCollection:
+        """A set of possible emojis to be associated with this game.
+        
+        Safe to say, at least one element must be present in this collection.
+        """
+
+        raise NotImplementedError
+
+
+    def random_emoji(self) -> EmojiType:
+        """Chooses a random emoji from the collection."""
+
+        return choice(self.emojis_collection)
