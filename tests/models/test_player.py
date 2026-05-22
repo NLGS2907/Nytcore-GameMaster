@@ -66,3 +66,8 @@ class TestPlayer(TestCase):
     def test_text_is_not_emoji(self):
         with self.assertRaises(ValueError):
             Player(0, "player", 12345678, emoji="A")
+
+
+    def test_img_is_not_binary_file(self):
+        with self.assertRaises(TypeError):
+            Player(0, "player", 12345678, profile_img="Hello!")
