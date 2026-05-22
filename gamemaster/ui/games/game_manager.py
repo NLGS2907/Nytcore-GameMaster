@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypeAlias
+
+from ...logger import get_gamemaster_logger
 
 if TYPE_CHECKING:
     from discord import InteractionMessage
@@ -12,12 +14,15 @@ if TYPE_CHECKING:
     from .game_view_base import BaseGameView
     from .options_modal_base import BaseOptionsModal
 
+GameID: TypeAlias = int
+GamesMap: TypeAlias = dict[GameID, "GameManager"]
+
 
 class GameManager(ABC):
     """Manager that ties the view and model together, and executes the logic."""
 
     _ignore: bool = False
-    games_list: list = []
+    games_map: GamesMap = []
 
     def __init_subclass__(cls):
         """Each time a subclass is detected, it gets added here."""
@@ -25,7 +30,16 @@ class GameManager(ABC):
         if hasattr(cls, "_ignore") and cls._ignore:
             return
 
-        __class__.games_list.append(cls)
+        game_id = cls.game_id()
+        if game_id in __class__.games_map:
+            get_gamemaster_logger().warning(
+                f"Game {__class__.games_map[game_id].game_title!r} with ID {game_id} already "
+                f"exists. Skipping the addition of game {cls.game_title!r}..."
+            )
+            return
+
+        __class__.games_map[game_id] = cls
+            
 
 
     def __init__(self, bot: "GameMaster"):
@@ -38,6 +52,17 @@ class GameManager(ABC):
         self.bot: "GameMaster" = bot
         self.players: set["Player"] = set()
         self.options: "BaseOptions" = self.options_class()
+
+
+    @staticmethod
+    @abstractmethod
+    def game_id() -> GameID:
+        """Returns the internal ID for the handler of this game.
+        
+        It must be unique across all game objects, since it is used to retrieve some instances.
+        """
+
+        raise NotImplementedError
 
 
     @staticmethod
