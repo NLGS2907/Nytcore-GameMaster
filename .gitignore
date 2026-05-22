@@ -12,5 +12,8 @@
 # database
 **.db
 
+# coverage tools
+.coverage
+
 # personal notes
 todo.md
