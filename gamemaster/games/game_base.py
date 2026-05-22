@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from discord.abc import User
 
     from ..gamemaster import GameMaster
+    from ..models import Player
 
 TitleType: TypeAlias = str
 DescriptionType: TypeAlias = str
@@ -21,12 +22,14 @@ class BaseGame[OptionsType](ABC):
     Attributes:
         bot: A reference to the bot user.
         host_user: The original user that started the game.
+        players: A list of all the players involved in the game.
         options: The options object of this game, if available.
     """
 
     def __init__(self,
                  bot: "GameMaster",
                  host_user: "User",
+                 players: list["Player"],
                  *,
                  options: OptionsType):
         """Initializes the game object.
@@ -34,11 +37,13 @@ class BaseGame[OptionsType](ABC):
         Args:
             bot: A reference to the bot user.
             host_user: The original user that started the game.
+            players: A list of all the players involved in the game.
             options: The options object of this game.
         """
 
         self.bot: "GameMaster" = bot
         self.host_user: "User" = host_user
+        self.players: list["Player"] = players
         self.options: OptionsType = options
 
 

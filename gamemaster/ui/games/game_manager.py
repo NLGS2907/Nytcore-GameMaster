@@ -2,10 +2,13 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
+    from discord import InteractionMessage
     from discord.abc import User
 
     from ...gamemaster import GameMaster
     from ...games import BaseGame, BaseOptions, EmojisCollection
+    from ...models import Player
+    from ..base_view import PossibleUser
     from .game_view_base import BaseGameView
     from .options_modal_base import BaseOptionsModal
 
@@ -33,6 +36,7 @@ class GameManager(ABC):
         """
 
         self.bot: "GameMaster" = bot
+        self.players: set["Player"] = set()
         self.options: "BaseOptions" = self.options_class()
 
 
@@ -89,6 +93,15 @@ class GameManager(ABC):
         return self.game_class().emojis_collection()
 
 
+    def add_player(self, new_player: "Player"):
+        """Adds a new player to the internal collection.
+        
+        If the player already exists, it does nothing.
+        """
+
+        self.players.add(new_player)
+
+
     def assemble_modal(self, timeout: Optional[float]=None) -> "BaseOptionsModal":
         """Creates and loads the modal to modify the options of the game.
 
@@ -107,11 +120,20 @@ class GameManager(ABC):
         )
 
 
-    def assemble_view(self, host: "User", timeout: Optional[float]=None) -> "BaseGameView":
+    def assemble_view(self,
+                      host: "User",
+                      parent_msg: "InteractionMessage",
+                      origin_user: "PossibleUser",
+                      *,
+                      timeout: Optional[float]=None) -> "BaseGameView":
         """Creates and loads the view with all the relevant classes.
         
         Args:
             host: The discord user that started the game.
+            parent_msg: A reference to the parent message that spawned this view.
+            origin_user: The orignal user who sent the interaction. The parent message not
+                         necessarily holds this information, as the bot is the author most of
+                         the time.
             timeout: How long to wait (in seconds) until the view is no longer responsive.
 
         Returns:
@@ -120,9 +142,12 @@ class GameManager(ABC):
 
         return self.view_class(
             self.bot,
+            parent_msg,
+            origin_user,
             self.game_class(
                 self.bot,
                 host,
+                list(self.players),
                 options=self.options
             ),
             timeout=timeout

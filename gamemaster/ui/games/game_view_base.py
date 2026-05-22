@@ -1,27 +1,30 @@
 from typing import TYPE_CHECKING, Optional
 
-from discord.ui import LayoutView
+from ..base_view import BaseView
 
 if TYPE_CHECKING:
+    from discord import InteractionMessage
+
     from ...gamemaster import GameMaster
+    from ..base_view import PossibleUser
 
 
-class BaseGameView[GameType](LayoutView):
+class BaseGameView[GameType](BaseView):
     """Base view for a game."""
 
     def __init__(self,
                  bot: "GameMaster",
+                 parent_msg: "InteractionMessage",
+                 origin_user: PossibleUser,
                  game: GameType,
                  *,
                  timeout: Optional[float]=None):
         """Initializes the game view.
         
         Args:
-            bot: A reference to the bot user.
             game: The game object.
         """
 
-        super().__init__(timeout=timeout)
+        super().__init__(bot, parent_msg, origin_user, timeout=timeout)
 
-        self.bot: "GameMaster" = bot
         self.game: GameType = game
