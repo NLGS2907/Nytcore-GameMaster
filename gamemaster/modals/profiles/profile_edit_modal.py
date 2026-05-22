@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import TextStyle
 from discord.ui import FileUpload, Label, Modal, TextInput
 
-from ...models import IMG_MAX_SIZE, IMG_MIN_SIZE
+from ...models import IMG_MAX_SIZE, IMG_MIN_SIZE, NAME_MAX_LENGTH
 
 if TYPE_CHECKING:
     from discord import Attachment, Interaction
@@ -40,7 +40,7 @@ class ProfileEditModal(Modal):
                              "If not square, it will be transformed so that it is.")
 
         self.add_item(Label(text="Player name",
-                            description="Up to 30 characters.",
+                            description=f"Up to {NAME_MAX_LENGTH} characters.",
                             component=TextInput(style=TextStyle.short,
                                                 required=False,
                                                 min_length=0,
