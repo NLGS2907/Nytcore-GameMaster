@@ -40,6 +40,7 @@ class ProfileEditModal(Modal):
                              "If not square, it will be transformed so that it is.")
 
         self.add_item(Label(text="Player name",
+                            description="Up to 30 characters.",
                             component=TextInput(style=TextStyle.short,
                                                 required=False,
                                                 min_length=0,

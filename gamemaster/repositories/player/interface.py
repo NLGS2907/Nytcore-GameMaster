@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from ...models import EmojiType, Player
 
 
-class IPlayerRepository(BaseRepository, ABC):
+class IPlayerRepository(BaseRepository["Player"], ABC):
     """Interface for player repositories.
     
     Any repository that wants to deal with players' data must implement these interface.
