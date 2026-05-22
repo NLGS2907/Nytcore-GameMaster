@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional, TypeAlias
+from typing import TYPE_CHECKING, Generator, Optional, Self, TypeAlias
 
 from ...logger import get_gamemaster_logger
 
@@ -22,7 +22,7 @@ class GameManager(ABC):
     """Manager that ties the view and model together, and executes the logic."""
 
     _ignore: bool = False
-    games_map: GamesMap = []
+    _games_map: GamesMap = []
 
     def __init_subclass__(cls):
         """Each time a subclass is detected, it gets added here."""
@@ -31,15 +31,14 @@ class GameManager(ABC):
             return
 
         game_id = cls.game_id()
-        if game_id in __class__.games_map:
+        if game_id in __class__._games_map:
             get_gamemaster_logger().warning(
-                f"Game {__class__.games_map[game_id].game_title!r} with ID {game_id} already "
+                f"Game {__class__._games_map[game_id].game_title!r} with ID {game_id} already "
                 f"exists. Skipping the addition of game {cls.game_title!r}..."
             )
             return
 
-        __class__.games_map[game_id] = cls
-            
+        __class__._games_map[game_id] = cls
 
 
     def __init__(self, bot: "GameMaster"):
@@ -116,6 +115,32 @@ class GameManager(ABC):
         """Returns a collection of emojis associated with the underlying game."""
 
         return self.game_class().emojis_collection()
+
+
+    @classmethod
+    def class_with_id(cls, class_id: GameID) -> Optional[type[Self]]:
+        """Tries to retrieve one of the subclasses based on its ID.
+        
+        Args:
+            class_id: The ID to search with.
+
+        Returns:
+            The manager found, or `None` id it does not exist.
+        """
+
+        return cls._games_map.get(class_id)
+
+
+    @classmethod
+    def walk_ids_titles(cls) -> Generator[tuple[GameID, str]]:
+        """Iterates through the subclasses to retrieve some of its properties.
+        
+        Yields:
+            A tuple with both the name and the ID of a manager.
+        """
+
+        for manager in cls._games_map.values():
+            yield manager.game_id(), manager.game_title
 
 
     def add_player(self, new_player: "Player"):
