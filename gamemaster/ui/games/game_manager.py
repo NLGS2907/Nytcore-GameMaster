@@ -22,7 +22,7 @@ class GameManager(ABC):
     """Manager that ties the view and model together, and executes the logic."""
 
     _ignore: bool = False
-    _games_map: GamesMap = []
+    _games_map: GamesMap = {}
 
     def __init_subclass__(cls):
         """Each time a subclass is detected, it gets added here."""
