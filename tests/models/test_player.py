@@ -20,3 +20,24 @@ class TestPlayer(TestCase):
 
         self.assertTrue(hasattr(player, "profile_img"))
         self.assertIsNone(player.profile_img)
+
+
+    def test_2_should_throw_error_if_wrong_type_of_name(self):
+        with self.assertRaises(TypeError):
+            Player(0, 10, 1111111, None, None)
+
+
+    def test_3_throw_error_if_empty_name(self):
+        with self.assertRaises(ValueError):
+            Player(0, "", 1111)
+
+
+    def test_4_name_too_short(self):
+        with self.assertRaises(ValueError):
+            Player(0, "MJ", 1234)
+
+
+    def test_5_name_too_long(self):
+        with self.assertRaises(ValueError):
+            Player(0, "ThisIsAVeryLongNmaeThatIsNotValidForThisContext", 1234)
+    
