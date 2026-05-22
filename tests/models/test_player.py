@@ -40,4 +40,29 @@ class TestPlayer(TestCase):
     def test_5_name_too_long(self):
         with self.assertRaises(ValueError):
             Player(0, "ThisIsAVeryLongNmaeThatIsNotValidForThisContext", 1234)
-    
+
+
+    def test_6_default_emoji_is_None(self):
+        player = Player(0, "abc", 2222)
+
+        self.assertIsNone(player.emoji)
+
+
+    def test_7_emoji_is_wrong_type(self):
+        with self.assertRaises(TypeError):
+            Player(0, "player", 12345678, emoji=[])
+
+
+    def test_8_emoji_is_blank(self):
+        with self.assertRaises(ValueError):
+            Player(0, "player", 12345678, emoji="")
+
+
+    def test_8_emoji_has_more_than_one_char(self):
+        with self.assertRaises(ValueError):
+            Player(0, "player", 12345678, emoji="\u2699\u2700")
+
+
+    def test_9_text_is_not_emoji(self):
+        with self.assertRaises(ValueError):
+            Player(0, "player", 12345678, emoji="A")
