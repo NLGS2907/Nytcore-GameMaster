@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from discord.abc import User
 
     from ...gamemaster import GameMaster
-    from ...games import BaseGame, BaseOptions, EmojisCollection
+    from ...games import BaseGame, BaseOptions, EmojisCollection, EmojiType
     from ...models import Player
     from ..base_view import PossibleUser
     from .game_view_base import BaseGameView
@@ -117,6 +117,12 @@ class GameManager(ABC):
         return self.game_class().emojis_collection()
 
 
+    def random_emoji(self) -> "EmojiType":
+        """Chooses a random emoji from the unerlying game."""
+
+        return self.game_class().random_emoji()
+
+
     @classmethod
     def class_with_id(cls, class_id: GameID) -> Optional[type[Self]]:
         """Tries to retrieve one of the subclasses based on its ID.
@@ -141,6 +147,13 @@ class GameManager(ABC):
 
         for manager in cls._games_map.values():
             yield manager.game_id(), manager.game_title
+
+
+    @classmethod
+    def all_games(cls) -> Generator[Self]:
+        """Yields all the registered managers."""
+
+        yield from cls._games_map.values()
 
 
     def add_player(self, new_player: "Player"):
