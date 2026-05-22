@@ -15,7 +15,7 @@ class BaseGameView[GameType](BaseView):
     def __init__(self,
                  bot: "GameMaster",
                  parent_msg: "InteractionMessage",
-                 origin_user: PossibleUser,
+                 origin_user: "PossibleUser",
                  game: GameType,
                  *,
                  timeout: Optional[float]=None):
