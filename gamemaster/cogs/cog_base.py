@@ -95,8 +95,11 @@ class _BaseCog(Cog):
             error: An instance of the error itself.
         """
 
-        await interaction.response.send_message("**[ERROR]** Looks like an error has ocurred.",
-                                                ephemeral=True)
+        msg_content = "**[ERROR]** Looks like an error has ocurred."
+        if interaction.response.is_done():
+            await interaction.edit_original_response(content=msg_content)
+        else:
+            await interaction.response.send_message(msg_content, ephemeral=True)
         graceful_err = "\n\t|\t".join(f"Exception thrown in app_commands:\n{format_exc()}".split("\n"))
         self.bot.log.error(graceful_err)
 
