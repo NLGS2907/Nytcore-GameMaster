@@ -1,18 +1,16 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generator, Optional, Self, TypeAlias
 
-from ...logger import get_gamemaster_logger
+from ..logger import get_gamemaster_logger
 
 if TYPE_CHECKING:
     from discord import InteractionMessage
     from discord.abc import User
 
-    from ...gamemaster import GameMaster
-    from ...games import BaseGame, BaseOptions, EmojisCollection, EmojiType
-    from ...models import Player
-    from ..base_view import PossibleUser
-    from .game_view_base import BaseGameView
-    from .options_modal_base import BaseOptionsModal
+    from ..gamemaster import GameMaster
+    from ..games import BaseGame, BaseOptions, EmojisCollection, EmojiType
+    from ..models import Player
+    from ..ui.games import BaseGameView, BaseOptionsModal, PossibleUser
 
 GameID: TypeAlias = int
 GamesMap: TypeAlias = dict[GameID, "GameManager"]
@@ -96,31 +94,32 @@ class GameManager(ABC):
         raise NotImplementedError
 
 
-    @property
-    def game_title(self) -> str:
+    @classmethod
+    def game_title(cls) -> str:
         """The title of the underlying game."""
 
-        return self.game_class().title_name()
+        return cls.game_class().title_name()
 
 
-    @property
-    def game_description(self) -> Optional[str]:
+    @classmethod
+    def game_description(cls) -> Optional[str]:
         """The optional description of the underlying game."""
 
-        return self.game_class().description()
+        return cls.game_class().description()
 
 
-    @property
-    def game_emojis(self) -> "EmojisCollection":
+    @classmethod
+    def game_emojis(cls) -> "EmojisCollection":
         """Returns a collection of emojis associated with the underlying game."""
 
-        return self.game_class().emojis_collection()
+        return cls.game_class().emojis_collection()
 
 
-    def random_emoji(self) -> "EmojiType":
+    @classmethod
+    def random_emoji(cls) -> "EmojiType":
         """Chooses a random emoji from the unerlying game."""
 
-        return self.game_class().random_emoji()
+        return cls.game_class().random_emoji()
 
 
     @classmethod
@@ -142,11 +141,11 @@ class GameManager(ABC):
         """Iterates through the subclasses to retrieve some of its properties.
         
         Yields:
-            A tuple with both the name and the ID of a manager.
+            A tuple with both the display title and the ID of a manager.
         """
 
         for manager in cls._games_map.values():
-            yield manager.game_id(), manager.game_title
+            yield manager.game_id(), f"{manager.random_emoji()}  {manager.game_title()}"
 
 
     @classmethod

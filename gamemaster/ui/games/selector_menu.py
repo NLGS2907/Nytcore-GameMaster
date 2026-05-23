@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from discord import PartialEmoji, SelectOption
 from discord.ui import Select
 
-from .game_manager import GameManager
+from ...managers import GameManager
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -28,13 +28,13 @@ class GameSelectionMenu(Select):
 
         return [
             SelectOption(
-                label=game_manager.game_title,
-                value=game_manager.game_id(),
-                description=game_manager.game_description,
-                emoji=PartialEmoji.from_str(game_manager.random_emoji()),
+                label=game_manager_cls.game_title(),
+                value=game_manager_cls.game_id(),
+                description=game_manager_cls.game_description(),
+                emoji=PartialEmoji.from_str(game_manager_cls.random_emoji()),
                 default=False
             )
-            for game_manager in GameManager.all_games()
+            for game_manager_cls in GameManager.all_games()
         ]
 
 
@@ -50,6 +50,6 @@ class GameSelectionMenu(Select):
     async def callback(self, interaction: "Interaction"):
         # TODO: replace this with the lobby
         chosen_game = self._retrieve_value()
-        msg_content = (f"_Proceeding with game {chosen_game.game_title!r}_"
+        msg_content = (f"_Proceeding with game {chosen_game.game_title()!r}_"
                if chosen_game is not None else "_Somehow, no game was selected._")
-        await interaction.followup.send(msg_content, ephemeral=True)
+        await interaction.response.send_message(msg_content, ephemeral=True)

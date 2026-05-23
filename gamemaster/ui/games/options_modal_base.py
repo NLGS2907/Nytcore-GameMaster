@@ -1,12 +1,14 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 from discord.ui import Modal
 
 if TYPE_CHECKING:
     from ...gamemaster import GameMaster
 
+OptionsType = TypeVar("OptionsType")
 
-class BaseOptionsModal[OptionsType](Modal):
+
+class BaseOptionsModal(Generic[OptionsType], Modal):
     """Base interface of an options modal."""
 
     def __init__(self,
@@ -29,4 +31,3 @@ class BaseOptionsModal[OptionsType](Modal):
 
         self.bot: "GameMaster" = bot
         self.options: OptionsType = options
-

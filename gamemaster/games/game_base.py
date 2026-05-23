@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from random import choice
-from typing import TYPE_CHECKING, Collection, Optional, TypeAlias
+from typing import TYPE_CHECKING, Collection, Generic, Optional, TypeAlias, TypeVar
 
 if TYPE_CHECKING:
     from discord.abc import User
@@ -12,9 +12,10 @@ TitleType: TypeAlias = str
 DescriptionType: TypeAlias = str
 EmojiType: TypeAlias = str
 EmojisCollection: TypeAlias = Collection[EmojiType]
+OptionsType = TypeVar("OptionsType")
 
 
-class BaseGame[OptionsType](ABC):
+class BaseGame(Generic[OptionsType], ABC):
     """Base abstract class for a game.
     
     Any game to be created for the bot ought to inherit this.
@@ -67,7 +68,7 @@ class BaseGame[OptionsType](ABC):
 
     @staticmethod
     @abstractmethod
-    def emojis_collection(self) -> EmojisCollection:
+    def emojis_collection() -> EmojisCollection:
         """A set of possible emojis to be associated with this game.
         
         Safe to say, at least one element must be present in this collection.
@@ -76,7 +77,8 @@ class BaseGame[OptionsType](ABC):
         raise NotImplementedError
 
 
-    def random_emoji(self) -> EmojiType:
+    @classmethod
+    def random_emoji(cls) -> EmojiType:
         """Chooses a random emoji from the collection."""
 
-        return choice(self.emojis_collection())
+        return choice(cls.emojis_collection())

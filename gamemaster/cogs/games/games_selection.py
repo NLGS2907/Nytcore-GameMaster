@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING, Optional
 
 from discord.app_commands import Choice, choices, command, describe
 
-from ...ui.games import GameManager, GameSelectorView
+from ...managers import GameManager
+from ...ui.games import GameSelectorView
 from ..cog_base import _BaseCog
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ class GamesCog(_BaseCog):
         if game is not None:
             # TODO: replace this with the lobby
             chosen_game = GameManager.class_with_id(game.value)
-            msg_content = (f"_Proceeding with game {chosen_game.game_title!r}_"
+            msg_content = (f"_Proceeding with game {chosen_game.game_title()!r}_"
                            if chosen_game is not None else "_Somehow, no game was selected._")
             await interaction.followup.send(msg_content, ephemeral=True)
             return

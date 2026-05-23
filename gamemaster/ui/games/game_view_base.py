@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 from ..base_view import BaseView
 
@@ -8,8 +8,10 @@ if TYPE_CHECKING:
     from ...gamemaster import GameMaster
     from ..base_view import PossibleUser
 
+GameType = TypeVar("GameType")
 
-class BaseGameView[GameType](BaseView):
+
+class BaseGameView(Generic[GameType], BaseView):
     """Base view for a game."""
 
     def __init__(self,
