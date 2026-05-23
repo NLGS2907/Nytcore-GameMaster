@@ -44,7 +44,10 @@ class EnvManager:
 
         with open(file_path, encoding="utf-8") as env_file:
             for line in env_file:
-                key, value = line.strip().split(ENV_SEP, 1)
+                stripped_line = line.strip()
+                if not stripped_line:
+                    continue
+                key, value = stripped_line.split(ENV_SEP, 1)
                 sanitized_value = value.strip().strip("\"'")
                 manager.add_env(key, sanitized_value)
 
