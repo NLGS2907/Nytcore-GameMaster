@@ -79,4 +79,4 @@ class BaseGame[OptionsType](ABC):
     def random_emoji(self) -> EmojiType:
         """Chooses a random emoji from the collection."""
 
-        return choice(self.emojis_collection)
+        return choice(self.emojis_collection())
