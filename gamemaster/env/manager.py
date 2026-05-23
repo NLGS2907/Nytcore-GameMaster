@@ -13,6 +13,7 @@ EnvDict: TypeAlias = dict[EnvKey, EnvVal]
 
 ENV_SEP: str = "="
 ENV_EXT: str = ".env"
+COMMENT_CHAR: str = "#"
 
 
 class EnvManager:
@@ -45,7 +46,7 @@ class EnvManager:
         with open(file_path, encoding="utf-8") as env_file:
             for line in env_file:
                 stripped_line = line.strip()
-                if not stripped_line:
+                if not stripped_line or stripped_line.startswith(COMMENT_CHAR):
                     continue
                 key, value = stripped_line.split(ENV_SEP, 1)
                 sanitized_value = value.strip().strip("\"'")
