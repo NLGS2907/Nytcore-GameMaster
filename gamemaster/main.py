@@ -6,8 +6,8 @@ Can be triggered manually, but is mainly designed to be called from the package 
 from os import getenv
 from sys import argv
 
-from .logger import get_gamemaster_logger
 from .gamemaster import GameMaster
+from .logger import get_gamemaster_logger
 
 
 def main(*args: str) -> int:
