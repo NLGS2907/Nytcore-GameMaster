@@ -87,7 +87,7 @@ class _BaseCog(Cog):
 
     async def cog_app_command_error(self,
                                     interaction: Interaction,
-                                    _error: AppCommandError) -> None:
+                                    error: AppCommandError) -> None:
         """Default error message handler for exceptions.
 
         Args:
@@ -95,12 +95,13 @@ class _BaseCog(Cog):
             error: An instance of the error itself.
         """
 
-        msg_content = "**[ERROR]** Looks like an error has ocurred."
+        msg_content = f"**[ERROR]** Looks like an error has ocurred.\n> _{error}_"
         if interaction.response.is_done():
             await interaction.edit_original_response(content=msg_content)
         else:
             await interaction.response.send_message(msg_content, ephemeral=True)
-        graceful_err = "\n\t|\t".join(f"Exception thrown in app_commands:\n{format_exc()}".split("\n"))
+        graceful_err = "\n\t|\t".join(f"Exception {error.__class__!r} thrown in app_commands:\n"
+                                      f"{format_exc()}".split("\n"))
         self.bot.log.error(graceful_err)
 
 

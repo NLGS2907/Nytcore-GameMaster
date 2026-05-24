@@ -1,10 +1,12 @@
 from asyncio import Lock
+from traceback import format_exc
 from typing import TYPE_CHECKING, Optional, TypeAlias, Union
 
 from discord.ui import LayoutView
 
 if TYPE_CHECKING:
     from discord import Interaction, InteractionMessage, Member, Message, User
+    from discord.ui import Item
 
     from ..gamemaster import GameMaster
 
@@ -46,6 +48,28 @@ class BaseView(LayoutView):
         self.parent_msg: "InteractionMessage" = parent_msg
         self.user: PossibleUser = origin_user
         self.lock: Lock = Lock()
+
+
+    async def on_error(self,
+                       interaction: "Interaction",
+                       error: Exception,
+                       item: Item):
+        """Default error message handler for exceptions.
+
+        Args:
+            interaction: The discord interaction from which the error originated.
+            error: An instance of the error itself.
+            item: The UI item from where the error originated.
+        """
+
+        msg_content = f"**[ERROR]** Looks like an error has ocurred.\n> _{error}_"
+        if interaction.response.is_done():
+            await interaction.edit_original_response(content=msg_content)
+        else:
+            await interaction.response.send_message(msg_content, ephemeral=True)
+        graceful_err = "\n\t|\t".join(f"Item {item!r} has thrown exception {error.__class__!r} "
+                                      f"from view {item.view!r}:\n{format_exc()}".split("\n"))
+        self.bot.log.error(graceful_err)
 
 
     async def reset(self):
