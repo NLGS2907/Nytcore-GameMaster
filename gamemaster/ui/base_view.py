@@ -1,3 +1,4 @@
+from asyncio import Lock
 from typing import TYPE_CHECKING, Optional, TypeAlias, Union
 
 from discord.ui import LayoutView
@@ -12,7 +13,15 @@ PossibleMessage: TypeAlias = Union["Message", "InteractionMessage"]
 
 
 class BaseView(LayoutView):
-    """Base View for all UIs of the bot."""
+    """Base View for all UIs of the bot.
+    
+    Attributes:
+        bot: A reference to the bot user.
+        parent_msg: A reference to the parent message that spawned this view.
+        user: The orignal user who sent the interaction. The parent message not necessarily holds
+              this information, as the bot is the author most of the time.
+        lock: A Lock for managing shared resources in asyncio tasks.
+    """
 
     def __init__(self,
                  bot: "GameMaster",
@@ -36,6 +45,7 @@ class BaseView(LayoutView):
         self.bot: "GameMaster" = bot
         self.parent_msg: "InteractionMessage" = parent_msg
         self.user: PossibleUser = origin_user
+        self.lock: Lock = Lock()
 
 
     async def refresh_parent_msg(self, interaction: Optional["Interaction"]=None):
