@@ -32,6 +32,6 @@ class MentionUserButton(Button):
 
         # can't insert in order, reconstruct from scratch
         self.parent_view.clear_items()
-        await self.parent_view.prepare()
+        await self.parent_view.reset()
 
         await interaction.response.edit_message(view=self.parent_view)

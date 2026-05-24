@@ -11,8 +11,6 @@ from .leave_btn import LeaveButton
 from .settings_btn import SettingsButton
 
 if TYPE_CHECKING:
-    from discord import Interaction
-
     from ...gamemaster import GameMaster
     from ...managers import GameManager
     from ...models import Player
@@ -47,8 +45,6 @@ class LobbyView(BaseView):
 
 
     async def reset(self):
-        """Resets the view, refreshing all of its elements."""
-
         self.clear_items()
         container = Container(TextDisplay(f"# {self.manager.game_title()}"))
 
@@ -166,10 +162,3 @@ class LobbyView(BaseView):
         """Checks if a given user is the host of the lobby."""
 
         return self.user == user
-
-
-    async def refresh(self, interaction: Optional["Interaction"]=None):
-        """Refreshes the elements of this view, then the message itself."""
-
-        await self.reset()
-        await self.refresh_parent_msg(interaction)

@@ -6,8 +6,8 @@ from discord.app_commands import command, describe
 
 from ...embeds import ProfileEmbed
 from ...modals import ProfileEditModal
-from ..cog_base import _BaseCog, _BaseGroup
 from ...ui import ProfileView
+from ..cog_base import _BaseCog, _BaseGroup
 
 if TYPE_CHECKING:
     from discord import Interaction, Member
@@ -58,7 +58,7 @@ class ProfileGroup(_BaseGroup):
         else:
             profile_view = ProfileView(self.bot, await interaction.original_response(),
                                        interaction.user, game_player, player_user, is_public=public)
-            await profile_view.prepare()
+            await profile_view.reset()
             msg = await interaction.followup.send(wait=True, # So it returns the message
                                                   # needed for view to use local image URL
                                                   files=profile_view.all_files,

@@ -202,9 +202,7 @@ class ProfileView(BaseView):
         return img_title_text, img_fmt_text, img_dim_text, img_size_text
 
 
-    async def prepare(self):
-        """Poblates the view with all the info about the player."""
-
+    async def reset(self):
         author_img = await self.bot.fetch_avatar(self.player_user)
         # we can't use the same image, it has to be a copy
         author_file = File(BytesIO(author_img.getvalue()), f"user.{IMG_FORMAT}")

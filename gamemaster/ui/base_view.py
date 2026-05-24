@@ -48,6 +48,15 @@ class BaseView(LayoutView):
         self.lock: Lock = Lock()
 
 
+    async def reset(self):
+        """Resets the view, refreshing all of its elements.
+        
+        The default implementations does nothing, but can be inherited to be changed.
+        """
+
+        pass
+
+
     async def refresh_parent_msg(self, interaction: Optional["Interaction"]=None):
         """Refreshes the message that contains the view.
         
@@ -61,3 +70,15 @@ class BaseView(LayoutView):
             return
 
         await self.parent_msg.edit(view=self)
+
+
+    async def refresh(self, interaction: Optional["Interaction"]=None):
+        """Refreshes the elements of this view, then the message itself.
+        
+        Args:
+            interaction: The interaction that triggered the response. If not present, it will try
+                         to edit the message as-is.
+        """
+
+        await self.reset()
+        await self.refresh_parent_msg(interaction)
