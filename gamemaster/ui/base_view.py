@@ -74,7 +74,10 @@ class BaseView(LayoutView):
 
     async def reset(self):
         """Resets the view, refreshing all of its elements.
-        
+
+        Note that if you call this directly, it will NOT wipe out the prior components, you must
+        do that yourself with `clear_items()` or by using `refresh()`.
+
         The default implementations does nothing, but can be inherited to be changed.
         """
 
@@ -104,5 +107,6 @@ class BaseView(LayoutView):
                          to edit the message as-is.
         """
 
+        self.clear_items()
         await self.reset()
         await self.refresh_parent_msg(interaction)

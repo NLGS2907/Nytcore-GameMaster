@@ -64,6 +64,16 @@ class GameManager(ABC):
 
 
     @staticmethod
+    def requires_confirmation() -> bool:
+        """Determines if the game requires all players to be ready before beginning.
+        
+        By default this is `False`, but can be overriden with inheritance.
+        """
+
+        return False
+
+
+    @staticmethod
     @abstractmethod
     def game_class() -> type["BaseGame"]:
         """Returns the class of the game object."""

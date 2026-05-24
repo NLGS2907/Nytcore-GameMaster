@@ -45,7 +45,6 @@ class LobbyView(BaseView):
 
 
     async def reset(self):
-        self.clear_items()
         container = Container(TextDisplay(f"# {self.manager.game_title()}"))
 
         game_desc = self.manager.game_description()

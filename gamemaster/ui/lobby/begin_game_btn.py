@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 from discord import ButtonStyle
 from discord.ui import Button
 
+from ..players import ConfirmationView
+
 if TYPE_CHECKING:
     from discord import Interaction
 
@@ -32,7 +34,14 @@ class BeginGameButton(Button):
                                                     ephemeral=True)
             return
 
-        game_view = self.parent_view.manager.assemble_view(self.parent_view.user,
-                                                           self.parent_view.parent_msg,
-                                                           interaction.user)
-        await interaction.response.edit_message(view=game_view)
+        if self.parent_view.manager.requires_confirmation():
+            result_view = ConfirmationView(self.parent_view.bot,
+                                           self.parent_view.parent_msg,
+                                           self.parent_view.user,
+                                           manager=self.parent_view.manager)
+        else:
+            result_view = self.parent_view.manager.assemble_view(self.parent_view.user,
+                                                                 self.parent_view.parent_msg,
+                                                                 interaction.user)
+        await result_view.reset()
+        await interaction.response.edit_message(view=result_view)

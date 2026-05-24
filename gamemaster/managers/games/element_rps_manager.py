@@ -20,6 +20,11 @@ class ElementRPSManager(GameManager):
 
 
     @staticmethod
+    def requires_confirmation() -> bool:
+        return True
+
+
+    @staticmethod
     def game_class() -> type["BaseGame"]:
         return ElementRPSGame
 
