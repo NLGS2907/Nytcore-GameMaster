@@ -3,11 +3,12 @@ from typing import TYPE_CHECKING, Optional, TypeAlias, Union
 from discord.ui import LayoutView
 
 if TYPE_CHECKING:
-    from discord import InteractionMessage, Member, User
+    from discord import Interaction, InteractionMessage, Member, Message, User
 
     from ..gamemaster import GameMaster
 
 PossibleUser: TypeAlias = Union["User", "Member"]
+PossibleMessage: TypeAlias = Union["Message", "InteractionMessage"]
 
 
 class BaseView(LayoutView):
@@ -15,7 +16,7 @@ class BaseView(LayoutView):
 
     def __init__(self,
                  bot: "GameMaster",
-                 parent_msg: "InteractionMessage",
+                 parent_msg: PossibleMessage,
                  origin_user: PossibleUser,
                  *,
                  timeout: Optional[float]=None):
@@ -35,3 +36,18 @@ class BaseView(LayoutView):
         self.bot: "GameMaster" = bot
         self.parent_msg: "InteractionMessage" = parent_msg
         self.user: PossibleUser = origin_user
+
+
+    async def refresh_parent_msg(self, interaction: Optional["Interaction"]=None):
+        """Refreshes the message that contains the view.
+        
+        Args:
+            interaction: The interaction that triggered the response. If not present, it will try
+                         to edit the message as-is.
+        """
+
+        if interaction is not None and not interaction.response.is_done():
+            await interaction.response.edit_message(view=self)
+            return
+
+        await self.parent_msg.edit(view=self)

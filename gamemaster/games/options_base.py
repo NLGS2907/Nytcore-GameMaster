@@ -7,7 +7,7 @@ class BaseOptions(ABC):
 
     @classmethod
     @abstractmethod
-    def default(self) -> Self:
+    def default(cls) -> Self:
         """Returns an instance of these options with all values set to their default states."""
 
         raise NotImplementedError

@@ -38,6 +38,16 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
 
 
     @staticmethod
+    def minimum_players() -> int:
+        return 2
+
+
+    @staticmethod
+    def maximum_players() -> int:
+        return 2
+
+
+    @staticmethod
     def wind_emoji():
         """Returns the game's fallback emoji for the wind element."""
 

@@ -82,3 +82,19 @@ class BaseGame(Generic[OptionsType], ABC):
         """Chooses a random emoji from the collection."""
 
         return choice(cls.emojis_collection())
+
+
+    @staticmethod
+    @abstractmethod
+    def minimum_players() -> int:
+        """Returns the minimum amount of players allowed in this game."""
+
+        raise NotImplementedError
+
+
+    @staticmethod
+    @abstractmethod
+    def maximum_players() -> int:
+        """Returns the maximum amount of players allowed in this game."""
+
+        raise NotImplementedError

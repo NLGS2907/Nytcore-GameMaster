@@ -11,12 +11,9 @@ from .mention_user_btn import MentionUserButton
 from .show_user_img_btn import ShowUserImageButton
 
 if TYPE_CHECKING:
-
-    from discord import InteractionMessage
-
     from ...gamemaster import GameMaster
     from ...models import Player
-    from ..base_view import PossibleUser
+    from ..base_view import PossibleMessage, PossibleUser
 
 EitherButtonOrText: TypeAlias = Union[MentionUserButton, TextDisplay]
 
@@ -30,7 +27,7 @@ class ProfileView(BaseView):
 
     def __init__(self,
                  bot: "GameMaster",
-                 parent_msg: "InteractionMessage",
+                 parent_msg: "PossibleMessage",
                  origin_user: "PossibleUser",
                  player: "Player",
                  player_user: "PossibleUser",

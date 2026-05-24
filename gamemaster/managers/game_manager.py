@@ -31,8 +31,8 @@ class GameManager(ABC):
         game_id = cls.game_id()
         if game_id in __class__._games_map:
             get_gamemaster_logger().warning(
-                f"Game {__class__._games_map[game_id].game_title!r} with ID {game_id} already "
-                f"exists. Skipping the addition of game {cls.game_title!r}..."
+                f"Game {__class__._games_map[game_id].game_title()!r} with ID {game_id} already "
+                f"exists. Skipping the addition of game {cls.game_title()!r}..."
             )
             return
 
@@ -48,7 +48,7 @@ class GameManager(ABC):
 
         self.bot: "GameMaster" = bot
         self.players: set["Player"] = set()
-        self.options: "BaseOptions" = self.options_class()
+        self.options: "BaseOptions" = self.options_class().default()
 
 
     @staticmethod
@@ -123,6 +123,20 @@ class GameManager(ABC):
 
 
     @classmethod
+    def min_players(cls) -> int:
+        """Returns the minimum amount of players allowed to play the underlying game."""
+
+        return cls.game_class().minimum_players()
+
+
+    @classmethod
+    def max_players(cls) -> int:
+        """Returns the maximum amount of players allowed to play the underlying game."""
+
+        return cls.game_class().maximum_players()
+
+
+    @classmethod
     def class_with_id(cls, class_id: GameID) -> Optional[type[Self]]:
         """Tries to retrieve one of the subclasses based on its ID.
         
@@ -174,10 +188,10 @@ class GameManager(ABC):
             The options modal ready to show.
         """
 
-        return self.options_modal_class(
+        return self.options_modal_class()(
             self.bot,
             self.options,
-            title=self.game_title,
+            title=self.game_title(),
             timeout=timeout
         )
 
@@ -202,11 +216,11 @@ class GameManager(ABC):
             The view, assembled and ready to execute and show.
         """
 
-        return self.view_class(
+        return self.view_class()(
             self.bot,
             parent_msg,
             origin_user,
-            self.game_class(
+            self.game_class()(
                 self.bot,
                 host,
                 list(self.players),

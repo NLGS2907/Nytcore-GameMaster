@@ -3,10 +3,8 @@ from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 from ..base_view import BaseView
 
 if TYPE_CHECKING:
-    from discord import InteractionMessage
-
     from ...gamemaster import GameMaster
-    from ..base_view import PossibleUser
+    from ..base_view import PossibleMessage, PossibleUser
 
 GameType = TypeVar("GameType")
 
@@ -16,7 +14,7 @@ class BaseGameView(Generic[GameType], BaseView):
 
     def __init__(self,
                  bot: "GameMaster",
-                 parent_msg: "InteractionMessage",
+                 parent_msg: "PossibleMessage",
                  origin_user: "PossibleUser",
                  game: GameType,
                  *,
