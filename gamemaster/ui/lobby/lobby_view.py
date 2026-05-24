@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Optional, TypeAlias
 from discord import SeparatorSpacing
 from discord.ui import ActionRow, Container, Separator, TextDisplay
 
-from ...repositories import PlayerRepository
 from ..base_view import BaseView
 from .begin_game_btn import BeginGameButton
 from .close_lobby_btn import CloseLobbyButton
@@ -42,7 +41,6 @@ class LobbyView(BaseView):
 
         super().__init__(bot, parent_msg, origin_user, timeout=timeout)
         self.manager: "GameManager" = manager
-        self._player_repo = PlayerRepository()
 
         self._players: PlayersList = [self.player_from_user(self.user)]
         self._players_len: int = len(self._players)
@@ -161,7 +159,7 @@ class LobbyView(BaseView):
     def player_from_user(self, user: "PossibleUser") -> "Player":
         """Creates a player from a given Discord user."""
 
-        return self._player_repo.create(user.name, user.id)
+        return self.bot.repositories.player.create(user.name, user.id)
 
 
     def is_host(self, user: "PossibleUser") -> bool:
