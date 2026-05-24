@@ -26,14 +26,16 @@ class JoinButton(Button):
 
 
     async def callback(self, interaction: "Interaction"):
-        ds_user = interaction.user
-        if self.parent_view.player_present_with_id(ds_user.id):
-            msg_content = f"{ds_user.mention}, you already joined this lobby."
-        elif self.parent_view.players_full():
-            msg_content = f"{ds_user.mention}, you cannot join this lobby, as it is already full."
-        else:
-            self.parent_view.add_player(self.parent_view.player_from_user(ds_user))
-            await self.parent_view.refresh(interaction)
-            return
-            
-        await interaction.response.send_message(msg_content, ephemeral=True)
+        async with self.parent_view.lock:
+            ds_user = interaction.user
+            if self.parent_view.player_present_with_id(ds_user.id):
+                msg_content = f"{ds_user.mention}, you already joined this lobby."
+            elif self.parent_view.players_full():
+                msg_content = (f"{ds_user.mention}, you cannot join this lobby, as "
+                               "it is already full.")
+            else:
+                self.parent_view.add_player(self.parent_view.player_from_user(ds_user))
+                await self.parent_view.refresh(interaction)
+                return
+                
+            await interaction.response.send_message(msg_content, ephemeral=True)

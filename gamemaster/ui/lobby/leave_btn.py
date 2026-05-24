@@ -26,15 +26,16 @@ class LeaveButton(Button):
 
 
     async def callback(self, interaction: "Interaction"):
-        ds_user = interaction.user
-        if self.parent_view.user == ds_user:
-            msg_content = (f"{ds_user.mention}, you are the host of this lobby, and cannot leave "
-                           "without destroying the lobby first.")
-        elif not self.parent_view.player_present_with_id(ds_user.id):
-            msg_content = f"{ds_user.mention}, you never joined this lobby."
-        else:
-            self.parent_view.remove_player_with_id(ds_user.id)
-            await self.parent_view.refresh(interaction)
-            return
+        async with self.parent_view.lock:
+            ds_user = interaction.user
+            if self.parent_view.user == ds_user:
+                msg_content = (f"{ds_user.mention}, you are the host of this lobby, and cannot "
+                               "leave without destroying the lobby first.")
+            elif not self.parent_view.player_present_with_id(ds_user.id):
+                msg_content = f"{ds_user.mention}, you never joined this lobby."
+            else:
+                self.parent_view.remove_player_with_id(ds_user.id)
+                await self.parent_view.refresh(interaction)
+                return
 
-        await interaction.response.send_message(msg_content, ephemeral=True)
+            await interaction.response.send_message(msg_content, ephemeral=True)
