@@ -39,9 +39,9 @@ class LobbyView(BaseView):
 
         super().__init__(bot, parent_msg, origin_user, timeout=timeout)
         self.manager: "GameManager" = manager
+        self.manager.add_player(self.player_from_user(self.user))
 
-        self._players: PlayersList = [self.player_from_user(self.user)]
-        self._players_len: int = len(self._players)
+        self.__players_len: int = len(self.manager.players)
 
 
     async def reset(self):
@@ -62,7 +62,7 @@ class LobbyView(BaseView):
         container.add_item(TextDisplay(f"## Players in Lobby ({self.players_len}/"
                                        f"{self.manager.max_players()})"))
 
-        for player in self._players:
+        for player in self.manager.players:
             discord_mention = f"<@{player.discord_user_id}>"
             emoji_str = ("" if player.emoji is None else f"{player.emoji}  ")
             host_str = ("\t-\t**HOST**" if player.discord_user_id == self.user.id else "")
@@ -85,7 +85,7 @@ class LobbyView(BaseView):
     def players_len(self) -> int:
         """Lazy loads and returns the amount of players."""
 
-        return self._players_len
+        return self.__players_len
 
 
     def not_enough_players(self) -> bool:
@@ -109,7 +109,7 @@ class LobbyView(BaseView):
     def player_present_with_id(self, user_id: int) -> bool:
         """Checks if a player with a given Discord user ID already exists in the lobby."""
 
-        for player in self._players:
+        for player in self.manager.players:
             if player.discord_user_id == user_id:
                 return True
 
@@ -125,8 +125,8 @@ class LobbyView(BaseView):
             new_player: The new player to be added.
         """
 
-        self._players.append(new_player)
-        self._players_len += 1
+        self.manager.add_player(new_player)
+        self.__players_len += 1
 
 
     def remove_player_with_id(self, user_id: int) -> Optional["Player"]:
@@ -140,7 +140,7 @@ class LobbyView(BaseView):
         """
 
         candidate_index = None
-        for i, player in enumerate(self._players):
+        for i, player in enumerate(self.manager.players):
             if player.discord_user_id == user_id:
                 candidate_index = i
                 break
@@ -148,8 +148,8 @@ class LobbyView(BaseView):
         if candidate_index is None:
             return None
 
-        self._players_len -= 1
-        return self._players.pop(candidate_index)
+        self.__players_len -= 1
+        return self.manager.players.pop(candidate_index)
 
 
     def player_from_user(self, user: "PossibleUser") -> "Player":

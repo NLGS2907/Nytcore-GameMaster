@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 GameID: TypeAlias = int
 GamesMap: TypeAlias = dict[GameID, "GameManager"]
+PlayersList: TypeAlias = list["Player"]
 
 
 class GameManager(ABC):
@@ -47,7 +48,7 @@ class GameManager(ABC):
         """
 
         self.bot: "GameMaster" = bot
-        self.players: set["Player"] = set()
+        self.players: PlayersList = []
         self.options: "BaseOptions" = self.options_class().default()
 
 
@@ -175,7 +176,7 @@ class GameManager(ABC):
         If the player already exists, it does nothing.
         """
 
-        self.players.add(new_player)
+        self.players.append(new_player)
 
 
     def assemble_modal(self, timeout: Optional[float]=None) -> "BaseOptionsModal":
@@ -223,7 +224,7 @@ class GameManager(ABC):
             self.game_class()(
                 self.bot,
                 host,
-                list(self.players),
+                self.players,
                 options=self.options
             ),
             timeout=timeout
