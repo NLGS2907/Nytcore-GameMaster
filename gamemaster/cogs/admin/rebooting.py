@@ -50,7 +50,7 @@ class DevGroup(_AdminCheckMixin, _BaseGroup,):
         # we also close it, just in case
         await self.bot.shutdown()
 
-        execl(executable, executable, "-m", "gamemaster")
+        execl(executable, executable, "-m", "gamemaster", "-v" if self.bot.verbose else "")
 
 
     @command(name="shutdown",

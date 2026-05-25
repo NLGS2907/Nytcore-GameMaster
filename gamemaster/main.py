@@ -14,10 +14,11 @@ def main(*args: str) -> int:
     "Main function."
 
     sep = "=" * 25
-    get_gamemaster_logger().info(f"{sep} Initializing GameMaster {sep}")
+    verbose = ("-v" in args or "--verbose" in args)
+    get_gamemaster_logger(verbose).info(f"{sep} Initializing GameMaster {sep}")
 
     GameMaster(
-        verbose=("-v" in args or "--verbose" in args)
+        verbose=verbose
     ).run(getenv("TOKEN"), log_handler=None) # The handler was manually set up beforehand
 
     return 0

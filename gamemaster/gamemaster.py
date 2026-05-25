@@ -125,9 +125,11 @@ class GameMaster(Bot):
         self.repositories: RepositoryConfiguration = RepositoryConfiguration(
             player_repository=PlayerRepository()
         )
+        self._verbose: bool = verbose
         self.booted_at: "datetime" = utcnow()
         self._emojis: EmojisMap = {}
-        log_level = (DEBUG if verbose else INFO)
+        log_level = (DEBUG if self._verbose else INFO)
+
         self.log: "Logger" = get_gamemaster_logger(log_level)
         self.ds_log: "Logger" = getLogger("discord")
         add_terminal_handler(self.ds_log, console_level=log_level)
@@ -136,6 +138,10 @@ class GameMaster(Bot):
         self.db_log: "Logger" = getLogger("peewee")
         add_terminal_handler(self.db_log, console_level=log_level)
         add_file_handler(self.db_log)
+
+        self.db_migrate_log: "Logger" = getLogger("peewee_migrate")
+        add_terminal_handler(self.db_migrate_log, console_level=log_level)
+        add_file_handler(self.db_migrate_log)
 
 
     async def setup_hook(self):
@@ -190,6 +196,13 @@ class GameMaster(Bot):
 
         self.log.info(f"Shutting down {self.user}...")
         await self.close()
+
+
+    @property
+    def verbose(self) -> bool:
+        """Checks if the bot is in verbose mode."""
+
+        return self._verbose
 
 
     @property
