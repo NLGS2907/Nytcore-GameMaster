@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from discord import File
 from discord.app_commands import command, describe
 
-from ...logger import LOG_PATH
+from ...logger import GAMEMASTER_NAMESPACE, get_log_path
 from ..cog_base import _BaseCog, _BaseGroup
 from ._admin_check import _AdminCheckMixin
 
@@ -60,8 +60,9 @@ class LogGroup(_AdminCheckMixin, _BaseGroup):
     @command(name="get",
              description="[OWNER] Retrieves the entire log file.")
     async def log_get(self, interaction: "Interaction"):
+        log_path = get_log_path(GAMEMASTER_NAMESPACE)
         await interaction.response.send_message(
-            file=File(LOG_PATH, filename=LOG_PATH.lstrip("./")),
+            file=File(log_path, filename=log_path.lstrip("./")),
             ephemeral=True
         )
 
@@ -71,7 +72,7 @@ class LogGroup(_AdminCheckMixin, _BaseGroup):
     @describe(n="The amount of lines to show.")
     async def log_tail(self, interaction: "Interaction", n: int=15):
         lines = []
-        with open(LOG_PATH, mode="r", encoding="utf-8") as arch:
+        with open(get_log_path(GAMEMASTER_NAMESPACE), mode="r", encoding="utf-8") as arch:
             lines.extend(deque(arch, n))
         message = "".join(lines)
 
@@ -90,15 +91,16 @@ class LogGroup(_AdminCheckMixin, _BaseGroup):
     @command(name="purge",
              description="[OWNER] Flushes the enitre contents of the log file, rendering it blank.")
     async def log_purge(self, interaction: "Interaction"):
+        log_path = get_log_path(GAMEMASTER_NAMESPACE)
         lines = 0
 
-        with open(LOG_PATH, mode="rb") as file:
+        with open(log_path, mode="rb") as file:
             lines += sum(1 for line in file if line.strip())
 
-        with open(LOG_PATH, mode="w"):
+        with open(log_path, mode="w"):
             pass # we open it only to overwrite the contents
 
-        await interaction.response.send_message(f"Emptied log file `{LOG_PATH}`.\n"
+        await interaction.response.send_message(f"Emptied log file `{log_path}`.\n"
                                                 f"Deleted `{lines}` lines.",
                                                 ephemeral=True)
 

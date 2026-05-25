@@ -13,15 +13,20 @@ if TYPE_CHECKING:
     from logging import Logger
 
 GAMEMASTER_NAMESPACE: str = "gamemaster"
-LOG_PATH: str = f"./{GAMEMASTER_NAMESPACE}.log"
-DEFAULT_FMT: str = "%(asctime)s - %(levelname)s - %(message)s"
-DEFAULT_DATE_FMT: str = "%d-%m-%Y %I:%M:%S %p"
+DEFAULT_FMT: str = "%(asctime)s - %(levelname)s - [ %(name)s ] %(message)s"
+DEFAULT_DATE_FMT: str = "%d-%m-%Y %H:%M:%S"
 
 
 def log_lvl(verbose: bool) -> int:
     """Returns the log level preferred, depending if we are in verbose mode or not."""
 
     return (DEBUG if verbose else INFO)
+
+
+def get_log_path(namespace: str) -> str:
+    """Gets the log filepath from the inteded namespace."""
+
+    return f"./logs/{namespace}.log"
 
 
 def _namespace_exists(name: str) -> bool:
@@ -81,7 +86,7 @@ def add_file_handler(logger: "Logger",
         date_fmt: How to further format the timestamp in the messages.
     """
 
-    file_handler = FileHandler(filename=LOG_PATH, encoding="utf-8")
+    file_handler = FileHandler(filename=get_log_path(GAMEMASTER_NAMESPACE), encoding="utf-8")
     file_handler.setLevel(file_level)
     file_handler.setFormatter(Formatter(fmt=fmt, datefmt=date_fmt))
 
