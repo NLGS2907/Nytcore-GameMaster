@@ -134,7 +134,7 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
     def weak_against(self, elem_1: ElementType, elem_2: ElementType) -> bool:
         """Checks if `elem_1` is weak against `elem_2`."""
 
-        return elem_1 == WEAKNESSES[elem_2]
+        return elem_2 == WEAKNESSES[elem_1]
 
 
     def reset_choices(self):
