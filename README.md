@@ -38,26 +38,26 @@ technically compatible with any guild, with plans to expand to many features.
   </thead>
   <tbody>
     <tr>
-      <td style="text-align: center;"><a href="https://pypi.org">discord.py</a></td>
+      <td style="text-align: center;"><a href="https://pypi.org/project/discord.py">discord.py</a></td>
       <td style="text-align: center;">2.7.1</td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="https://pypi.org">peewee</a></td>
+      <td style="text-align: center;"><a href="https://pypi.org/project/peewee">peewee</a></td>
       <td style="text-align: center;">4.0.5</td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="https://pypi.org">Pillow</a></td>
+      <td style="text-align: center;"><a href="https://pypi.org/project/Pillow">Pillow</a></td>
       <td style="text-align: center;">12.2.0</td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="https://pypi.org">emoji</a></td>
+      <td style="text-align: center;"><a href="https://pypi.org/project/emoji">emoji</a></td>
       <td style="text-align: center;">2.15.0</td>
     </tr>
     <tr>
       <td colspan="2" style="text-align: center; font-weight: bold;">Dev dependencies</td>
     </tr>
     <tr>
-      <td style="text-align: center;"><a href="https://pypi.org">coverage</a></td>
+      <td style="text-align: center;"><a href="https://pypi.org/project/coverage">coverage</a></td>
       <td style="text-align: center;">7.14.0</td>
     </tr>
   </tbody>
