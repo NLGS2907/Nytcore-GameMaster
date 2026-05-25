@@ -161,7 +161,7 @@ class GameMaster(Bot):
         ext = ".py"
         for cog_path in search_files(pattern=f"*{ext}",
                                      path_name=COGS_PATH,
-                                     ignore_patterns=("__init__.*", "*_base.*")):
+                                     ignore_patterns=("__init__.*", "*_base.*", "_*.py")):
 
             cog_module = cog_path.removesuffix(f"{ext}").replace("/", ".")
             if cog_module in self.extensions:
