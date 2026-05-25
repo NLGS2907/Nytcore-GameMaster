@@ -36,7 +36,7 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         self.player_1: "Player" = self.game.players[0]
         self.player_2: "Player" = self.game.players[1]
 
-        self._emojis = self.load_emojis()
+        self._emojis = self.load_emojis(hex=self.game.options.use_hex_emojis)
         self._element_buttons = [ElementButton(self, element, elem_emoji)
                                  for element, elem_emoji in self._emojis.items()]
 

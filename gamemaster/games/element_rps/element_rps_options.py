@@ -9,6 +9,7 @@ class ElementRPSOptions(BaseOptions):
 
     def __init__(self,
                  *,
+                 use_hex_emojis: bool,
                  winning_rounds: WinningRoundsSetting):
         """Initializes the options for a game of Element Rock-Paper-Scissors.
         
@@ -16,11 +17,13 @@ class ElementRPSOptions(BaseOptions):
             winning_rounds: How many won rounds a player must reach to end the game.
         """
 
+        self.use_hex_emojis: bool = use_hex_emojis
         self.winning_rounds: WinningRoundsSetting = winning_rounds
 
 
     @classmethod
     def default(cls) -> Self:
         return cls(
+            use_hex_emojis=False,
             winning_rounds=WinningRoundsSetting.THREE_ROUNDS
         )

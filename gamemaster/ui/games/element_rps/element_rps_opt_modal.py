@@ -1,5 +1,5 @@
 from discord import RadioGroupOption
-from discord.ui import Label, RadioGroup
+from discord.ui import Checkbox, Label, RadioGroup
 
 from ....games import ElementRPSOptions, WinningRoundsSetting
 from ..options_modal_base import BaseOptionsModal
@@ -9,6 +9,14 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
     """Options modal for a game of Element Rock-Paper-Scissors."""
 
     def prepare(self):
+        use_hex = Label(
+            text="Use hexagonal element codes as emojis.",
+            component=Checkbox(
+                default=(self.options.use_hex_emojis)
+            )
+        )
+
+        self.add_item(use_hex)
         radio_group = RadioGroup(
             required=True,
             options=[
@@ -29,5 +37,8 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
         
 
     def update_options(self):
-        win_rounds: Label = self.children[0]
+        use_hex: Label = self.children[0]
+        self.options.use_hex_emojis = use_hex.component.value
+
+        win_rounds: Label = self.children[1]
         self.options.winning_rounds = WinningRoundsSetting(int(win_rounds.component.value))
