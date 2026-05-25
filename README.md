@@ -46,6 +46,10 @@ technically compatible with any guild, with plans to expand to many features.
       <td style="text-align: center;">4.0.5</td>
     </tr>
     <tr>
+      <td style="text-align: center;"><a href="https://pypi.org/project/peewee-migrate">peewee-migrate</a></td>
+      <td style="text-align: center;">1.15.0</td>
+    </tr>
+    <tr>
       <td style="text-align: center;"><a href="https://pypi.org/project/Pillow">Pillow</a></td>
       <td style="text-align: center;">12.2.0</td>
     </tr>
