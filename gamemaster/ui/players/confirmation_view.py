@@ -146,8 +146,8 @@ class ConfirmationView(BaseView):
 
     @countdown.after_loop
     async def after_countdown(self):
+        self._countdown_msg = None
         if self.countdown.is_being_cancelled():
-            self._countdown_msg = None
             await self.refresh()
             return
 

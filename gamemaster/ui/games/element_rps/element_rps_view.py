@@ -71,13 +71,42 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         container.add_item(TextDisplay(f"### {win_msg}"))
 
         player_1_score, player_2_score = self.game.get_scores()
-        container.add_item(TextDisplay(f"Current results:\t\t{player_1_score} - {player_2_score}"))
+        container.add_item(TextDisplay(f"Current results:\t\t**{player_1_score} - "
+                                       f"{player_2_score}**"))
 
         if self._results_msg is not None:
             container.add_item(Separator(spacing=SeparatorSpacing.small))
             container.add_item(TextDisplay(f"-# _{self._results_msg}_"))
 
         self.add_item(container)
+
+
+    async def finish_message(self, winner: "Player"):
+        """Shows one last message for closing the game.
+        
+        Args:
+            winner: The player that has won, so we don't fetch it again.
+        """
+
+        self.clear_items()
+
+        player_1_score, player_2_score = self.game.get_scores()
+        stats = self.game.process_stats()
+
+        container = Container(
+            TextDisplay(f"## Winner:\t{winner.username}"),
+            TextDisplay(f"They have won with a result of **{player_1_score} - {player_2_score}** "
+                        f"and **{stats.ties_count} ties**."),
+            Separator(spacing=SeparatorSpacing.small),
+            TextDisplay(f"-# Favourite elements of **{self.game.player_1.username}**:\t"
+                        f"{', '.join(str(self._emojis[fav]) for fav in stats.player_1_favs)}"),
+            TextDisplay(f"-# Favourite elements of **{self.game.player_2.username}**:\t"
+                        f"{', '.join(str(self._emojis[fav]) for fav in stats.player_2_favs)}")
+        )
+
+        self.add_item(container)
+        await self.refresh_parent_msg() # because this method does not go through refresh
+        self.stop()
 
 
     def _load_emoji(self, emoji_name: str, default: "EmojiType", hex: bool=False) -> "Emoji":
@@ -155,7 +184,9 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
     def _generate_results_msg(self, current_loop: int) -> str:
         """Generates the current results message given the current loop number."""
 
-        return f"Beginning next round in {current_loop}..."
+        return (f"Beginning next round in {current_loop}..."
+                if self.game.finished() is None
+                else f"Game finished! Generating results in {current_loop}...")
 
 
     @loop(seconds=1.0, count=SECS_UNTIL_NEXT_ROUND)
@@ -180,4 +211,9 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
     async def after_next_round(self):
         self._results_msg = None
         self.game.reset_round()
-        await self.refresh()
+
+        winner = self.game.finished()
+        if winner is not None:
+            await self.finish_message(winner)
+        else:
+            await self.refresh()

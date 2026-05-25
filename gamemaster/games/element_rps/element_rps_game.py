@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional, TypeAlias, TypedDict
 from ...models import ElementType
 from ..game_base import BaseGame
 from .element_rps_options import ElementRPSOptions
+from .result_stats import RPSResultStats
 
 if TYPE_CHECKING:
     from discord.abc import User
@@ -131,6 +132,20 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         return self._round_finished
 
 
+    @property
+    def player_1(self) -> "Player":
+        """Returns the first player of the pair."""
+
+        return self.players[0]
+
+
+    @property
+    def player_2(self) -> "Player":
+        """Returns the second player of the pair."""
+
+        return self.players[1]
+
+
     def weak_against(self, elem_1: ElementType, elem_2: ElementType) -> bool:
         """Checks if `elem_1` is weak against `elem_2`."""
 
@@ -197,6 +212,12 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         return self.__records[self._cur_round]
 
 
+    def process_stats(self) -> RPSResultStats:
+        """Retrieves some stats from the finished game."""
+
+        return RPSResultStats(self.__records)
+
+
     def resolve(self):
         """Closes off the round and tells the results."""
 
@@ -204,16 +225,15 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         round_winner = None
 
         if self.weak_against(self._player_2_choice, self._player_1_choice):
-            round_winner = self.players[0] # player 1 won
+            round_winner = self.player_1
             self._player_1_score += 1
         elif self.weak_against(self._player_1_choice, self._player_2_choice):
-            round_winner = self.players[1] # player 2 won
+            round_winner = self.player_2
             self._player_2_score += 1
 
         self.__records.append(dict(player_1_choice=self._player_1_choice,
                                    player_2_choice=self._player_2_choice,
                                    who_won=round_winner))
-
 
 
     def reset_round(self):
@@ -224,3 +244,26 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
 
         self._player_1_choice = None
         self._player_2_choice = None
+
+
+    def enough_points(self, is_player_1: bool) -> bool:
+        """Checks if a given player has enough points to have won the game."""
+
+        threshold = self.options.winning_rounds
+        return (self._player_1_score if is_player_1 else self._player_2_score) >= threshold
+
+
+    def finished(self) -> Optional["Player"]:
+        """Checks if one of the players reached the required amount of points to win.
+        
+        Returns:
+            The player that has won, or `None` if the game is not finished yet.
+        """
+
+        winner = None
+        if self.enough_points(True):
+            winner = self.player_1
+        elif self.enough_points(False):
+            winner = self.player_2
+
+        return winner
