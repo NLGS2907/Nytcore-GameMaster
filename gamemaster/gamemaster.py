@@ -1,7 +1,7 @@
 """The module for holding the GameMaster."""
 
 from io import BytesIO
-from logging import DEBUG, INFO, getLogger
+from logging import DEBUG, getLogger
 from os import getenv
 from platform import system
 from typing import TYPE_CHECKING, TypeAlias, Union
@@ -13,7 +13,7 @@ from discord.utils import utcnow
 
 from .db import db, run_migrations
 from .files import search_files
-from .logger import add_file_handler, add_terminal_handler, get_gamemaster_logger
+from .logger import add_file_handler, add_terminal_handler, get_gamemaster_logger, log_lvl
 from .models import IMG_FORMAT
 from .repositories import PlayerRepository, RepositoryConfiguration
 
@@ -47,6 +47,44 @@ class GameMaster(Bot):
              retrieve it using `getLogger()` with the bot namespace.
         ds_log: A reference to a secondary, special logger used by the discord.py library itself. 
     """
+
+    def __init__(self, verbose: bool=True, **options):
+        """Initializes the GameMaster.
+        
+        Args:
+            verbose: Elevates the log level to show everything.
+            **options: Extra options to pass on to the parent initializer.
+        """
+
+        super().__init__("!", # Deprecated, but legacy syntax requires it
+                         intents=GameMaster.preferred_intents(),
+                         application_id=getenv("BOT_ID"),
+                         options=options)
+
+        self.repositories: RepositoryConfiguration = RepositoryConfiguration(
+            player_repository=PlayerRepository()
+        )
+        self._verbose: bool = verbose
+        self.booted_at: "datetime" = utcnow()
+        self._emojis: EmojisMap = {}
+        log_level = log_lvl(self._verbose)
+
+        self.log: "Logger" = get_gamemaster_logger(log_level)
+        self.ds_log: "Logger" = getLogger("discord")
+        self.ds_log.setLevel(DEBUG)
+        add_terminal_handler(self.ds_log, console_level=log_level)
+        add_file_handler(self.ds_log)
+
+        self.db_log: "Logger" = getLogger("peewee")
+        self.db_log.setLevel(DEBUG)
+        add_terminal_handler(self.db_log, console_level=log_level)
+        add_file_handler(self.db_log)
+
+        self.db_migrate_log: "Logger" = getLogger("peewee_migrate")
+        self.db_migrate_log.setLevel(DEBUG)
+        add_terminal_handler(self.db_migrate_log, console_level=log_level)
+        add_file_handler(self.db_migrate_log)
+
 
     @staticmethod
     def version() -> VersionTuple:
@@ -107,41 +145,6 @@ class GameMaster(Bot):
         )
 
         return perms
-
-
-    def __init__(self, verbose: bool=True, **options):
-        """Initializes the GameMaster.
-        
-        Args:
-            verbose: Elevates the log level to show everything.
-            **options: Extra options to pass on to the parent initializer.
-        """
-
-        super().__init__("!", # Deprecated, but legacy syntax requires it
-                         intents=GameMaster.preferred_intents(),
-                         application_id=getenv("BOT_ID"),
-                         options=options)
-
-        self.repositories: RepositoryConfiguration = RepositoryConfiguration(
-            player_repository=PlayerRepository()
-        )
-        self._verbose: bool = verbose
-        self.booted_at: "datetime" = utcnow()
-        self._emojis: EmojisMap = {}
-        log_level = (DEBUG if self._verbose else INFO)
-
-        self.log: "Logger" = get_gamemaster_logger(log_level)
-        self.ds_log: "Logger" = getLogger("discord")
-        add_terminal_handler(self.ds_log, console_level=log_level)
-        add_file_handler(self.ds_log)
-
-        self.db_log: "Logger" = getLogger("peewee")
-        add_terminal_handler(self.db_log, console_level=log_level)
-        add_file_handler(self.db_log)
-
-        self.db_migrate_log: "Logger" = getLogger("peewee_migrate")
-        add_terminal_handler(self.db_migrate_log, console_level=log_level)
-        add_file_handler(self.db_migrate_log)
 
 
     async def setup_hook(self):

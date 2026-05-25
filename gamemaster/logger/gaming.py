@@ -18,6 +18,12 @@ DEFAULT_FMT: str = "%(asctime)s - %(levelname)s - %(message)s"
 DEFAULT_DATE_FMT: str = "%d-%m-%Y %I:%M:%S %p"
 
 
+def log_lvl(verbose: bool) -> int:
+    """Returns the log level preferred, depending if we are in verbose mode or not."""
+
+    return (DEBUG if verbose else INFO)
+
+
 def _namespace_exists(name: str) -> bool:
     """Checks if a given namespace exists in the root logger registry.
     
@@ -29,6 +35,27 @@ def _namespace_exists(name: str) -> bool:
     """
 
     return name in root_logger.manager.loggerDict
+
+
+def add_terminal_handler(logger: "Logger",
+                         *,
+                         console_level: int=INFO,
+                         fmt: str=DEFAULT_FMT,
+                         date_fmt: str=DEFAULT_DATE_FMT):
+    """Adds a terminal handler to a given logger and sets its formatters.
+    
+    Args:
+        logger: The logger to modify.
+        console_level: The log level for the file handler.
+        fmt: The general format for the log messages to have.
+        date_fmt: How to further format the timestamp in the messages.
+    """
+
+    terminal_handler = StreamHandler()
+    terminal_handler.setLevel(console_level)
+    terminal_handler.setFormatter(Formatter(fmt=fmt, datefmt=date_fmt))
+
+    logger.addHandler(terminal_handler)
 
 
 def get_gamemaster_logger(log_level: int=INFO) -> "Logger":
@@ -59,27 +86,6 @@ def add_file_handler(logger: "Logger",
     file_handler.setFormatter(Formatter(fmt=fmt, datefmt=date_fmt))
 
     logger.addHandler(file_handler)
-
-
-def add_terminal_handler(logger: "Logger",
-                         *,
-                         console_level: int=INFO,
-                         fmt: str=DEFAULT_FMT,
-                         date_fmt: str=DEFAULT_DATE_FMT):
-    """Adds a terminal handler to a given logger and sets its formatters.
-    
-    Args:
-        logger: The logger to modify.
-        console_level: The log level for the file handler.
-        fmt: The general format for the log messages to have.
-        date_fmt: How to further format the timestamp in the messages.
-    """
-
-    terminal_handler = StreamHandler()
-    terminal_handler.setLevel(console_level)
-    terminal_handler.setFormatter(Formatter(fmt=fmt, datefmt=date_fmt))
-
-    logger.addHandler(terminal_handler)
 
 
 def config_logger(*,

@@ -7,7 +7,7 @@ from os import getenv
 from sys import argv
 
 from .gamemaster import GameMaster
-from .logger import get_gamemaster_logger
+from .logger import get_gamemaster_logger, log_lvl
 
 
 def main(*args: str) -> int:
@@ -15,11 +15,11 @@ def main(*args: str) -> int:
 
     sep = "=" * 25
     verbose = ("-v" in args or "--verbose" in args)
-    get_gamemaster_logger(verbose).info(f"{sep} Initializing GameMaster {sep}")
+    get_gamemaster_logger(log_lvl(verbose)).info(f"{sep} Initializing GameMaster {sep}")
 
     GameMaster(
         verbose=verbose
-    ).run(getenv("TOKEN"), log_handler=None) # The handler was manually set up beforehand
+    ).run(getenv("TOKEN"), log_handler=None)
 
     return 0
 
