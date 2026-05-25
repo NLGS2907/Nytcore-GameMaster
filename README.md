@@ -9,7 +9,7 @@ If this badge does not update on the GitHub repo, remember to run a command like
 `curl -X PRUGE camo.githubusercontent.com/...`
 with the cached link of the relevant asset.
 -->
-![status](https://dcbadge.limes.pink/api/shield/1505284412907192480?bot=true?logoColor=presence&theme=discord)
+![status](https://dcbadge.limes.pink/api/shield/1505284412907192480?bot=true&theme=discord&logoColor=ffffff)
 
 ![version](https://img.shields.io/badge/version-0.0.1-brightgreen)
 ![estrellas](https://img.shields.io/github/stars/NLGS2907/Nytcore-GameMaster?label=Estrellas&style=social)
