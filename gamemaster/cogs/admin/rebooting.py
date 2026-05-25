@@ -4,19 +4,18 @@ from sys import executable, modules
 from typing import TYPE_CHECKING
 
 from discord.app_commands import command, describe
-from discord.app_commands.errors import CheckFailure
 
 from ..cog_base import _BaseCog, _BaseGroup
+from ._admin_check import _AdminCheckMixin
 
 if TYPE_CHECKING:
     from discord import Interaction
-    from discord.app_commands.errors import AppCommandError
 
     from ...gamemaster import GameMaster
     from ..cog_base import GroupsList
 
 
-class DevGroup(_BaseGroup):
+class DevGroup(_AdminCheckMixin, _BaseGroup,):
     """Group for commands meant for developers."""
 
     def __init__(self, bot: "GameMaster") -> None:
@@ -29,24 +28,6 @@ class DevGroup(_BaseGroup):
         super().__init__(bot,
                          name="dev",
                          description="Commands for developers.")
-
-    async def interaction_check(self, interaction: "Interaction") -> bool:
-        """Verifies if the user invoking the command is authorized to do so."""
-
-        return await self.bot.is_owner(interaction.user)
-
-
-    async def on_error(self, interaccion: "Interaction", error: "AppCommandError") -> None:
-        """Alerts the user that the command invocation failed."""
-
-        if isinstance(error, CheckFailure):
-            mensaje = (f"How strange! It seems that you, {interaccion.user.mention}, don't "
-                       "have enough clearance for this command.")
-            await interaccion.response.send_message(content=mensaje,
-                                                    ephemeral=True)
-            return
-
-        raise error from error
 
 
     @command(name="reboot",
