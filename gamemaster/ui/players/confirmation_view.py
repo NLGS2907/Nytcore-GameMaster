@@ -140,7 +140,7 @@ class ConfirmationView(BaseView):
 
     @countdown.before_loop
     async def before_countdown(self):
-        self._countdown_msg = self._generate_countdown_msg(0)
+        self._countdown_msg = self._generate_countdown_msg(ITERATIONS_UNTIL_READY)
         await self.refresh()
 
 
@@ -151,6 +151,6 @@ class ConfirmationView(BaseView):
             await self.refresh()
             return
 
-        await self.parent_msg.edit(view=self.manager.assemble_view(self.user,
-                                                                   self.parent_msg,
-                                                                   self.user))
+        game_view = self.manager.assemble_view(self.user, self.parent_msg, self.user)
+        await game_view.reset()
+        await self.parent_msg.edit(view=game_view)

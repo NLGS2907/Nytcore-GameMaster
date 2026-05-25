@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from datetime import datetime, timedelta
     from logging import Logger
 
+    from discord import Emoji
+
 # suppress weird Windows warning
 try:
     from asyncio import WindowsSelectorEventLoopPolicy, set_event_loop_policy
@@ -33,6 +35,7 @@ except ImportError:
 VersionTuple: TypeAlias = tuple[int, int, int]
 
 COGS_PATH: str = "./gamemaster/cogs"
+EmojisMap: TypeAlias = dict[str, "Emoji"]
 
 
 class GameMaster(Bot):
@@ -123,6 +126,7 @@ class GameMaster(Bot):
             player_repository=PlayerRepository()
         )
         self.booted_at: "datetime" = utcnow()
+        self._emojis: EmojisMap = {}
         self.log: "Logger" = get_gamemaster_logger()
         self.ds_log: "Logger" = getLogger("discord")
         add_terminal_handler(self.ds_log)
@@ -138,6 +142,7 @@ class GameMaster(Bot):
 
         make_migrations()
         await self.update_cogs(sync=True)
+        await self.fetch_emojis()
 
 
     async def update_cogs(self, *, sync: bool=True):
@@ -170,6 +175,12 @@ class GameMaster(Bot):
             await self.tree.sync()
 
 
+    async def fetch_emojis(self):
+        """Fetches and stores all the emojis of the application."""
+
+        self._emojis = {emoji.name: emoji for emoji in await self.fetch_application_emojis()}
+
+
     async def shutdown(self):
         """Closes all the bot's resources gracefully and shuts down in an orderly manner."""
 
@@ -185,6 +196,13 @@ class GameMaster(Bot):
         """Calculates the uptime of the bot."""
 
         return utcnow() - self.booted_at
+
+
+    @property
+    def emojis(self) -> list["Emoji"]:
+        """Retrieves all the emojis of the bot."""
+
+        return self._emojis
 
 
     async def fetch_avatar(self, candidate: Union[int, User], img_fmt: str=IMG_FORMAT) -> BytesIO:

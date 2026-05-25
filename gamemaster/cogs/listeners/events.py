@@ -19,6 +19,7 @@ class EventsCog(_BaseCog):
     async def on_ready(self):
         """The bot has finished the setup and is ready to use."""
 
+        await self.bot.fetch_emojis()
         self.bot.log.info(f"{self.bot.user} is ready!")
 
 

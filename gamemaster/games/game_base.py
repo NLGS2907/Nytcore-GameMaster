@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from discord.abc import User
 
     from ..gamemaster import GameMaster
-    from ..models import Player
+    from ..models import DiscordUserIdType, Player
 
 TitleType: TypeAlias = str
 DescriptionType: TypeAlias = str
@@ -98,3 +98,9 @@ class BaseGame(Generic[OptionsType], ABC):
         """Returns the maximum amount of players allowed in this game."""
 
         raise NotImplementedError
+
+
+    def player_present(self, user_id: "DiscordUserIdType") -> bool:
+        """Checks if a player with the given Discord user ID is present."""
+
+        return user_id in (player.discord_user_id for player in self.players)
