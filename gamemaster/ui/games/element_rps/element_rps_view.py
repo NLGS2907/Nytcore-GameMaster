@@ -7,6 +7,7 @@ from discord.ui import ActionRow, Container, Separator, TextDisplay
 from ....games import ElementRPSGame
 from ....models import ElementType
 from ..game_view_base import BaseGameView
+from .elem_map_btn import ElementMapButton
 from .element_btn import ElementButton
 
 if TYPE_CHECKING:
@@ -37,8 +38,11 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         self.player_2: "Player" = self.game.players[1]
 
         self._emojis = self.load_emojis(hex=self.game.options.use_hex_emojis)
-        self._element_buttons = [ElementButton(self, element, elem_emoji)
-                                 for element, elem_emoji in self._emojis.items()]
+        self._element_buttons: list[ElementButton] = [
+            ElementButton(self, element, elem_emoji)
+            for element, elem_emoji in self._emojis.items()
+        ]
+        self._elem_map_btn: ElementMapButton = ElementMapButton(self)
 
         self._reveal_msg: Optional[str] = None
         self._results_msg: Optional[str] = None
@@ -54,6 +58,10 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
             if self._reveal_msg is not None:
                 container.add_item(Separator(spacing=SeparatorSpacing.small))
                 container.add_item(TextDisplay(self._reveal_msg))
+
+            container.add_item(Separator(spacing=SeparatorSpacing.small))
+            container.add_item(ActionRow(self._elem_map_btn))
+
             self.add_item(container)
 
             self.add_item(ActionRow(*self._element_buttons))
