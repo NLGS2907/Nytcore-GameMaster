@@ -31,7 +31,7 @@ class DevGroup(_BaseGroup):
                          description="Commands for developers.")
 
     async def interaction_check(self, interaction: "Interaction") -> bool:
-        """Verifies if the user ivoking the command is authorized to do so."""
+        """Verifies if the user invoking the command is authorized to do so."""
 
         return await self.bot.is_owner(interaction.user)
 
