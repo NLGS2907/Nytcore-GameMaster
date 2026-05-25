@@ -1,7 +1,7 @@
 """The module for holding the GameMaster."""
 
 from io import BytesIO
-from logging import getLogger
+from logging import DEBUG, INFO, getLogger
 from os import getenv
 from platform import system
 from typing import TYPE_CHECKING, TypeAlias, Union
@@ -127,13 +127,14 @@ class GameMaster(Bot):
         )
         self.booted_at: "datetime" = utcnow()
         self._emojis: EmojisMap = {}
-        self.log: "Logger" = get_gamemaster_logger()
+        log_level = (DEBUG if verbose else INFO)
+        self.log: "Logger" = get_gamemaster_logger(log_level)
         self.ds_log: "Logger" = getLogger("discord")
-        add_terminal_handler(self.ds_log)
+        add_terminal_handler(self.ds_log, console_level=log_level)
         add_file_handler(self.ds_log)
 
         self.db_log: "Logger" = getLogger("peewee")
-        add_terminal_handler(self.db_log)
+        add_terminal_handler(self.db_log, console_level=log_level)
         add_file_handler(self.db_log)
 
 

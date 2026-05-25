@@ -6,8 +6,8 @@ Attributes:
 """
 
 from logging import DEBUG, INFO, FileHandler, Formatter, StreamHandler, getLogger
-from typing import TYPE_CHECKING
 from logging import root as root_logger
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from logging import Logger
@@ -31,13 +31,13 @@ def _namespace_exists(name: str) -> bool:
     return name in root_logger.manager.loggerDict
 
 
-def get_gamemaster_logger() -> "Logger":
+def get_gamemaster_logger(log_level: int=INFO) -> "Logger":
     """Gets the specific logger of the bot's namespace."""
 
     if _namespace_exists(GAMEMASTER_NAMESPACE):
         return getLogger(GAMEMASTER_NAMESPACE)
 
-    return config_logger()
+    return config_logger(console_level=log_level)
 
 
 def add_file_handler(logger: "Logger",
