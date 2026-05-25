@@ -32,3 +32,10 @@ class BaseModel(Model):
         """Returns a list of columns that have the UNIQUE constraint."""
 
         return [field.column_name for field in cls._meta.fields.values() if field.unique]
+
+
+    @classmethod
+    def table_name(cls) -> str:
+        """Fetches the underlying table name."""
+
+        return cls._meta.table_name

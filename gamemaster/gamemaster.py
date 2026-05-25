@@ -11,7 +11,7 @@ from discord.abc import User  # NOT the same as `discord.User`
 from discord.ext.commands import Bot
 from discord.utils import utcnow
 
-from .db import db, make_migrations
+from .db import db, run_migrations
 from .files import search_files
 from .logger import add_file_handler, add_terminal_handler, get_gamemaster_logger
 from .models import IMG_FORMAT
@@ -141,7 +141,7 @@ class GameMaster(Bot):
     async def setup_hook(self):
         """Initial actions to do before the bot fully wakes up."""
 
-        make_migrations()
+        run_migrations()
         await self.update_cogs(sync=True)
         await self.fetch_emojis()
 
