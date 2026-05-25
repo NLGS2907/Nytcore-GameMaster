@@ -43,6 +43,12 @@ class LobbyView(BaseView):
 
         self.__players_len: int = len(self.manager.players)
 
+        self.__close_lobby_btn: CloseLobbyButton = CloseLobbyButton(self)
+        self.__begin_game_btn: BeginGameButton = BeginGameButton(self)
+        self.__leave_btn: LeaveButton = LeaveButton(self)
+        self.__join_btn: JoinButton = JoinButton(self)
+        self.__settings_btn: SettingsButton = SettingsButton(self)
+
 
     async def reset(self):
         container = Container(TextDisplay(f"# {self.manager.game_title()}"))
@@ -52,9 +58,9 @@ class LobbyView(BaseView):
             container.add_item(TextDisplay(game_desc))
 
         container.add_item(Separator(spacing=SeparatorSpacing.large, visible=True))
-        lobby_row = ActionRow(CloseLobbyButton(self))
+        lobby_row = ActionRow(self.__close_lobby_btn)
         if self.enough_players():
-            lobby_row.add_item(BeginGameButton(self))
+            lobby_row.add_item(self.__begin_game_btn)
         container.add_item(lobby_row)
 
         container.add_item(Separator(spacing=SeparatorSpacing.small, visible=True))
@@ -69,13 +75,13 @@ class LobbyView(BaseView):
                                            f"{host_str}"))
 
         is_full = self.players_full()
-        players_row = ActionRow(LeaveButton(self))
+        players_row = ActionRow(self.__leave_btn)
         if not is_full:
-            players_row.add_item(JoinButton(self))
+            players_row.add_item(self.__join_btn)
         container.add_item(players_row)
 
         container.add_item(Separator(spacing=SeparatorSpacing.small))
-        container.add_item(ActionRow(SettingsButton(self)))
+        container.add_item(ActionRow(self.__settings_btn))
 
         self.add_item(container)
 
