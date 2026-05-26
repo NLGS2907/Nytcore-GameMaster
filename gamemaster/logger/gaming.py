@@ -15,6 +15,9 @@ if TYPE_CHECKING:
     from logging import Logger
 
 GAMEMASTER_NAMESPACE: str = "gamemaster"
+DISCORD_NAMESPACE: str = "discord"
+PEEWEE_NAMESPACE: str = "peewee"
+PEEWEE_MIGRATE_NAMESPACE: str = "peewee_migrate"
 
 
 def log_lvl(verbose: bool) -> int:
@@ -42,6 +45,24 @@ def _namespace_exists(name: str) -> bool:
     return name in root_logger.manager.loggerDict
 
 
+def get_logger(namespace: str, *, log_level: int=INFO) -> "Logger":
+    """Retrieves a logger with the given namespace.
+    
+    If not already created, it intializes it with the given log level.
+    """
+
+    if _namespace_exists(namespace):
+        return getLogger(namespace)
+
+    return config_logger(namespace, console_level=log_level)
+
+
+def get_gamemaster_logger(log_level: int=INFO) -> "Logger":
+    """Gets the specific logger of the bot's namespace."""
+
+    return get_logger(GAMEMASTER_NAMESPACE, log_level=log_level)
+
+
 def add_terminal_handler(logger: "Logger", *, console_level: int=INFO):
     """Adds a terminal handler to a given logger and sets its formatters.
     
@@ -57,36 +78,28 @@ def add_terminal_handler(logger: "Logger", *, console_level: int=INFO):
     logger.addHandler(terminal_handler)
 
 
-def get_gamemaster_logger(log_level: int=INFO) -> "Logger":
-    """Gets the specific logger of the bot's namespace."""
-
-    if _namespace_exists(GAMEMASTER_NAMESPACE):
-        return getLogger(GAMEMASTER_NAMESPACE)
-
-    return config_logger(console_level=log_level)
-
-
 def add_file_handler(logger: "Logger", *, file_level: int=DEBUG):
     """Adds a file handler to a given logger and sets its formatters.
-    
+
     Args:
         logger: The logger to modify.
         file_level: The log level for the file handler.
     """
 
-    file_handler = FileHandler(filename=get_log_path(GAMEMASTER_NAMESPACE), encoding="utf-8")
+    file_handler = FileHandler(filename=get_log_path(logger.name), encoding="utf-8")
     file_handler.setLevel(file_level)
     file_handler.setFormatter(FileFormatter())
 
     logger.addHandler(file_handler)
 
 
-def config_logger(*, file_level: int=DEBUG, console_level: int=INFO) -> "Logger":
+def config_logger(namespace: str, *, file_level: int=DEBUG, console_level: int=INFO) -> "Logger":
     """Configures the default logger for the bot.
 
     Ideally, this should be called at least once, at the start of the bot's lifetime.
     
     Args:
+        namespace: The namespace of the logger to modify.
         file_level: The log level for the file handler.
         console_level: The log level for the terminal handler.
 
@@ -95,7 +108,7 @@ def config_logger(*, file_level: int=DEBUG, console_level: int=INFO) -> "Logger"
         namespace in `getLogger()`.
     """
 
-    logger = getLogger(GAMEMASTER_NAMESPACE)
+    logger = getLogger(namespace)
     logger.setLevel(DEBUG)
     add_file_handler(logger, file_level=file_level)
     add_terminal_handler(logger, console_level=console_level)
