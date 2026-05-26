@@ -43,20 +43,16 @@ class BaseRepository[ModelType](ABC):
             The dataset of the relevant data.
         """
 
-        rowid = (
+        with self.dataset_cls()._meta.database.atomic("IMMEDIATE"):
             self.dataset_cls().insert(**insert_args).on_conflict(
                 action=("NOTHING" if (not preserve_args and not update_args) else None),
                 conflict_target=self.dataset_cls().unique_columns(),
                 preserve=preserve_args,
                 update=update_args
             ).execute()
-        )
 
-        if rowid:
-            return self.dataset_cls().get_by_id(rowid)
-
-        get_options = get_args or insert_args
-        return self.dataset_cls().get(**get_options)
+            get_options = get_args or insert_args
+            return self.dataset_cls().get(**get_options)
 
 
     @abstractmethod
