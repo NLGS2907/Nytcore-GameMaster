@@ -9,6 +9,8 @@ jobs:
   release:
     name: Create release with tag '${{ github.ref_name }}'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Create GitHub Release
