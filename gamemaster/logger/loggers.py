@@ -7,7 +7,7 @@ Attributes:
 
 from logging import DEBUG, INFO, FileHandler, StreamHandler, getLogger
 from logging import root as root_logger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .custom import FileFormatter, StreamFormatter
 
@@ -93,7 +93,10 @@ def add_file_handler(logger: "Logger", *, file_level: int=DEBUG):
     logger.addHandler(file_handler)
 
 
-def config_logger(namespace: str, *, file_level: int=DEBUG, console_level: int=INFO) -> "Logger":
+def config_logger(namespace: str,
+                  *,
+                  file_level: Optional[int]=DEBUG,
+                  console_level: Optional[int]=INFO) -> "Logger":
     """Configures the default logger for the bot.
 
     Ideally, this should be called at least once, at the start of the bot's lifetime.
@@ -110,7 +113,9 @@ def config_logger(namespace: str, *, file_level: int=DEBUG, console_level: int=I
 
     logger = getLogger(namespace)
     logger.setLevel(DEBUG)
-    add_file_handler(logger, file_level=file_level)
-    add_terminal_handler(logger, console_level=console_level)
+    if file_level is not None:
+        add_file_handler(logger, file_level=file_level)
+    if console_level is not None:
+        add_terminal_handler(logger, console_level=console_level)
 
     return logger

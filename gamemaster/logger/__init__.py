@@ -1,4 +1,5 @@
 """Loggers package."""
 
 from .custom import *
-from .gaming import *
+from .log_manager import *
+from .loggers import *

@@ -12,14 +12,7 @@ from discord.utils import utcnow
 
 from .db import db, run_migrations
 from .files import search_files
-from .logger import (
-    DISCORD_NAMESPACE,
-    PEEWEE_MIGRATE_NAMESPACE,
-    PEEWEE_NAMESPACE,
-    config_logger,
-    get_gamemaster_logger,
-    log_lvl,
-)
+from .logger import LoggerManager, get_gamemaster_logger, log_lvl
 from .models import IMG_FORMAT
 from .repositories import PlayerRepository, RepositoryConfiguration
 
@@ -54,7 +47,7 @@ class GameMaster(Bot):
         ds_log: A reference to a secondary, special logger used by the discord.py library itself. 
     """
 
-    def __init__(self, *, verbose: bool=True, **options):
+    def __init__(self, *, verbose: bool=True, only_bot_logger: bool=True, **options):
         """Initializes the GameMaster.
         
         Args:
@@ -71,15 +64,12 @@ class GameMaster(Bot):
             player_repository=PlayerRepository()
         )
         self._verbose: bool = verbose
+        self._only_bot_logger: bool = only_bot_logger
         self.booted_at: "datetime" = utcnow()
         self._emojis: EmojisMap = {}
-        log_level = log_lvl(self._verbose)
 
-        self.log: "Logger" = get_gamemaster_logger(log_level)
-        self.ds_log: "Logger" = config_logger(DISCORD_NAMESPACE, console_level=log_level)
-        self.db_log: "Logger" = config_logger(PEEWEE_NAMESPACE, console_level=log_level)
-        self.db_migrate_log: "Logger" = config_logger(PEEWEE_MIGRATE_NAMESPACE,
-                                                      console_level=log_level)
+        self.logs: LoggerManager = LoggerManager(console_lvl=log_lvl(self._verbose),
+                                                 only_bot_logger=self._only_bot_logger)
 
 
     @staticmethod
@@ -205,6 +195,13 @@ class GameMaster(Bot):
 
 
     @property
+    def only_bot_logger(self) -> bool:
+        """Checks if only the bot logger should be active for stream handlers."""
+
+        return self._only_bot_logger
+
+
+    @property
     def uptime(self) -> "timedelta":
         """Calculates the uptime of the bot."""
 
@@ -216,6 +213,13 @@ class GameMaster(Bot):
         """Retrieves all the emojis of the bot."""
 
         return self._emojis
+
+
+    @property
+    def log(self) -> "Logger":
+        """Retrieves the logger of the bot."""
+
+        return self.logs.gamemaster
 
 
     async def fetch_avatar(self, candidate: Union[int, User], img_fmt: str=IMG_FORMAT) -> BytesIO:

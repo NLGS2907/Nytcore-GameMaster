@@ -6,6 +6,7 @@ Can be triggered manually, but is mainly designed to be called from the package 
 from os import getenv
 from sys import argv
 
+from .arg_parser import BotArgParser
 from .gamemaster import GameMaster
 from .logger import get_gamemaster_logger, log_lvl
 
@@ -13,12 +14,14 @@ from .logger import get_gamemaster_logger, log_lvl
 def main(*args: str) -> int:
     "Main function."
 
+    flags = BotArgParser().parse_args(args[1:])
+
     sep = "=" * 25
-    verbose = ("-v" in args or "--verbose" in args)
-    get_gamemaster_logger(log_lvl(verbose)).info(f"{sep} Initializing GameMaster {sep}")
+    get_gamemaster_logger(log_lvl(flags.verbose)).info(f"{sep} Initializing GameMaster {sep}")
 
     GameMaster(
-        verbose=verbose
+        verbose=flags.verbose,
+        only_bot_logger=flags.only_bot
     ).run(getenv("TOKEN"), log_handler=None)
 
     return 0

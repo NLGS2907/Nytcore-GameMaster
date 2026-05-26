@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from gamemaster.logger.gaming import get_gamemaster_logger
+from gamemaster.logger.loggers import get_gamemaster_logger
+
 
 class TestGameMasterLogger(TestCase):
     def test_returns_the_same_logger(self):
