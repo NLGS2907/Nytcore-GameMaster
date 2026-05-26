@@ -14,7 +14,7 @@ from .db import db, run_migrations
 from .files import search_files
 from .logger import LoggerManager, get_gamemaster_logger, log_lvl
 from .models import IMG_FORMAT
-from .repositories import PlayerRepository, RepositoryConfiguration
+from .repositories import PlayerRepository, RepositoryConfiguration, RPSResultRepository
 
 if TYPE_CHECKING:
     from datetime import datetime, timedelta
@@ -61,7 +61,8 @@ class GameMaster(Bot):
                          options=options)
 
         self.repositories: RepositoryConfiguration = RepositoryConfiguration(
-            player_repository=PlayerRepository()
+            player_repository=PlayerRepository(),
+            rps_result_repository=RPSResultRepository()
         )
         self._verbose: bool = verbose
         self._only_bot_logger: bool = only_bot_logger

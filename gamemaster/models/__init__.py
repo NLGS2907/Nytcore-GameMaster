@@ -2,3 +2,4 @@
 
 from .elements import *
 from .player import *
+from .rps_result import *

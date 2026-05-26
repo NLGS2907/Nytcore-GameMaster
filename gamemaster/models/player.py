@@ -55,6 +55,7 @@ class Player:
         """Initializes the player user.
         
         Args:
+            id: The underlying dataset ID.
             username: The name of the player.
             discord_user_id: The discord user ID tied to the player.
             emoji: An optional emoji to be used in some minigames.
