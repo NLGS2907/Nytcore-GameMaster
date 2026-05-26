@@ -5,6 +5,7 @@ from ..base_repository import BaseRepository
 
 if TYPE_CHECKING:
     from ...models import RoundsList, RPSResult
+    from ..player import IPlayerRepository
 
 
 EncodedRoundsType: TypeAlias = int
@@ -15,6 +16,17 @@ class IRPSResultRepository(BaseRepository["RPSResult"], ABC):
     
     Any repository that wants to deal with RPS games' data must implement these interface.
     """
+
+    def __init__(self, player_repository: "IPlayerRepository"):
+        """Initializes the RPS result repository.
+        
+        Args:
+            player_repository: A player's repo to convert to datasets.
+        """
+        super().__init__()
+
+        self._player_repo: "IPlayerRepository" = player_repository
+
 
     @abstractmethod
     def encode_rounds(self, rounds: "RoundsList") -> EncodedRoundsType:

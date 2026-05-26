@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING, Optional, TypeAlias, TypedDict
+from datetime import datetime
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
-from ...models import ElementType
+from ...models import ElementType, RPSResult, RPSRoundResult
 from ..game_base import BaseGame
 from .element_rps_options import ElementRPSOptions
 from .result_stats import RPSResultStats
@@ -9,16 +10,10 @@ if TYPE_CHECKING:
     from discord.abc import User
 
     from ...gamemaster import GameMaster
-    from ...models import EmojiType, Player
+    from ...models import EmojiType, Player, RPSRoundData
     from ..game_base import EmojisCollection
 
 WeaknessMap: TypeAlias = dict[ElementType, ElementType]
-
-# TODO: Replace this for a more persistent model ASAP!!!!
-class _RoundResultRecord(TypedDict):
-    player_1_choice: ElementType
-    player_2_choice: ElementType
-    who_won: Optional["Player"]
 
 WEAKNESSES: WeaknessMap = {
     ElementType.WIND: ElementType.FIRE,
@@ -55,7 +50,8 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
 
         self._cur_round: int = 0
         self._round_finished: bool = False
-        self.__records: list[_RoundResultRecord] = [] # TODO: Replace this for a more persistent model ASAP!!!!
+        self.__results: RPSResult = RPSResult(None, self.players[0], self.players[1], [],
+                                              datetime.now())
 
 
     @staticmethod
@@ -203,37 +199,38 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         return self._player_1_score, self._player_2_score
 
 
-    def last_record(self) -> Optional[_RoundResultRecord]:
+    def last_record(self) -> Optional["RPSRoundData"]:
         """Returns the records of the last round"""
 
-        if not self.__records:
-            return None
+        return self.__results.last_round()
 
-        return self.__records[self._cur_round]
+
+    def determine_winner(self, round_data: "RPSRoundData") -> Optional["Player"]:
+        """Determines the winner of the round."""
+
+        return self.__results.determine_winner(round_data)
 
 
     def process_stats(self) -> RPSResultStats:
         """Retrieves some stats from the finished game."""
 
-        return RPSResultStats(self.__records)
+        return RPSResultStats(self.__results)
 
 
     def resolve(self):
         """Closes off the round and tells the results."""
 
         self._round_finished = True
-        round_winner = None
+        round_result = RPSRoundResult.TIE
 
         if self.weak_against(self._player_2_choice, self._player_1_choice):
-            round_winner = self.player_1
+            round_result = RPSRoundResult.VICTORY
             self._player_1_score += 1
         elif self.weak_against(self._player_1_choice, self._player_2_choice):
-            round_winner = self.player_2
+            round_result = RPSRoundResult.DEFEAT
             self._player_2_score += 1
 
-        self.__records.append(dict(player_1_choice=self._player_1_choice,
-                                   player_2_choice=self._player_2_choice,
-                                   who_won=round_winner))
+        self.__results.add_data(self._player_1_choice, self._player_2_choice, round_result)
 
 
     def reset_round(self):
@@ -267,3 +264,9 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
             winner = self.player_2
 
         return winner
+
+
+    def save(self):
+        """Saves the record of the game in its repository."""
+
+        self.bot.repositories.rps_result.save(self.__results)

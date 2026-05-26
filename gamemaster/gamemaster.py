@@ -60,9 +60,10 @@ class GameMaster(Bot):
                          application_id=getenv("BOT_ID"),
                          options=options)
 
+        player_repo = PlayerRepository()
         self.repositories: RepositoryConfiguration = RepositoryConfiguration(
-            player_repository=PlayerRepository(),
-            rps_result_repository=RPSResultRepository()
+            player_repository=player_repo,
+            rps_result_repository=RPSResultRepository(player_repo)
         )
         self._verbose: bool = verbose
         self._only_bot_logger: bool = only_bot_logger

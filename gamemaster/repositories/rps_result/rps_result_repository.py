@@ -17,7 +17,7 @@ _ENCODE_MAP: dict[ElementType, int] = {
     ElementType.FIRE: BASE_THREE + 4,
     ElementType.ELECTRIC: BASE_THREE + 5
 }
-_DECODE_MAP: dict[int, ElementType] = {value: key for key, value in _ENCODE_MAP}
+_DECODE_MAP: dict[int, ElementType] = {value: key for key, value in _ENCODE_MAP.items()}
 
 
 class RPSResultRepository(IRPSResultRepository):
@@ -29,8 +29,8 @@ class RPSResultRepository(IRPSResultRepository):
     def _model_to_dataset(self, model: RPSResult) -> RPSResultDataset:
         return RPSResultDataset(
             id=model._id,
-            player_1=model.player_1,
-            player_2=model.player_2,
+            player_1=self._player_repo._model_to_dataset(model.player_1),
+            player_2=self._player_repo._model_to_dataset(model.player_2),
             rounds=self.encode_rounds(model.rounds),
             saved=model.saved_at
         )
@@ -39,8 +39,8 @@ class RPSResultRepository(IRPSResultRepository):
     def _dataset_to_model(self, dataset: RPSResultDataset) -> RPSResult:
         return RPSResult(
             id=dataset.get_id(),
-            player_1=dataset.player_1,
-            player_2=dataset.player_2,
+            player_1=self._player_repo._dataset_to_model(dataset.player_1),
+            player_2=self._player_repo._dataset_to_model(dataset.player_2),
             rounds=self.decode_rounds(dataset.rounds),
             saved=dataset.saved
         )

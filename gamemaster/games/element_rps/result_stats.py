@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, TypeAlias, Union
 
-from ...models import ElementType
+from ...models import ElementType, RPSRoundResult
 
 if TYPE_CHECKING:
     from discord import Emoji, PartialEmoji
 
-    from .element_rps_game import _RoundResultRecord
+    from ...models import RPSResult
 
 MaybeEmoji: TypeAlias = Union["Emoji", "PartialEmoji"]
 EmojiCounter: TypeAlias = dict[ElementType, list[int]]
@@ -14,7 +14,7 @@ EmojiCounter: TypeAlias = dict[ElementType, list[int]]
 class RPSResultStats:
     """Helper class for calculating some stats from a finished game of Element RPS."""
 
-    def __init__(self, records: list["_RoundResultRecord"]):
+    def __init__(self, records: "RPSResult"):
         """Initialize the stats.
         
         Args:
@@ -34,17 +34,17 @@ class RPSResultStats:
         return {element: [0, 0] for element in ElementType}
 
 
-    def process(self, records: list["_RoundResultRecord"]):
+    def process(self, records: "RPSResult"):
         """Process the stats with the given records."""
 
         emojis_counter = self._initialize_emoji_counter()
 
-        for round in records:
-            if round["who_won"] is None:
+        for round in records.walk_rounds():
+            if round.result == RPSRoundResult.TIE:
                 self.ties_count += 1
 
-            emojis_counter[round["player_1_choice"]][0] += 1
-            emojis_counter[round["player_2_choice"]][1] += 1
+            emojis_counter[round.player_1_choice][0] += 1
+            emojis_counter[round.player_2_choice][1] += 1
 
         max_count_player_1 = max(*emojis_counter.values(), key=lambda count: count[0])[0]
         max_count_player_2 = max(*emojis_counter.values(), key=lambda count: count[1])[1]

@@ -69,11 +69,11 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
 
         last_result = self.game.last_record()
         container.add_item(TextDisplay(
-            (f"## {self.player_1.username}  {self._emojis[last_result["player_1_choice"]]}\t-\t"
-             f"{self._emojis[last_result["player_2_choice"]]}  {self.player_2.username}")
+            (f"## {self.player_1.username}  {self._emojis[last_result.player_1_choice]}\t-\t"
+             f"{self._emojis[last_result.player_2_choice]}  {self.player_2.username}")
         ))
 
-        winner = last_result['who_won']
+        winner = self.game.determine_winner(last_result)
         win_msg = (f"{winner.username} has won round {cur_round}!"
                    if winner is not None else f"_Round {cur_round} has ended in a tie._")
         container.add_item(TextDisplay(f"### {win_msg}"))
@@ -107,9 +107,9 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
                         f"and **{stats.ties_count} ties**."),
             Separator(spacing=SeparatorSpacing.small),
             TextDisplay(f"-# Favourite elements of **{self.game.player_1.username}**:\t"
-                        f"{', '.join(str(self._emojis[fav]) for fav in stats.player_1_favs)}"),
+                        f"{' ,  '.join(str(self._emojis[fav]) for fav in stats.player_1_favs)}"),
             TextDisplay(f"-# Favourite elements of **{self.game.player_2.username}**:\t"
-                        f"{', '.join(str(self._emojis[fav]) for fav in stats.player_2_favs)}")
+                        f"{' ,  '.join(str(self._emojis[fav]) for fav in stats.player_2_favs)}")
         )
 
         self.add_item(container)
@@ -222,6 +222,7 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
 
         winner = self.game.finished()
         if winner is not None:
+            self.game.save()
             await self.finish_message(winner)
         else:
             await self.refresh()

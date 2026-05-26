@@ -1,12 +1,14 @@
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Generator, Optional, TypeAlias
+
+from .elements import RPSRoundData, RPSRoundResult
 
 if TYPE_CHECKING:
     from datetime import datetime
 
-    from .elements import RPSRoundData
+    from .elements import ElementType
     from .player import Player
 
-RoundsList: TypeAlias = list["RPSRoundData"]
+RoundsList: TypeAlias = list[RPSRoundData]
 
 
 class RPSResult:
@@ -20,7 +22,7 @@ class RPSResult:
     """
 
     def __init__(self,
-                 id: int,
+                 id: Optional[int],
                  player_1: "Player",
                  player_2: "Player",
                  rounds: RoundsList,
@@ -35,7 +37,7 @@ class RPSResult:
             saved: When was the game recorded.
         """
 
-        self._id: int = id
+        self._id: Optional[int] = id
         self._player_1: "Player" = player_1
         self._player_2: "Player" = player_2
         self._rounds: RoundsList = rounds
@@ -80,3 +82,64 @@ class RPSResult:
     @saved_at.setter
     def saved_at(self, new_saved_at: "datetime"):
         self._saved_at = new_saved_at
+
+
+    def add_data(self,
+                 choice_1: "ElementType",
+                 choice_2: "ElementType",
+                 result: RPSRoundResult) -> RPSRoundData:
+        """Appends data to the rounds registry.
+        
+        Args:
+            choice_1: The choice of the first player.
+            choice_2: The choice of the second player.
+            result: The result of that round.
+
+        Returns:
+            The data of the round that was just added.
+        """
+
+        round_data = RPSRoundData(choice_1, choice_2, result)
+        self.rounds.append(round_data)
+
+        return round_data
+
+
+    def how_many_rounds(self) -> int:
+        """Returns the amount of rounds played."""
+
+        return len(self.rounds)
+
+
+    def last_round(self) -> Optional[RPSRoundData]:
+        """Returns the records of the last round played, or `None` if there's no data."""
+
+        if not self.rounds:
+            return None
+
+        return self.rounds[-1]
+
+
+    def determine_winner(self, round_data: RPSRoundData) -> Optional["Player"]:
+        """Tries to guess who won the round based on the given data.
+        
+        Args:
+            round_data: The data of the round.
+
+        Returns:
+            The player that has won, or `None` if it was a tie.
+        """
+
+        if round_data.result == RPSRoundResult.DEFEAT:
+            return self.player_2
+
+        if round_data.result == RPSRoundResult.VICTORY:
+            return self.player_1
+
+        return None
+
+
+    def walk_rounds(self) -> Generator[RPSRoundData]:
+        """Yields the data from each round of the game."""
+
+        yield from self.rounds
