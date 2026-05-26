@@ -1,17 +1,18 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, TypeAlias
 
+from ...models import RPSResult
 from ..base_repository import BaseRepository
 
 if TYPE_CHECKING:
-    from ...models import RoundsList, RPSResult
+    from ...models import RoundsList
     from ..player import IPlayerRepository
 
 
 EncodedRoundsType: TypeAlias = int
 
 
-class IRPSResultRepository(BaseRepository["RPSResult"], ABC):
+class IRPSResultRepository(BaseRepository[RPSResult], ABC):
     """Interface for RPS result repositories.
     
     Any repository that wants to deal with RPS games' data must implement these interface.
