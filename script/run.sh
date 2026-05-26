@@ -1,7 +1,8 @@
 #!/bin/bash
-possible_ver=( python3.13\ python3\ py\ python)
+possible_ver=( python3.14\ python3\ py\ python)
 pyupdate=" -m pip install --upgrade -r requirements.txt"
 pyargs=" -m gamemaster"
+export BOT_MODE="${1:-test}" # should be available inside the program too
 
 # should change dir to project root
 if [[ $PWD == *run ]]
