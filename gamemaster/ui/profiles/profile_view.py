@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, TypeAlias, Union
 from discord import Colour, File, SeparatorSpacing
 from discord.ui import ActionRow, Container, Section, Separator, TextDisplay, Thumbnail
 
-from ...models import IMG_FORMAT
+from ...models import IMG_FORMAT, MAX_COLOR_DIGITS
 from ..base_view import BaseView
 from .edit_profile_btn import EditProfileButton
 from .mention_user_btn import MentionUserButton
@@ -202,19 +202,53 @@ class ProfileView(BaseView):
         return img_title_text, img_fmt_text, img_dim_text, img_size_text
 
 
+    def _fav_color_section(self, container: Container) -> tuple[TextDisplay, TextDisplay,
+                                                                TextDisplay]:
+        """Adds the favourite color section to the container.
+        
+        Args:
+            container: The container to which add the components.
+
+        Returns:
+            The section that was just created.
+        """
+
+        color_title = TextDisplay("## Favourite Color")
+        container.add_item(color_title)
+
+        if self.player.fav_color is None:
+            color_rgb = "_N/A_"
+        else:
+            rgb_tuple = tuple(int(self.player.fav_color[i:i+2], 16)
+                              for i in range(1, MAX_COLOR_DIGITS, 2))
+            color_rgb = f"`{rgb_tuple}`"
+        color_rgb_text = TextDisplay(f"### RGB:\t{color_rgb}")
+        container.add_item(color_rgb_text)
+
+        color_hex = (f"`{self.player.fav_color}`" if self.player.fav_color else "_N/A_")
+        color_hex_text = TextDisplay(f"### HEX:\t{color_hex}")
+        container.add_item(color_hex_text)
+
+        return color_title, color_rgb_text, color_hex_text
+
+
     async def reset(self):
         author_img = await self.bot.fetch_avatar(self.player_user)
         # we can't use the same image, it has to be a copy
         author_file = File(BytesIO(author_img.getvalue()), f"user.{IMG_FORMAT}")
         self.all_files.append(author_file)
 
-        master_container = Container(accent_colour=Colour.random())
+        master_container = Container(accent_colour=(Colour.from_str(self.player.fav_color)
+                                                    if self.player.fav_color is not None
+                                                    else Colour.random()))
 
         self._thumbnail_section(master_container, author_img)
         self._large_separator(master_container)
         self._discord_user_section(master_container, author_file)
         self._small_separator(master_container)
         self._emoji_section(master_container)
+        self._small_separator(master_container)
+        self._fav_color_section(master_container)
         self._small_separator(master_container)
         self._image_details_section(master_container)
 

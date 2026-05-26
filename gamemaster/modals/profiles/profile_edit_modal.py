@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import TextStyle
 from discord.ui import FileUpload, Label, Modal, TextInput
 
-from ...models import IMG_MAX_SIZE, IMG_MIN_SIZE, NAME_MAX_LENGTH
+from ...models import IMG_MAX_SIZE, IMG_MIN_SIZE, MAX_COLOR_DIGITS, NAME_MAX_LENGTH
 
 if TYPE_CHECKING:
     from discord import Attachment, Interaction
@@ -51,6 +51,13 @@ class ProfileEditModal(Modal):
                                                 required=False,
                                                 min_length=0,
                                                 placeholder=player.emoji)))
+        self.add_item(Label(text="Favourite Color",
+                            description="A color of your preference, in #rrggbb format.",
+                            component=TextInput(style=TextStyle.short,
+                                                required=False,
+                                                min_length=0,
+                                                max_length=MAX_COLOR_DIGITS + 1,
+                                                placeholder=player.fav_color)))
         self.add_item(Label(text="Profile image",
                             description=image_description,
                             component=FileUpload(required=False, min_values=0, max_values=1)))
@@ -77,8 +84,10 @@ class ProfileEditModal(Modal):
     async def on_submit(self, interaction: "Interaction"):
         """The user sucessfully sent the profile editing modal."""
 
-        player_name, emoji_selection, files_upload = map(lambda label: label.component,
-                                                         self.children)
+        player_name, emoji_selection, selected_color, files_upload = map(
+            lambda label: label.component,
+            self.children
+        )
         
         try:
             if player_name.value:
@@ -89,6 +98,9 @@ class ProfileEditModal(Modal):
 
             if files_upload.values:
                 await self._change_profile_image(files_upload.values[0])
+
+            if selected_color.value:
+                self.player.fav_color = selected_color.value.strip()
 
             self.player_repo.save(self.player)
         except (TypeError, ValueError) as err:

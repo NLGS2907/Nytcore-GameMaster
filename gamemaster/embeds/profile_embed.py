@@ -23,7 +23,9 @@ class ProfileEmbed(Embed):
         """
 
         super().__init__(title=f"\"{player.username}\" Profile",
-                         colour=Colour.random())
+                         colour=(Colour.from_str(player.fav_color)
+                                 if player.fav_color is not None
+                                 else Colour.random()))
 
         self.bot: "GameMaster" = bot
         self.player: "Player" = player

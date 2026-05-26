@@ -21,6 +21,7 @@ IMG_MIN_SIZE: int = 250
 IMG_MAX_SIZE: int = 1500
 IMG_FORMAT: str = "webp"
 
+MAX_COLOR_DIGITS: int = 6
 COLOR_PATTERN: "Pattern" = compile(r"^#([0-9a-fA-F]){6}$")
 
 
@@ -41,6 +42,7 @@ class Player:
         discord_user_id: The discord user ID tied to the player.
         emoji: An optional emoji to be used in some minigames.
         profile_img: The custom profile image that the player chose.
+        fav_color: The favourite color of the player, in #rrggbb format.
     """
 
     def __init__(self,
