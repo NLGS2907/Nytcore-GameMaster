@@ -1,13 +1,18 @@
 from io import BytesIO
-from typing import Optional, TypeAlias, TypedDict
+from re import compile
+from typing import TYPE_CHECKING, Optional, TypeAlias, TypedDict
 
 from emoji import is_emoji
 from PIL.Image import open as img_open
+
+if TYPE_CHECKING:
+    from re import Pattern
 
 UsernameType: TypeAlias = str
 DiscordUserIdType: TypeAlias = int
 EmojiType: TypeAlias = str
 ProfileImgType: TypeAlias = BytesIO
+ColorType: TypeAlias = str
 
 NAME_MIN_LENGTH: int = 3
 NAME_MAX_LENGTH: int = 30
@@ -15,6 +20,8 @@ NAME_MAX_LENGTH: int = 30
 IMG_MIN_SIZE: int = 250
 IMG_MAX_SIZE: int = 1500
 IMG_FORMAT: str = "webp"
+
+COLOR_PATTERN: "Pattern" = compile(r"^#([0-9a-fA-F]){6}$")
 
 
 class _ImageProperties(TypedDict):
@@ -41,7 +48,8 @@ class Player:
                  username: UsernameType,
                  discord_user_id: DiscordUserIdType,
                  emoji: Optional[EmojiType]=None,
-                 profile_img: Optional[ProfileImgType]=None):
+                 profile_img: Optional[ProfileImgType]=None,
+                 fav_color: Optional[ColorType]=None):
         """Initializes the player user.
         
         Args:
@@ -49,6 +57,7 @@ class Player:
             discord_user_id: The discord user ID tied to the player.
             emoji: An optional emoji to be used in some minigames.
             profile_img: The custom profile image that the player chose.
+            fav_color: The favourite color of the player, in #rrggbb format.
         """
 
         self._id: int = id
@@ -56,6 +65,7 @@ class Player:
         self._discord_user_id: DiscordUserIdType = discord_user_id
         self._emoji: Optional[EmojiType] = self._validate_emoji(emoji)
         self._profile_img: Optional[ProfileImgType] = self._validate_profile_img(profile_img)
+        self._fav_color: Optional[ColorType] = self._validate_fav_color(fav_color)
 
         self.__img_props: Optional[_ImageProperties] = None
 
@@ -94,6 +104,16 @@ class Player:
     def profile_img(self, new_img: Optional[ProfileImgType]):
         self._profile_img = self._validate_profile_img(new_img)
         self.__img_props = None
+
+
+    @property
+    def fav_color(self) -> Optional[ColorType]:
+        return self._fav_color
+
+
+    @fav_color.setter
+    def fav_color(self, new_color: Optional[ColorType]):
+        self._fav_color = self._validate_fav_color(new_color)
 
 
     @property
@@ -173,11 +193,11 @@ class Player:
         """
 
         if candidate_emoji is None:
-            return candidate_emoji
+            return None
 
         if not isinstance(candidate_emoji, EmojiType):
             raise TypeError(f"candidate emoji is of type {type(candidate_emoji).__name__!r}, "
-                            f"but a name of type {EmojiType.__name__!r} is required.")
+                            f"but one of type {EmojiType.__name__!r} is required.")
 
         stripped_emoji = candidate_emoji.strip()
         if not stripped_emoji:
@@ -211,11 +231,11 @@ class Player:
         """
 
         if candidate_img is None:
-            return candidate_img
+            return None
 
         if not isinstance(candidate_img, ProfileImgType):
-            raise TypeError(f"candidate emoji is of type {type(candidate_img).__name__!r}, "
-                            f"but a name of type {ProfileImgType.__name__!r} is required.")
+            raise TypeError(f"candidate image is of type {type(candidate_img).__name__!r}, "
+                            f"but one of type {ProfileImgType.__name__!r} is required.")
 
         result_img = ProfileImgType()
         try:
@@ -242,3 +262,33 @@ class Player:
             img.close()
 
         return result_img
+
+
+    @staticmethod
+    def _validate_fav_color(candidate_color: Optional[ColorType]) -> Optional[ColorType]:
+        """Validates if the given color is correct.
+
+        Args:
+            candidate_color: The color to validate.
+
+        Raises:
+            TypeError: If the color is not a string.
+            ValueError: If the color doesn't follow a #rrggbb format, or is malformed
+                        in another way.
+
+        Returns:
+            The color, already validated.
+        """
+
+        if candidate_color is None:
+            return None
+
+        if not isinstance(candidate_color, ColorType):
+            raise TypeError(f"candidate color is of type {type(candidate_color).__name__!r}, "
+                            f"but one of type {ProfileImgType.__name__!r} is required.")
+
+        if COLOR_PATTERN.match(candidate_color) is None:
+            raise ValueError((f"The color {candidate_color!r} has an invalid format. It should "
+                              "follow the format #rrggbb."))
+
+        return candidate_color.upper()

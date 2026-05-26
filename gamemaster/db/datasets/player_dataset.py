@@ -1,10 +1,11 @@
 """Player model module."""
 
-from peewee import BlobField, CharField, BigIntegerField
+from peewee import BigIntegerField, BlobField, CharField
 
 from .. import BaseModel
 
 USERNAME_MAX_LENGTH: str = 30
+COLOR_MAX_LENGTH: int = 7
 
 class PlayerDataset(BaseModel):
     """Player model that connects with the database."""
@@ -13,3 +14,4 @@ class PlayerDataset(BaseModel):
     discord_id = BigIntegerField(unique=True, null=False)
     emoji = CharField(null=True)
     profile_img = BlobField(null=True)
+    color = CharField(max_length=COLOR_MAX_LENGTH, null=True)

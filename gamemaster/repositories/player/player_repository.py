@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ...db.datasets import PlayerDataset
 from ...models import Player
@@ -23,7 +23,8 @@ class PlayerRepository(IPlayerRepository):
                              emoji=(self.emoji_to_unicode(model.emoji)
                                     if model.emoji is not None else model.emoji),
                              profile_img=(model.profile_img.getvalue()
-                                          if model.profile_img is not None else model.profile_img))
+                                          if model.profile_img is not None else model.profile_img),
+                             color=model.fav_color)
 
 
     def _dataset_to_model(self, dataset: PlayerDataset) -> Player:
@@ -38,7 +39,8 @@ class PlayerRepository(IPlayerRepository):
                       dataset.discord_id,
                       (dataset.emoji if dataset.emoji is None
                        else self.unicode_to_emoji(dataset.emoji)),
-                      img_file)
+                      img_file,
+                      dataset.color)
 
 
     def emoji_to_unicode(self, emoji: "EmojiType") -> str:
@@ -55,16 +57,18 @@ class PlayerRepository(IPlayerRepository):
                username: str,
                discord_user_id: int,
                emoji: Optional[str]=None,
-               profile_img: Optional["BytesIO"]=None) -> Player:
+               profile_img: Optional["BytesIO"]=None,
+               color: Optional[str]=None) -> Player:
         # dummy object to runs the  validations
-        validator = Player(0, username, discord_user_id, emoji, profile_img)
+        validator = Player(0, username, discord_user_id, emoji, profile_img, color)
         validated_img_data = (validator.profile_img.getvalue()
                               if validator.profile_img is not None else None)
 
         result = self._create_dataset(dict(username=validator.username,
                                            discord_id=discord_user_id,
                                            emoji=validator.emoji,
-                                           profile_img=validated_img_data),
+                                           profile_img=validated_img_data,
+                                           color=validator.fav_color),
                                       get_args=dict(discord_id=discord_user_id))
 
         return self._dataset_to_model(result)
