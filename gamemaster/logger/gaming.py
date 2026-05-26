@@ -5,16 +5,16 @@ Attributes:
     LOG_PATH: The default path for the custom logger.
 """
 
-from logging import DEBUG, INFO, FileHandler, Formatter, StreamHandler, getLogger
+from logging import DEBUG, INFO, FileHandler, StreamHandler, getLogger
 from logging import root as root_logger
 from typing import TYPE_CHECKING
+
+from .custom import FileFormatter, StreamFormatter
 
 if TYPE_CHECKING:
     from logging import Logger
 
 GAMEMASTER_NAMESPACE: str = "gamemaster"
-DEFAULT_FMT: str = "%(asctime)s - %(levelname)s - [ %(name)s ] %(message)s"
-DEFAULT_DATE_FMT: str = "%d-%m-%Y %H:%M:%S"
 
 
 def log_lvl(verbose: bool) -> int:
@@ -42,23 +42,17 @@ def _namespace_exists(name: str) -> bool:
     return name in root_logger.manager.loggerDict
 
 
-def add_terminal_handler(logger: "Logger",
-                         *,
-                         console_level: int=INFO,
-                         fmt: str=DEFAULT_FMT,
-                         date_fmt: str=DEFAULT_DATE_FMT):
+def add_terminal_handler(logger: "Logger", *, console_level: int=INFO):
     """Adds a terminal handler to a given logger and sets its formatters.
     
     Args:
         logger: The logger to modify.
         console_level: The log level for the file handler.
-        fmt: The general format for the log messages to have.
-        date_fmt: How to further format the timestamp in the messages.
     """
 
     terminal_handler = StreamHandler()
     terminal_handler.setLevel(console_level)
-    terminal_handler.setFormatter(Formatter(fmt=fmt, datefmt=date_fmt))
+    terminal_handler.setFormatter(StreamFormatter.FORMATS[console_level])
 
     logger.addHandler(terminal_handler)
 
@@ -72,32 +66,22 @@ def get_gamemaster_logger(log_level: int=INFO) -> "Logger":
     return config_logger(console_level=log_level)
 
 
-def add_file_handler(logger: "Logger",
-                     *,
-                     file_level: int=DEBUG,
-                     fmt: str=DEFAULT_FMT,
-                     date_fmt: str=DEFAULT_DATE_FMT):
+def add_file_handler(logger: "Logger", *, file_level: int=DEBUG):
     """Adds a file handler to a given logger and sets its formatters.
     
     Args:
         logger: The logger to modify.
         file_level: The log level for the file handler.
-        fmt: The general format for the log messages to have.
-        date_fmt: How to further format the timestamp in the messages.
     """
 
     file_handler = FileHandler(filename=get_log_path(GAMEMASTER_NAMESPACE), encoding="utf-8")
     file_handler.setLevel(file_level)
-    file_handler.setFormatter(Formatter(fmt=fmt, datefmt=date_fmt))
+    file_handler.setFormatter(FileFormatter())
 
     logger.addHandler(file_handler)
 
 
-def config_logger(*,
-                  file_level: int=DEBUG,
-                  console_level: int=INFO,
-                  fmt: str=DEFAULT_FMT,
-                  date_fmt: str=DEFAULT_DATE_FMT) -> "Logger":
+def config_logger(*, file_level: int=DEBUG, console_level: int=INFO) -> "Logger":
     """Configures the default logger for the bot.
 
     Ideally, this should be called at least once, at the start of the bot's lifetime.
@@ -105,8 +89,6 @@ def config_logger(*,
     Args:
         file_level: The log level for the file handler.
         console_level: The log level for the terminal handler.
-        fmt: The general format for the log messages to have.
-        date_fmt: How to further format the timestamp in the messages.
 
     Returns:
         The logger that was generated. Alternatively, it can still be located with the same
@@ -115,7 +97,7 @@ def config_logger(*,
 
     logger = getLogger(GAMEMASTER_NAMESPACE)
     logger.setLevel(DEBUG)
-    add_file_handler(logger, file_level=file_level, fmt=fmt, date_fmt=date_fmt)
-    add_terminal_handler(logger, console_level=console_level, fmt=fmt, date_fmt=date_fmt)
+    add_file_handler(logger, file_level=file_level)
+    add_terminal_handler(logger, console_level=console_level)
 
     return logger
