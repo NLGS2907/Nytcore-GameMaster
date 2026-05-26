@@ -1,11 +1,15 @@
 from collections import deque
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from discord import File
-from discord.app_commands import command, describe
+from discord.app_commands import Choice, choices, command, describe
 
-from ...logger import GAMEMASTER_NAMESPACE, get_log_path
+from ...logger import (
+    ALL_NAMESPACES,
+    GAMEMASTER_NAMESPACE,
+    get_log_path,
+)
 from ..cog_base import _BaseCog, _BaseGroup
 from ._admin_check import _AdminCheckMixin
 
@@ -59,8 +63,11 @@ class LogGroup(_AdminCheckMixin, _BaseGroup):
 
     @command(name="get",
              description="[OWNER] Retrieves the entire log file.")
-    async def log_get(self, interaction: "Interaction"):
-        log_path = get_log_path(GAMEMASTER_NAMESPACE)
+    @describe(file="The log file to retrieve.")
+    @choices(file=[Choice(name=namespace, value=namespace) for namespace in ALL_NAMESPACES])
+    async def log_get(self, interaction: "Interaction", file: Optional[Choice[str]]=None):
+        file = (GAMEMASTER_NAMESPACE if file is None else file.value)
+        log_path = get_log_path(file)
         await interaction.response.send_message(
             file=File(log_path, filename=log_path.lstrip("./")),
             ephemeral=True
@@ -69,11 +76,17 @@ class LogGroup(_AdminCheckMixin, _BaseGroup):
 
     @command(name="tail",
              description="[OWNER] Shows the last lines of the log file.")
-    @describe(n="The amount of lines to show.")
-    async def log_tail(self, interaction: "Interaction", n: int=15):
+    @describe(n="The amount of lines to show.",
+              file="The log file to tail.")
+    @choices(file=[Choice(name=namespace, value=namespace) for namespace in ALL_NAMESPACES])
+    async def log_tail(self,
+                       interaction: "Interaction",
+                       n: int=15,
+                       file: Optional[Choice[str]]=None):
         lines = []
-        with open(get_log_path(GAMEMASTER_NAMESPACE), mode="r", encoding="utf-8") as arch:
-            lines.extend(deque(arch, n))
+        file = (GAMEMASTER_NAMESPACE if file is None else file.value)
+        with open(get_log_path(file), mode="r", encoding="utf-8") as f:
+            lines.extend(deque(f, n))
         message = "".join(lines)
 
         if self._less_than_n_chars(message, DISCORD_MAX_CHARS - 10):
@@ -90,12 +103,15 @@ class LogGroup(_AdminCheckMixin, _BaseGroup):
 
     @command(name="purge",
              description="[OWNER] Flushes the enitre contents of the log file, rendering it blank.")
-    async def log_purge(self, interaction: "Interaction"):
-        log_path = get_log_path(GAMEMASTER_NAMESPACE)
+    @describe(file="The log file to purge.")
+    @choices(file=[Choice(name=namespace, value=namespace) for namespace in ALL_NAMESPACES])
+    async def log_purge(self, interaction: "Interaction", file: Optional[Choice[str]]=None):
+        file = (GAMEMASTER_NAMESPACE if file is None else file.value)
+        log_path = get_log_path(file)
         lines = 0
 
-        with open(log_path, mode="rb") as file:
-            lines += sum(1 for line in file if line.strip())
+        with open(log_path, mode="rb") as f:
+            lines += sum(1 for line in f if line.strip())
 
         with open(log_path, mode="w"):
             pass # we open it only to overwrite the contents

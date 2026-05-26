@@ -18,6 +18,12 @@ GAMEMASTER_NAMESPACE: str = "gamemaster"
 DISCORD_NAMESPACE: str = "discord"
 PEEWEE_NAMESPACE: str = "peewee"
 PEEWEE_MIGRATE_NAMESPACE: str = "peewee_migrate"
+ALL_NAMESPACES: tuple[str, ...] = (
+    GAMEMASTER_NAMESPACE,
+    DISCORD_NAMESPACE,
+    PEEWEE_NAMESPACE,
+    PEEWEE_MIGRATE_NAMESPACE
+)
 
 
 def log_lvl(verbose: bool) -> int:
