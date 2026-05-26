@@ -64,6 +64,10 @@ technically compatible with any guild, with plans to expand to many features.
       <td style="text-align: center;"><a href="https://pypi.org/project/coverage">coverage</a></td>
       <td style="text-align: center;">7.14.0</td>
     </tr>
+    <tr>
+      <td style="text-align: center;"><a href="https://pypi.org/project/ruff">ruff</a></td>
+      <td style="text-align: center;">0.15.14</td>
+    </tr>
   </tbody>
 </table>
 
