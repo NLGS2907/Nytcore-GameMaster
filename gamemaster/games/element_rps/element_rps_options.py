@@ -25,5 +25,5 @@ class ElementRPSOptions(BaseOptions):
     def default(cls) -> Self:
         return cls(
             use_hex_emojis=False,
-            winning_rounds=WinningRoundsSetting.THREE_ROUNDS
+            winning_rounds=WinningRoundsSetting.TWO_ROUNDS
         )
