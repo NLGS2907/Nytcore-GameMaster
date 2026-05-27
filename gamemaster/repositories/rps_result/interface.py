@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from ..player import IPlayerRepository
 
 
-EncodedRoundsType: TypeAlias = int
+EncodedRoundsType: TypeAlias = bytes
 
 
 class IRPSResultRepository(BaseRepository[RPSResult], ABC):

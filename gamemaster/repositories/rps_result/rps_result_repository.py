@@ -1,23 +1,19 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from ...db.datasets import RPSResultDataset
 from ...models import ElementType, RPSResult, RPSRoundData, RPSRoundResult
-from .interface import IRPSResultRepository
+from .interface import EncodedRoundsType, IRPSResultRepository
 
 if TYPE_CHECKING:
     from ...models import RoundsList
-    from .interface import EncodedRoundsType
 
-BASE_THREE: int = 3
-_ENCODE_MAP: dict[ElementType, int] = {
-    None: BASE_THREE,
-    ElementType.WIND: BASE_THREE + 1,
-    ElementType.WATER: BASE_THREE + 2,
-    ElementType.IRON: BASE_THREE + 3,
-    ElementType.FIRE: BASE_THREE + 4,
-    ElementType.ELECTRIC: BASE_THREE + 5
-}
-_DECODE_MAP: dict[int, ElementType] = {value: key for key, value in _ENCODE_MAP.items()}
+_MaybeElement: TypeAlias = Optional[ElementType]
+_ENCODE_MAP: dict[_MaybeElement, int] = {None: 0, **{element: element.value
+                                                     for element in ElementType}}
+_DECODE_MAP: dict[int, _MaybeElement] = {value: key for key, value in _ENCODE_MAP.items()}
+
+CHOICES_PER_OUTCOME: int = 3
+CHOICES_PER_PLAYER: int = CHOICES_PER_OUTCOME * len(_ENCODE_MAP)
 
 
 class RPSResultRepository(IRPSResultRepository):
@@ -46,48 +42,31 @@ class RPSResultRepository(IRPSResultRepository):
         )
 
 
-    @staticmethod
-    def _dec_to_base_3(dec: int) -> str:
-        """Converts a given decimal number into its representation in base 3."""
-
-        digits = []
-        while dec >= BASE_THREE:
-            divided = dec // BASE_THREE
-            remainder = dec % BASE_THREE
-
-            digits.append(str(remainder))
-            dec = divided
-
-        digits.append(str(dec % BASE_THREE))
-        return "".join(reversed(digits))
-
-
-    @staticmethod
-    def _base_3_to_dec(num: str) -> int:
-        """Converts a string representing a base 3 number back into a decimal."""
-
-        return int(num, BASE_THREE)
-
-
-    def encode_rounds(self, rounds: "RoundsList") -> "EncodedRoundsType":
+    def encode_rounds(self, rounds: "RoundsList") -> EncodedRoundsType:
         result = []
 
         for round in rounds:
-            result.append(self._dec_to_base_3(_ENCODE_MAP[round.player_1_choice]))
-            result.append(self._dec_to_base_3(_ENCODE_MAP[round.player_2_choice]))
-            result.append(self._dec_to_base_3(round.result.value))
+            result.append(
+                sum((
+                    _ENCODE_MAP[round.player_1_choice] * CHOICES_PER_PLAYER,
+                    _ENCODE_MAP[round.player_2_choice] * CHOICES_PER_OUTCOME,
+                    round.result.value
+                ))
+            )
 
-        return self._base_3_to_dec("".join(result))
+        return EncodedRoundsType(result)
 
 
-    def decode_rounds(self, result: "EncodedRoundsType") -> "RoundsList":
+    def decode_rounds(self, result: EncodedRoundsType) -> "RoundsList":
         rounds = []
-        res_len = len(result)
-        digits_per_data = 5
-        for i in range(0, res_len, digits_per_data):
-            round_data = result[i:i+digits_per_data]
-            rounds.append(RPSRoundData(_DECODE_MAP[self._base_3_to_dec(round_data[:2])],
-                                       _DECODE_MAP[self._base_3_to_dec(round_data[2:4])],
-                                       RPSRoundResult(self._dec_to_base_3(round_data[4]))))
+
+        for encoded_round in result:
+            player_1_choice = _DECODE_MAP[encoded_round // CHOICES_PER_PLAYER]
+            remainder = encoded_round % CHOICES_PER_PLAYER
+
+            player_2_choice = _DECODE_MAP[remainder // CHOICES_PER_OUTCOME]
+            outcome = RPSRoundResult(remainder % CHOICES_PER_OUTCOME)
+
+            rounds.append(RPSRoundData(player_1_choice, player_2_choice, outcome))
 
         return rounds
