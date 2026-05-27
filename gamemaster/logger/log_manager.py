@@ -21,7 +21,7 @@ class LoggerManager:
                  console_lvl: int=INFO,
                  only_bot_logger: bool=False):
         """Initializes the logger manager.
-        
+
         Args:
             console_lvl: The preferred level to use for stream handlers.
             only_bot_logger: Wether to use the bot own logger and nothing else, or include the
@@ -31,7 +31,10 @@ class LoggerManager:
         self.gamemaster: "Logger" = get_gamemaster_logger(console_lvl)
 
         actual_lvl = (None if only_bot_logger else console_lvl)
-        self.discord: "Logger" = config_logger(DISCORD_NAMESPACE, console_level=actual_lvl)
-        self.db: "Logger" = config_logger(PEEWEE_NAMESPACE, console_level=actual_lvl)
+        self.discord: "Logger" = config_logger(DISCORD_NAMESPACE,
+                                               file_level=INFO,
+                                               console_level=actual_lvl)
+        self.db: "Logger" = config_logger(PEEWEE_NAMESPACE,
+                                          console_level=actual_lvl)
         self.db_migrate: "Logger" = config_logger(PEEWEE_MIGRATE_NAMESPACE,
                                                   console_level=actual_lvl)
