@@ -15,4 +15,3 @@ class BotArgParser(ArgumentParser):
                           action="store_true",
                           dest="only_bot",
                           help="Activate only the bot logger for stream handlers.")
-
