@@ -5,19 +5,23 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.14"]
     steps:
     - uses: actions/checkout@v4
-    - name: Setting up Python ${{ matrix.python-version }}
+    - name: Setting up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Instalando Dependencias
+        python-version: "3.14"
+    - name: Installing dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.dev.txt
     - name: Running Tests
       run: |
-        python -m unittest --verbose --locals tests
+        python -m coverage run --source=. -m unittest --verbose --locals tests
+    - name: Upload Coverage Data
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-data
+        path: .coverage
+        include-hidden-files: true # Without this, it won't read files starting with '.'
+        if-no-files-found: error
