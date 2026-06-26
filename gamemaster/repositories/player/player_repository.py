@@ -17,7 +17,7 @@ class PlayerRepository(IPlayerRepository):
         return PlayerDataset
 
     def _model_to_dataset(self, model: Player) -> PlayerDataset:
-        return PlayerDataset(id=model._id,
+        return PlayerDataset(id=model.id,
                              username=model.username,
                              discord_id=model.discord_user_id,
                              emoji=(self.emoji_to_unicode(model.emoji)

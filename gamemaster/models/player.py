@@ -74,6 +74,11 @@ class Player:
 
 
     @property
+    def id(self) -> int:
+        return self._id
+
+
+    @property
     def username(self) ->  UsernameType:
         return self._username
 
