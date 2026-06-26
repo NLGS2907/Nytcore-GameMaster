@@ -246,6 +246,7 @@ class Player:
                             f"but one of type {ProfileImgType.__name__!r} is required.")
 
         result_img = ProfileImgType()
+        img = None
         try:
             img = img_open(candidate_img)
             width = img.width
@@ -267,7 +268,8 @@ class Player:
             img.convert("RGBA").save(result_img, format=IMG_FORMAT, lossless=True)
             result_img.seek(0)
         finally:
-            img.close()
+            if img is not None:
+                img.close()
 
         return result_img
 
