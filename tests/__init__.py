@@ -2,6 +2,7 @@
 
 import unittest
 
+from .db import *
 from .logger import *
 from .models import *
 from .repositories import *
