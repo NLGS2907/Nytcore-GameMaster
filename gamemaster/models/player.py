@@ -1,9 +1,11 @@
 from io import BytesIO
 from re import compile
-from typing import TYPE_CHECKING, Optional, TypeAlias, TypedDict
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from emoji import is_emoji
 from PIL.Image import open as img_open
+
+from .img import ImageProperties
 
 if TYPE_CHECKING:
     from re import Pattern
@@ -23,15 +25,6 @@ IMG_FORMAT: str = "webp"
 
 MAX_COLOR_DIGITS: int = 6
 COLOR_PATTERN: "Pattern" = compile(r"^#([0-9a-fA-F]){6}$")
-
-
-class _ImageProperties(TypedDict):
-    """Helper type to hold a profile image's properties."""
-
-    format: str
-    width: int
-    height: int
-    size: int
 
 
 class Player:
@@ -70,7 +63,7 @@ class Player:
         self._profile_img: Optional[ProfileImgType] = self._validate_profile_img(profile_img)
         self._fav_color: Optional[ColorType] = self._validate_fav_color(fav_color)
 
-        self.__img_props: Optional[_ImageProperties] = None
+        self.__img_props: Optional[ImageProperties] = None
 
 
     @property
@@ -125,8 +118,8 @@ class Player:
 
 
     @property
-    def image_properties(self) -> Optional[_ImageProperties]:
-        """Returns a dictionary with some properties about the profile's image, if available.
+    def image_properties(self) -> Optional[ImageProperties]:
+        """Returns an object with some properties about the profile's image, if available.
         
         This is a helper property that lazy loads the image when it is first fetched,
         and then refers to it from memory.
@@ -136,13 +129,14 @@ class Player:
             return None
 
         if self.__img_props is None:
-            self.__img_props = {}
+            img_props = {}
             with img_open(self.profile_img) as img:
-                self.__img_props["format"] = img.format
+                img_props["format"] = img.format
                 width, height = img.size
-                self.__img_props["width"] = width
-                self.__img_props["height"] = height
-            self.__img_props["size"] = self.profile_img.getbuffer().nbytes
+                img_props["width"] = width
+                img_props["height"] = height
+            img_props["size"] = self.profile_img.getbuffer().nbytes
+            self.__img_props = ImageProperties.from_dict(img_props)
             self.profile_img.seek(0)
 
         return self.__img_props
@@ -271,6 +265,7 @@ class Player:
             if img is not None:
                 img.close()
 
+        print(result_img.getvalue())
         return result_img
 
 
@@ -295,7 +290,7 @@ class Player:
 
         if not isinstance(candidate_color, ColorType):
             raise TypeError(f"candidate color is of type {type(candidate_color).__name__!r}, "
-                            f"but one of type {ProfileImgType.__name__!r} is required.")
+                            f"but one of type {ColorType.__name__!r} is required.")
 
         if COLOR_PATTERN.match(candidate_color) is None:
             raise ValueError((f"The color {candidate_color!r} has an invalid format. It should "

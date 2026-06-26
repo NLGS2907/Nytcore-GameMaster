@@ -186,16 +186,16 @@ class ProfileView(BaseView):
         img_title_text = TextDisplay("## Profile Image Details")
         container.add_item(img_title_text)
 
-        img_fmt = (f"`{img_props['format'].upper()}`" if img_props is not None else "_None_")
+        img_fmt = (f"`{img_props.format.upper()}`" if img_props is not None else "_None_")
         img_fmt_text = TextDisplay(f"### Format:\t{img_fmt}")
         container.add_item(img_fmt_text)
 
-        img_dim = (f"{img_props['width']}x{img_props['height']} pixels"
+        img_dim = (f"{img_props.width}x{img_props.height} pixels"
                    if img_props is not None else "_N/A_")
         img_dim_text = TextDisplay(f"### Dimensions:\t{img_dim}")
         container.add_item(img_dim_text)
 
-        img_size = (self.format_filesize(img_props['size']) if img_props is not None else "_N/A_")
+        img_size = (self.format_filesize(img_props.size) if img_props is not None else "_N/A_")
         img_size_text = TextDisplay(f"### Size:\t{img_size}")
         container.add_item(img_size_text)
 
