@@ -20,4 +20,4 @@ jobs:
         python -m pip install -r requirements.dev.txt
     - name: Running Tests
       run: |
-        python -m unittest --verbose tests
+        python -m unittest --verbose --locals tests
