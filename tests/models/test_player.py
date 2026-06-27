@@ -12,22 +12,22 @@ class TestPlayer(TestCase):
 
 
     def test_has_attributes_properly_setup(self):
-        self.assertTrue(hasattr(self.player, "id"))
+        self.assertHasAttr(self.player, "id")
         self.assertEqual(self.player.id, self.player_id)
 
-        self.assertTrue(hasattr(self.player, "username"))
+        self.assertHasAttr(self.player, "username")
         self.assertEqual(self.player.username, self.player_name)
 
-        self.assertTrue(hasattr(self.player, "discord_user_id"))
+        self.assertHasAttr(self.player, "discord_user_id")
         self.assertEqual(self.player.discord_user_id, self.player_discord_id)
 
-        self.assertTrue(hasattr(self.player, "emoji"))
+        self.assertHasAttr(self.player, "emoji")
         self.assertIsNone(self.player.emoji)
 
-        self.assertTrue(hasattr(self.player, "profile_img"))
+        self.assertHasAttr(self.player, "profile_img")
         self.assertIsNone(self.player.profile_img)
 
-        self.assertTrue(hasattr(self.player, "fav_color"))
+        self.assertHasAttr(self.player, "fav_color")
         self.assertIsNone(self.player.fav_color)
 
         self.assertIsNone(self.player.image_properties)
