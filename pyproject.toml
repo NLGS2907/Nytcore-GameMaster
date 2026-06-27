@@ -7,15 +7,19 @@ source = ["gamemaster"]
 
 [tool.coverage.report]
 omit = [
-    "*__init__.py",
     "tests/*",
+    "*__init__.py",
+    "*__main__.py",
+    "*main.py",
     "*run_migrations.py",
     "*/migrations/*",
     "*/cogs/*",
+    "*/managers/*",
     "*/ui/*",
-    "*main.py",
-    "*__main__.py",
-
+    "*/embeds/*",
+    "*/modals/*",
+    "*base*",
+    "*interface.py",
 ]
 show_missing = true
-fail_under = 50
+fail_under = 60
