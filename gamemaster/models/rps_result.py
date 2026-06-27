@@ -18,7 +18,7 @@ class RPSResult:
         player_1: The first player of the game.
         player_2: The second player of the game.
         rounds: The details of the rounds played.
-        saved: When was the game recorded.
+        saved_at: When was the game recorded.
     """
 
     def __init__(self,
@@ -42,7 +42,12 @@ class RPSResult:
         self._player_2: "Player" = player_2
         self._rounds: RoundsList = rounds
         self._saved_at: "datetime" = saved
-    
+
+
+    @property
+    def id(self) -> int:
+        return self._id
+
     
     @property
     def player_1(self) -> "Player":
