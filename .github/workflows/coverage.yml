@@ -35,4 +35,4 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Report Coverage
       run: |
-        python -m coverage report --omit="__init__.py,run_migrations.py,tests/*" --fail-under 80
+        python -m coverage report

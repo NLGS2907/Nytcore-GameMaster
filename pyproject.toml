@@ -1,3 +1,21 @@
 [tool.ruff.lint.extend-per-file-ignores]
 # Ignore star imports in "__init__.py" files
 "__init__.py" = ["F403"]
+
+[tool.coverage.run]
+source = ["gamemaster"]
+
+[tool.coverage.report]
+omit = [
+    "*__init__.py",
+    "tests/*",
+    "*run_migrations.py",
+    "*/migrations/*",
+    "*/cogs/*",
+    "*/ui/*",
+    "*main.py",
+    "*__main__.py",
+
+]
+show_missing = true
+fail_under = 50

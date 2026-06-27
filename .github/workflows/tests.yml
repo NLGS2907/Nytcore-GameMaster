@@ -17,7 +17,7 @@ jobs:
         python -m pip install -r requirements.dev.txt
     - name: Running Tests
       run: |
-        python -m coverage run --source=. -m unittest --verbose --locals tests
+        python -m coverage run -m unittest --verbose --locals tests
     - name: Upload Coverage Data
       uses: actions/upload-artifact@v4
       with:
