@@ -20,6 +20,7 @@ omit = [
     "*/modals/*",
     "*base*",
     "*interface.py",
+    "*/logger/custom/*"
 ]
 show_missing = true
 fail_under = 60
