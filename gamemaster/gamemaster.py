@@ -62,8 +62,8 @@ class GameMaster(Bot):
 
         player_repo = PlayerRepository()
         self.repositories: RepositoryConfiguration = RepositoryConfiguration(
-            player_repository=player_repo,
-            rps_result_repository=RPSResultRepository(player_repo)
+            player=player_repo,
+            rps_result=RPSResultRepository(player_repo)
         )
         self._verbose: bool = verbose
         self._only_bot_logger: bool = only_bot_logger

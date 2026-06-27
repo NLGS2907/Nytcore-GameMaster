@@ -15,8 +15,8 @@ class TestRepositoryConfiguration(TestCase):
         player_repo_mock = Mock(PlayerRepository)
         rps_result_repo_mock = Mock(RPSResultRepository)
 
-        self.repo_config = RepositoryConfiguration(player_repository=player_repo_mock,
-                                                   rps_result_repository=rps_result_repo_mock)
+        self.repo_config = RepositoryConfiguration(player=player_repo_mock,
+                                                   rps_result=rps_result_repo_mock)
 
 
     def test_is_created_with_all_the_internal_repos(self):
