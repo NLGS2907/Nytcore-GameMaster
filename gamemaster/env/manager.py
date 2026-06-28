@@ -14,6 +14,7 @@ EnvDict: TypeAlias = dict[EnvKey, EnvVal]
 ENV_SEP: str = "="
 ENV_EXT: str = ".env"
 COMMENT_CHAR: str = "#"
+BOT_MODE_ENV: str = "BOT_MODE"
 
 
 class EnvManager:
@@ -24,7 +25,7 @@ class EnvManager:
 
     @staticmethod
     def env_path():
-        bot_mode = getenv("BOT_MODE", "test").lower()
+        bot_mode = getenv(BOT_MODE_ENV, "test").lower()
         return f"./{bot_mode}{ENV_EXT}"
 
 
@@ -61,6 +62,28 @@ class EnvManager:
         self.__stored_envs: EnvDict = {}
 
 
+    def __len__(self) -> int:
+        """Returns how many env vars are loaded in the manager."""
+
+        return len(self.__stored_envs)
+
+
+    def __contains__(self, env_key: EnvKey) -> bool:
+        """Determines if a given env var key is present in the loaded variables."""
+
+        return env_key in self.__stored_envs
+
+
+    def __getitem__(self, env_key: EnvKey) -> EnvVal:
+        """Returns an item from the internal registry of env vars, if it exists.
+        
+        Raises:
+            KeyError: The given env key is not present in the registry.
+        """
+
+        return self.__stored_envs[env_key]
+
+
     def add_env(self, key: EnvKey, value: EnvVal, overwrite: bool=True) -> None:
         """Adds a new enviroment variable to the internal registry.
         
@@ -69,8 +92,8 @@ class EnvManager:
             value: A string to be used as value tied to the key.
             overwrite: Wether to replace the env var if an entry with the same key already exists.
         """
-        if not overwrite:
-            return
+        if overwrite:
+            self.__stored_envs[key] = value
 
         self.__stored_envs.setdefault(key, value)
 
