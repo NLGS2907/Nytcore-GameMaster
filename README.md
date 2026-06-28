@@ -15,7 +15,7 @@ with the cached link of the relevant asset.
 ![estrellas](https://img.shields.io/github/stars/NLGS2907/Nytcore-GameMaster?label=Estrellas&style=social)
 ![forks](https://img.shields.io/github/forks/NLGS2907/Nytcore-GameMaster?style=social)
 ![Tests](https://github.com/NLGS2907/Nytcore-GameMaster/actions/workflows/tests.yml/badge.svg)
-![Ruff](https://github.com/NLGS2907/Nytcore-GameMaster/actions/workflows/ruff.yml/badge.svg)
+![Linter](https://github.com/NLGS2907/Nytcore-GameMaster/actions/workflows/linter.yml/badge.svg)
 
 The Nytcore GameMaster is Discord application with bot user included, designed to help and manage
 minigames and other miscellaneous tasks right inside the chat!
