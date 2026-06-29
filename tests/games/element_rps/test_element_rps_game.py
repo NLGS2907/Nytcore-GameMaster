@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
+from discord.abc import User
+
 from gamemaster.gamemaster import GameMaster
 from gamemaster.games import ElementRPSGame, ElementRPSOptions, RPSRoundResult, WinningRoundsSetting
 from gamemaster.models import ElementType, Player
@@ -15,7 +17,7 @@ class TestElementRPSGame(TestCase):
                 "rps_result": self.rps_result_repo_mock
             })
         })
-        user_mock = Mock() # Don't import the Discord type. Use a plain mock
+        user_mock = Mock(User)
         self.player_1_mock = Mock(Player)
         self.player_2_mock = Mock(Player)
 
