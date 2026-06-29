@@ -20,8 +20,7 @@ omit = [
     "*/modals/*",
     "*base*",
     "*interface.py",
-    "*/logger/custom/*",
-    "*_game.py"
+    "*/logger/custom/*"
 ]
 show_missing = true
 fail_under = 80

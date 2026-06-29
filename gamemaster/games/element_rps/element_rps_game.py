@@ -239,8 +239,7 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         self._cur_round += 1
         self._round_finished = False
 
-        self._player_1_choice = None
-        self._player_2_choice = None
+        self.reset_choices()
 
 
     def enough_points(self, is_player_1: bool) -> bool:
