@@ -14,9 +14,11 @@ class TestProfileEmbed(IsolatedAsyncioTestCase):
         self.gamemaster_mock = Mock(GameMaster, **{
             "fetch_avatar.return_value": BytesIO()
         })
+        self.player_name = "Chad"
+        self.player_color = "#fefefe"
         self.player_mock = Mock(Player, **{
-            "username": "Chad",
-            "fav_color": None,
+            "username": self.player_name,
+            "fav_color": self.player_color,
             "profile_img": None,
             "image_properties": None
         })
@@ -26,16 +28,22 @@ class TestProfileEmbed(IsolatedAsyncioTestCase):
 
 
     def test_is_initialized_properly(self):
-        self.assertHasAttr(self.profile_embed, 'bot')
+        self.assertHasAttr(self.profile_embed, "title")
+        self.assertEqual(self.profile_embed.title, f"\"{self.player_name}\" Profile")
+
+        self.assertHasAttr(self.profile_embed, "colour")
+        self.assertEqual(str(self.profile_embed.colour), self.player_color)
+
+        self.assertHasAttr(self.profile_embed, "bot")
         self.assertEqual(self.profile_embed.bot, self.gamemaster_mock)
 
-        self.assertHasAttr(self.profile_embed, 'player')
+        self.assertHasAttr(self.profile_embed, "player")
         self.assertEqual(self.profile_embed.player, self.player_mock)
 
-        self.assertHasAttr(self.profile_embed, 'discord_user')
+        self.assertHasAttr(self.profile_embed, "discord_user")
         self.assertEqual(self.profile_embed.discord_user, self.user_mock)
 
-        self.assertHasAttr(self.profile_embed, 'thumbnail_file')
+        self.assertHasAttr(self.profile_embed, "thumbnail_file")
         self.assertIsNone(self.profile_embed.thumbnail_file)
 
 
