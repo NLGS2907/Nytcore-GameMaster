@@ -16,7 +16,6 @@ omit = [
     "*/cogs/*",
     "*/managers/*",
     "*/ui/*",
-    "*/modals/*",
     "*base*",
     "*interface.py",
     "*/logger/custom/*"
