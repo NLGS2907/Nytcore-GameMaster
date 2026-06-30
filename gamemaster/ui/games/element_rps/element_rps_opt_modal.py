@@ -57,7 +57,10 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
 
         self.options.use_hex_emojis = use_hex.value
         self.options.winning_rounds = WinningRoundsSetting(int(win_rounds.value))
-        self.options.round_timeout = self._validate_round_timeout(round_timeout.value)
+
+        # needs to be in a separate line from assigment, since it can raise exceptions
+        candidate_timeout = self._validate_round_timeout(round_timeout.value)
+        self.options.round_timeout = candidate_timeout
 
 
     def _validate_round_timeout(self, timeout: str) -> int:

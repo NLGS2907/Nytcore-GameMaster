@@ -29,4 +29,5 @@ class NextRoundLoop(BackgroundLoop["ElementRPSView"]):
             self.parent_view.game.save()
             await self.parent_view.finish_message(winner)
         else:
+            self.parent_view.round_timeout.start()
             await self.parent_view.refresh()

@@ -50,6 +50,7 @@ class ElementButton(Button):
             self.parent_view.game.make_choice(self.element, is_player_1)
 
             if self.parent_view.game.choices_made() and not reveal_running:
+                self.parent_view.round_timeout.stop()
                 self.parent_view.reveal.start()
 
             await self.parent_view.refresh(interaction)

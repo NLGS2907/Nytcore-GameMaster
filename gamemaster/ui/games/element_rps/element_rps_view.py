@@ -7,7 +7,7 @@ from ....games import ElementRPSGame
 from ....models import ElementType
 from ..game_view_base import BaseGameView
 from .buttons import ElementButton, ElementMapButton
-from .loops import NextRoundLoop, RevealLoop
+from .loops import NextRoundLoop, RevealLoop, RoundTimeoutLoop
 
 if TYPE_CHECKING:
     from discord import Emoji
@@ -55,6 +55,11 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         self.reveal: RevealLoop = RevealLoop(parent_view=self, count=SECS_UNTIL_REVEAL)
         self.next_round: NextRoundLoop = NextRoundLoop(parent_view=self,
                                                        count=SECS_UNTIL_NEXT_ROUND)
+        self.round_timeout: RoundTimeoutLoop = RoundTimeoutLoop(
+            parent_view=self, count=self.game.options.round_timeout
+        )
+
+        self.round_timeout.start()
 
 
     async def reset(self):
@@ -71,6 +76,11 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
 
             container.add_item(Separator(spacing=SeparatorSpacing.small))
             container.add_item(ActionRow(self._elem_map_btn))
+
+            timeout_msg = self._status_msg[TIMEOUT_NAME]
+            if timeout_msg is not None:
+                container.add_item(Separator(spacing=SeparatorSpacing.small))
+                container.add_item(TextDisplay(timeout_msg))
 
             self.add_item(container)
 
@@ -165,19 +175,27 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         }
 
 
-    def set_reveal_msg(self, current_loop: Optional[int]):
-        """Generates the current reveal message given the current loop number."""
+    def set_reveal_msg(self, remaining_loops: Optional[int]):
+        """Generates the current reveal message given the number of remaining loops."""
 
-        msg = (f"All players have made their choice. **Revealing results in {current_loop}...**"
-               if current_loop is not None else None)
+        msg = (f"All players have made their choice. **Revealing results in {remaining_loops}...**"
+               if remaining_loops is not None else None)
         self._status_msg[REVEAL_NAME] = msg
 
 
-    def set_results_msg(self, current_loop: Optional[int]):
-        """Generates the current results message given the current loop number."""
+    def set_results_msg(self, remaining_loops: Optional[int]):
+        """Generates the current results message given the number of remaining loops."""
 
-        candidate = (f"Beginning next round in {current_loop}..."
+        candidate = (f"Beginning next round in {remaining_loops}..."
                      if self.game.finished() is None
-                     else f"Game finished! Generating results in {current_loop}...")
-        msg = (candidate if current_loop is not None else None)
+                     else f"Game finished! Generating results in {remaining_loops}...")
+        msg = (candidate if remaining_loops is not None else None)
         self._status_msg[RESULTS_NAME] = msg
+
+
+    def set_round_timeout_msg(self, remaining_loops: Optional[int]):
+        """Generates the current round timeout message given the number of remaining loops."""
+
+        msg = ((f"If both players don't decide in {remaining_loops} seconds, "
+                "the round will end on its own.") if remaining_loops is not None else None)
+        self._status_msg[TIMEOUT_NAME] = msg
