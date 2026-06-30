@@ -14,11 +14,11 @@ ELEMENTS_MAP_PATH: str = "./assets/rps/element_map.png"
 
 
 class ElementMapButton(Button):
-    """Button for editing the game settings in a lobby."""
+    """Button for showing a help map of the elements in RPS."""
 
     def __init__(self,
                  parent_view: "ElementRPSView"):
-        """Initializes the settings button.
+        """Initializes the help button.
         
         Args:
             parent_view: The lobby view from where the button originates from.
