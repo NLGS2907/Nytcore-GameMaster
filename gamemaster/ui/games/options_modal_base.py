@@ -59,9 +59,9 @@ class BaseOptionsModal(Generic[OptionsType], Modal, ABC):
         except (TypeError, ValueError) as err:
             msg_content = ("**[ERROR]** It seems there was an error trying to update the "
                            f"options.\n\n> _{err}_")
+            await interaction.response.send_message(msg_content, ephemeral=True)
 
             raise err from err
-        else:
-            msg_content = "_Settings updated successfuly_"
 
+        msg_content = "_Settings updated successfuly_"
         await interaction.response.send_message(msg_content, ephemeral=True)
