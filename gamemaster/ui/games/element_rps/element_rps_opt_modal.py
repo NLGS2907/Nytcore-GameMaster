@@ -1,8 +1,11 @@
-from discord import RadioGroupOption
-from discord.ui import Checkbox, Label, RadioGroup
+from discord import RadioGroupOption, TextStyle
+from discord.ui import Checkbox, Label, RadioGroup, TextInput
 
 from ....games import ElementRPSOptions, WinningRoundsSetting
 from ..options_modal_base import BaseOptionsModal
+
+ROUND_TIMEOUT_MIN: int = 10
+ROUND_TIMEOUT_MAX: int = 99
 
 
 class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
@@ -17,7 +20,7 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
         )
         self.add_item(use_hex)
 
-        radio_group = RadioGroup(
+        wind_rounds_settings = RadioGroup(
             required=True,
             options=[
                 RadioGroupOption(
@@ -30,15 +33,53 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
         win_rounds = Label(
             text="How many rounds?",
             description="Number of rounds one of the players must win to claim victory.",
-            component=radio_group
+            component=wind_rounds_settings
         )
-
         self.add_item(win_rounds)
+
+        round_timeout = Label(
+            text="Round Timeout",
+            description="Seconds until the round finishes on its own.",
+            component=TextInput(style=TextStyle.short,
+                                required=False,
+                                min_length=1,
+                                max_length=2,
+                                placeholder=str(self.options.round_timeout))
+        )
+        self.add_item(round_timeout)
         
 
     def update_options(self):
-        use_hex: Label = self.children[0]
-        self.options.use_hex_emojis = use_hex.component.value
+        use_hex: Checkbox
+        win_rounds: RadioGroup
+        round_timeout: TextInput
+        use_hex, win_rounds, round_timeout = self._unpack_components()
 
-        win_rounds: Label = self.children[1]
-        self.options.winning_rounds = WinningRoundsSetting(int(win_rounds.component.value))
+        self.options.use_hex_emojis = use_hex.value
+        self.options.winning_rounds = WinningRoundsSetting(int(win_rounds.value))
+        self.options.round_timeout = self._validate_round_timeout(round_timeout.value)
+
+
+    def _validate_round_timeout(self, timeout: str) -> int:
+        """Ensures the round timeout is a valid numeric number.
+
+        Raises:
+            TypeError: If the value passed isn't numeric.
+            ValueError: If the value isn't between the min and max range allowed.
+
+        Returns:
+            The timeout in seconds, ready to be assigned.
+        """
+
+        if not timeout:
+            return self.options.round_timeout
+
+        if not timeout.isdecimal():
+            raise TypeError(f"Round timeout {timeout!r} ought to have a numeric value")
+
+        num_timeout = int(timeout)
+        if num_timeout < ROUND_TIMEOUT_MIN or num_timeout > ROUND_TIMEOUT_MAX:
+            raise ValueError(f"Round timeout {timeout!r} should be in the range "
+                             f"[{ROUND_TIMEOUT_MIN}, {ROUND_TIMEOUT_MAX}]")
+
+        return num_timeout
