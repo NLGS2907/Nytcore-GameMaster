@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .elements_enum import ElementType
@@ -16,6 +16,12 @@ class RPSRoundData:
         result: The result of that round, from the perspective of the first player.
     """
 
-    player_1_choice: "ElementType"
-    player_2_choice: "ElementType"
+    player_1_choice: Optional["ElementType"]
+    player_2_choice: Optional["ElementType"]
     result: "RPSRoundResult"
+
+
+    def choices_are_null(self) -> bool:
+        """Checks if both choices are null."""
+
+        return self.player_1_choice is None and self.player_2_choice is None

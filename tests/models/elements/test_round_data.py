@@ -21,3 +21,11 @@ class TestRPSRoundData(TestCase):
 
         self.assertHasAttr(round_data, "result")
         self.assertEqual(round_data.result, self.round_result)
+
+
+    def test_can_detect_null_choices(self):
+        self.assertTrue(RPSRoundData(None, None, RPSRoundResult.TIE).choices_are_null())
+        self.assertFalse(RPSRoundData(ElementType.WATER, None,
+                                      RPSRoundResult.TIE).choices_are_null())
+        self.assertFalse(RPSRoundData(None, ElementType.ELECTRIC,
+                                      RPSRoundResult.TIE).choices_are_null())

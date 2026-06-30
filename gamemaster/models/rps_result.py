@@ -90,8 +90,8 @@ class RPSResult:
 
 
     def add_data(self,
-                 choice_1: "ElementType",
-                 choice_2: "ElementType",
+                 choice_1: Optional["ElementType"],
+                 choice_2: Optional["ElementType"],
                  result: RPSRoundResult) -> RPSRoundData:
         """Appends data to the rounds registry.
         
