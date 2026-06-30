@@ -84,9 +84,12 @@ class ProfileEditModal(Modal):
     async def on_submit(self, interaction: "Interaction"):
         """The user sucessfully sent the profile editing modal."""
 
-        player_name, emoji_selection, selected_color, files_upload = map(
-            lambda label: label.component,
-            self.children
+        player_name: TextInput
+        emoji_selection: TextInput
+        selected_color: TextInput
+        profile_upload: FileUpload
+        player_name, emoji_selection, selected_color, profile_upload = (
+            child for child in self.walk_children() if not isinstance(child, Label)
         )
         
         try:
@@ -96,8 +99,8 @@ class ProfileEditModal(Modal):
             if emoji_selection.value:
                 self.player.emoji = emoji_selection.value.strip()
 
-            if files_upload.values:
-                await self._change_profile_image(files_upload.values[0])
+            if profile_upload.values:
+                await self._change_profile_image(profile_upload.values[0])
 
             if selected_color.value:
                 self.player.fav_color = selected_color.value.strip()
@@ -109,7 +112,7 @@ class ProfileEditModal(Modal):
 
             raise err from err
 
-        no_changes = not (player_name.value or emoji_selection.value or files_upload.values)
+        no_changes = not (player_name.value or emoji_selection.value or profile_upload.values)
         message_content = ("No changes were made." if no_changes
                            else "Your profile was updated successfully!")
         await interaction.response.send_message(f"_{message_content}_", ephemeral=True)
