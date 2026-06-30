@@ -3,6 +3,10 @@ from typing import Self
 from ..options_base import BaseOptions
 from .winning_rounds_enum import WinningRoundsSetting
 
+HEX_EMOJIS_DEFAULT = False
+WINNING_ROUNDS_DEFAULT = WinningRoundsSetting.TWO_ROUNDS
+ROUND_TIMEOUT_SECS_DEFAULT = 30
+
 
 class ElementRPSOptions(BaseOptions):
     """Options for a game of Element Rock-Paper-Scissors.
@@ -38,7 +42,7 @@ class ElementRPSOptions(BaseOptions):
     @classmethod
     def default(cls) -> Self:
         return cls(
-            use_hex_emojis=False,
-            winning_rounds=WinningRoundsSetting.TWO_ROUNDS,
-            round_timeout=30,
+            use_hex_emojis=HEX_EMOJIS_DEFAULT,
+            winning_rounds=WINNING_ROUNDS_DEFAULT,
+            round_timeout=ROUND_TIMEOUT_SECS_DEFAULT,
         )
