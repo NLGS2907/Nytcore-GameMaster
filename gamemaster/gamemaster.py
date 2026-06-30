@@ -140,7 +140,6 @@ class GameMaster(Bot):
 
         run_migrations()
         await self.update_cogs(sync=True)
-        await self.fetch_emojis()
 
 
     async def update_cogs(self, *, sync: bool=True):
