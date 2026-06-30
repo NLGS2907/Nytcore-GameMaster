@@ -5,7 +5,15 @@ from .winning_rounds_enum import WinningRoundsSetting
 
 
 class ElementRPSOptions(BaseOptions):
-    """Options for a game of Element Rock-Paper-Scissors."""
+    """Options for a game of Element Rock-Paper-Scissors.
+    
+    Attributes:
+        use_hex_emojis: Wether to use the badge emojis for the elements, or the cropped ones.
+                        The badge ones have an hexagonal shape.
+        winning_rounds: How many won rounds a player must reach to end the game.
+        round_timeout: How much time (in seconds) to wait until the round finishes by itself,
+                       choices made or not.
+    """
 
     def __init__(self,
                  *,
@@ -13,9 +21,13 @@ class ElementRPSOptions(BaseOptions):
                  winning_rounds: WinningRoundsSetting,
                  round_timeout: int):
         """Initializes the options for a game of Element Rock-Paper-Scissors.
-        
+
         Args:
-            winning_rounds: How many won rounds a player must reach to end the game.
+        use_hex_emojis: Wether to use the badge emojis for the elements, or the cropped ones.
+                        The badge ones have an hexagonal shape.
+        winning_rounds: How many won rounds a player must reach to end the game.
+        round_timeout: How much time (in seconds) to wait until the round finishes by itself,
+                       choices made or not.
         """
 
         self.use_hex_emojis: bool = use_hex_emojis
