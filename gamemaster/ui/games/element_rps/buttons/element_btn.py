@@ -6,8 +6,8 @@ from discord.ui import Button
 if TYPE_CHECKING:
     from discord import Emoji, Interaction, PartialEmoji
 
-    from ....models import ElementType
-    from .element_rps_view import ElementRPSView
+    from .....models import ElementType
+    from ..element_rps_view import ElementRPSView
 
 PossibleEmoji: TypeAlias = Union["Emoji", "PartialEmoji"]
 

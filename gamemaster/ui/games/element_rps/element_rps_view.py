@@ -7,8 +7,7 @@ from discord.ui import ActionRow, Container, Separator, TextDisplay
 from ....games import ElementRPSGame
 from ....models import ElementType
 from ..game_view_base import BaseGameView
-from .elem_map_btn import ElementMapButton
-from .element_btn import ElementButton
+from .buttons import ElementButton, ElementMapButton
 
 if TYPE_CHECKING:
     from discord import Emoji
