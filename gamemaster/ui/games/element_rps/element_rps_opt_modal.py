@@ -15,8 +15,8 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
                 default=(self.options.use_hex_emojis)
             )
         )
-
         self.add_item(use_hex)
+
         radio_group = RadioGroup(
             required=True,
             options=[
