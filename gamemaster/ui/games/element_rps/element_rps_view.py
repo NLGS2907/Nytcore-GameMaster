@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..game_view_base import PossibleMessage, PossibleUser
 
 ElementEmojis: TypeAlias = dict[ElementType, "Emoji"]
-StatusMessages: TypeAlias = dict[Literal["reveal", "results"], Optional[str]]
+StatusMessages: TypeAlias = dict[Literal["reveal", "results", "timeout"], Optional[str]]
 
 SECS_UNTIL_REVEAL: int = 5
 SECS_UNTIL_NEXT_ROUND: int = 10
@@ -45,7 +45,7 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         ]
         self._elem_map_btn: ElementMapButton = ElementMapButton(self)
 
-        self._status_msg: StatusMessages = {"reveal": None, "results": None}
+        self._status_msg: StatusMessages = {"reveal": None, "results": None, "timeout": None}
 
 
     async def reset(self):
