@@ -72,3 +72,10 @@ class BackgroundLoop[ViewType](Loop, ABC):
         """
 
         return
+
+
+    @property
+    def remaining_loops(self) -> int:
+        """Returns the loop that are left."""
+
+        return self.count - self.current_loop

@@ -11,8 +11,7 @@ class ConfirmationCountdownLoop(BackgroundLoop["ConfirmationView"]):
         if self.is_being_cancelled():
             return
 
-        cur_loop = self.count - self.current_loop
-        self.parent_view.change_countdown_msg(cur_loop)
+        self.parent_view.change_countdown_msg(self.remaining_loops)
         await self.parent_view.refresh()
 
 

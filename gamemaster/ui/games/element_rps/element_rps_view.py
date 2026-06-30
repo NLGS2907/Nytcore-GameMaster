@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Literal, Optional, TypeAlias
 
 from discord import PartialEmoji, SeparatorSpacing
-from discord.ext.tasks import loop
 from discord.ui import ActionRow, Container, Separator, TextDisplay
 
 from ....games import ElementRPSGame
 from ....models import ElementType
 from ..game_view_base import BaseGameView
 from .buttons import ElementButton, ElementMapButton
+from .loops import NextRoundLoop, RevealLoop
 
 if TYPE_CHECKING:
     from discord import Emoji
@@ -21,6 +21,10 @@ StatusMessages: TypeAlias = dict[Literal["reveal", "results", "timeout"], Option
 
 SECS_UNTIL_REVEAL: int = 5
 SECS_UNTIL_NEXT_ROUND: int = 10
+
+REVEAL_NAME: str = "reveal"
+RESULTS_NAME: str = "results"
+TIMEOUT_NAME: str = "timeout"
 
 
 class ElementRPSView(BaseGameView[ElementRPSGame]):
@@ -44,7 +48,13 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         ]
         self._elem_map_btn: ElementMapButton = ElementMapButton(self)
 
-        self._status_msg: StatusMessages = {"reveal": None, "results": None, "timeout": None}
+        self._status_msg: StatusMessages = {REVEAL_NAME: None,
+                                            RESULTS_NAME: None,
+                                            TIMEOUT_NAME: None}
+
+        self.reveal: RevealLoop = RevealLoop(parent_view=self, count=SECS_UNTIL_REVEAL)
+        self.next_round: NextRoundLoop = NextRoundLoop(parent_view=self,
+                                                       count=SECS_UNTIL_NEXT_ROUND)
 
 
     async def reset(self):
@@ -54,7 +64,7 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         if not self.game.round_finished:
             container.add_item(TextDisplay(f"## {self.player_1.username}  VS  "
                                             f"{self.player_2.username}  (Round {cur_round})"))
-            reveal_msg = self._status_msg["reveal"]
+            reveal_msg = self._status_msg[REVEAL_NAME]
             if reveal_msg is not None:
                 container.add_item(Separator(spacing=SeparatorSpacing.small))
                 container.add_item(TextDisplay(reveal_msg))
@@ -82,7 +92,7 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         container.add_item(TextDisplay(f"Current results:\t\t**{player_1_score} - "
                                        f"{player_2_score}**"))
 
-        results_msg = self._status_msg["results"]
+        results_msg = self._status_msg[RESULTS_NAME]
         if results_msg is not None:
             container.add_item(Separator(spacing=SeparatorSpacing.small))
             container.add_item(TextDisplay(f"-# _{results_msg}_"))
@@ -155,75 +165,19 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
         }
 
 
-    def _generate_reveal_msg(self, current_loop: int) -> str:
+    def set_reveal_msg(self, current_loop: Optional[int]):
         """Generates the current reveal message given the current loop number."""
 
-        return f"All players have made their choice. **Revealing results in {current_loop}...**"
+        msg = (f"All players have made their choice. **Revealing results in {current_loop}...**"
+               if current_loop is not None else None)
+        self._status_msg[REVEAL_NAME] = msg
 
 
-    @loop(seconds=1.0, count=SECS_UNTIL_REVEAL)
-    async def reveal(self):
-        """Countdown to reveal the results."""
-
-        if self.reveal.is_being_cancelled():
-            return
-
-        cur_loop = SECS_UNTIL_REVEAL - self.reveal.current_loop
-        self._status_msg["reveal"] = self._generate_reveal_msg(cur_loop)
-        await self.refresh()
-
-
-    @reveal.before_loop
-    async def before_reveal(self):
-        self._status_msg["reveal"] = self._generate_reveal_msg(SECS_UNTIL_REVEAL)
-        await self.refresh()
-
-
-    @reveal.after_loop
-    async def after_reveal(self):
-        self._status_msg["reveal"] = None
-        if self.reveal.is_being_cancelled():
-            await self.refresh()
-        else:
-            self.game.resolve()
-            if not self.next_round.is_running():
-                self.next_round.start() # this loop already refreshes the view
-
-
-    def _generate_results_msg(self, current_loop: int) -> str:
+    def set_results_msg(self, current_loop: Optional[int]):
         """Generates the current results message given the current loop number."""
 
-        return (f"Beginning next round in {current_loop}..."
-                if self.game.finished() is None
-                else f"Game finished! Generating results in {current_loop}...")
-
-
-    @loop(seconds=1.0, count=SECS_UNTIL_NEXT_ROUND)
-    async def next_round(self):
-        """Countdown to go to the next round."""
-
-        if self.next_round.is_being_cancelled():
-            return
-
-        cur_loop = SECS_UNTIL_NEXT_ROUND - self.next_round.current_loop
-        self._status_msg["results"] = self._generate_results_msg(cur_loop)
-        await self.refresh()
-
-
-    @next_round.before_loop
-    async def before_next_round(self):
-        self._status_msg["results"] = self._generate_results_msg(SECS_UNTIL_NEXT_ROUND)
-        await self.refresh()
-
-
-    @next_round.after_loop
-    async def after_next_round(self):
-        self._status_msg["results"] = None
-        self.game.reset_round()
-
-        winner = self.game.finished()
-        if winner is not None:
-            self.game.save()
-            await self.finish_message(winner)
-        else:
-            await self.refresh()
+        candidate = (f"Beginning next round in {current_loop}..."
+                     if self.game.finished() is None
+                     else f"Game finished! Generating results in {current_loop}...")
+        msg = (candidate if current_loop is not None else None)
+        self._status_msg[RESULTS_NAME] = msg

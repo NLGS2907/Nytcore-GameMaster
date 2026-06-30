@@ -45,7 +45,9 @@ class ConfirmationView(BaseView):
         self.__ready_btns: _ReadyBtns = {player_id: ReadyButton(self, player_id)
                                          for player_id in self.__ready_map}
 
-        self.countdown = ConfirmationCountdownLoop(parent_view=self, count=ITERATIONS_UNTIL_READY)
+        self.countdown: ConfirmationCountdownLoop = ConfirmationCountdownLoop(
+            parent_view=self, count=ITERATIONS_UNTIL_READY
+        )
 
 
     async def reset(self):
