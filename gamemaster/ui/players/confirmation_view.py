@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from discord import SeparatorSpacing
-from discord.ext.tasks import loop
 from discord.ui import Container, Section, Separator, TextDisplay
 
 from ..base_view import BaseView
+from .countdown_loop import ConfirmationCountdownLoop
 from .ready_btn import ReadyButton
 
 if TYPE_CHECKING:
@@ -44,6 +44,8 @@ class ConfirmationView(BaseView):
         self._countdown_msg: Optional[str] = None
         self.__ready_btns: _ReadyBtns = {player_id: ReadyButton(self, player_id)
                                          for player_id in self.__ready_map}
+
+        self.countdown = ConfirmationCountdownLoop(parent_view=self, count=ITERATIONS_UNTIL_READY)
 
 
     async def reset(self):
@@ -120,37 +122,9 @@ class ConfirmationView(BaseView):
         return self.__ready_map.get(user_id, False)
 
 
-    def _generate_countdown_msg(self, current_loop: int) -> str:
+    def change_countdown_msg(self, current_loop: Optional[int]):
         """Generates the current countdown message given the current loop number."""
 
-        return f"All players ready. **Beggining game in {current_loop}...**"
-
-
-    @loop(seconds=TIME_IN_SECS_PER_ITER, count=ITERATIONS_UNTIL_READY)
-    async def countdown(self):
-        """A countdown to be updated when all the players are ready."""
-
-        if self.countdown.is_being_cancelled():
-            return
-
-        cur_loop = ITERATIONS_UNTIL_READY - self.countdown.current_loop
-        self._countdown_msg = self._generate_countdown_msg(cur_loop)
-        await self.refresh()
-
-
-    @countdown.before_loop
-    async def before_countdown(self):
-        self._countdown_msg = self._generate_countdown_msg(ITERATIONS_UNTIL_READY)
-        await self.refresh()
-
-
-    @countdown.after_loop
-    async def after_countdown(self):
-        self._countdown_msg = None
-        if self.countdown.is_being_cancelled():
-            await self.refresh()
-            return
-
-        game_view = self.manager.assemble_view(self.user, self.parent_msg, self.user)
-        await game_view.reset()
-        await self.parent_msg.edit(view=game_view)
+        msg = (f"All players ready. **Beggining game in {current_loop}...**"
+               if current_loop is not None else None)
+        self._countdown_msg = msg

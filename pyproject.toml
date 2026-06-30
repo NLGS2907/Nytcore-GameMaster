@@ -18,7 +18,8 @@ omit = [
     "*/ui/*",
     "*base*",
     "*interface.py",
-    "*/logger/custom/*"
+    "*/logger/custom/*",
+    "tasks/*"
 ]
 show_missing = true
 fail_under = 80
