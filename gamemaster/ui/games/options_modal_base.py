@@ -38,7 +38,7 @@ class BaseOptionsModal(Generic[OptionsType], Modal, ABC):
 
 
     def prepare(self):
-        """Hook for doing taks right after initialization.
+        """Hook for doing tasks right after initialization.
         
         The default implementation does nothing, but it can be inherited and edited.
         """
