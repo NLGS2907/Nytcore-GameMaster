@@ -142,8 +142,11 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         return self.players[1]
 
 
-    def weak_against(self, elem_1: ElementType, elem_2: ElementType) -> bool:
+    def weak_against(self, elem_1: Optional[ElementType], elem_2: Optional[ElementType]) -> bool:
         """Checks if `elem_1` is weak against `elem_2`."""
+
+        if elem_1 is None:
+            return elem_2 is not None
 
         return elem_2 == WEAKNESSES[elem_1]
 

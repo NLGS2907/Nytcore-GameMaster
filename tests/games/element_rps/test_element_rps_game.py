@@ -146,6 +146,16 @@ class TestElementRPSGame(TestCase):
         self._assert_weakness(ElementType.FIRE, ElementType.WATER)
 
 
+    def test_no_choice_is_weak_against_everything(self):
+        for element in ElementType:
+            with self.subTest(element=element):
+                self._assert_weakness(None, element)
+
+
+    def test_if_both_choices_are_null_then_its_a_tie(self):
+        self.assertFalse(self.element_rps_game.weak_against(None, None))
+
+
     def _play_round(self, player_1_choice: ElementType, player_2_choice: ElementType):
         self.element_rps_game.make_choice(player_1_choice, True)
         self.element_rps_game.make_choice(player_2_choice, False)
