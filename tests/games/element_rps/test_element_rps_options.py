@@ -26,12 +26,11 @@ class TestElementRPSOptions(TestCase):
 
 
     def test_initializes_with_default_values(self):
-        default_hex_emojis = False
         default_round_setting = WinningRoundsSetting.TWO_ROUNDS
         default_round_timeout = 30
 
         element_rps_options = ElementRPSOptions.default()
 
-        self.assertEqual(element_rps_options.use_hex_emojis, default_hex_emojis)
+        self.assertFalse(element_rps_options.use_hex_emojis)
         self.assertEqual(element_rps_options.winning_rounds, default_round_setting)
         self.assertEqual(element_rps_options.round_timeout, default_round_timeout)
