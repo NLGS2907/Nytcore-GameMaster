@@ -63,7 +63,7 @@ class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
                     label=lvl.name.replace("_", " ").capitalize(),
                     value=lvl.value,
                     default=(lvl == self.options.blur_level)
-                ) for lvl in BlurLevel
+                ) for lvl in BlurLevel if lvl != BlurLevel.NONE
             ]
         )
         blur_level = Label(
