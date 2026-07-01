@@ -43,13 +43,17 @@ class RPSResultStats:
             if round.result == RPSRoundResult.TIE:
                 self.ties_count += 1
 
-            emojis_counter[round.player_1_choice][0] += 1
-            emojis_counter[round.player_2_choice][1] += 1
+            if round.player_1_choice is not None:
+                emojis_counter[round.player_1_choice][0] += 1
+            if round.player_2_choice is not None:
+                emojis_counter[round.player_2_choice][1] += 1
 
         max_count_player_1 = max(*emojis_counter.values(), key=lambda count: count[0])[0]
         max_count_player_2 = max(*emojis_counter.values(), key=lambda count: count[1])[1]
 
-        self.player_1_favs.extend(elem for elem, elem_count in emojis_counter.items()
-                                  if elem_count[0] == max_count_player_1)
-        self.player_2_favs.extend(elem for elem, elem_count in emojis_counter.items()
-                                  if elem_count[1] == max_count_player_2)
+        if max_count_player_1 > 0:
+            self.player_1_favs.extend(elem for elem, elem_count in emojis_counter.items()
+                                      if elem_count[0] == max_count_player_1)
+        if max_count_player_2 > 0:
+            self.player_2_favs.extend(elem for elem, elem_count in emojis_counter.items()
+                                      if elem_count[1] == max_count_player_2)

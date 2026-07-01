@@ -88,9 +88,13 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
             return
 
         last_result = self.game.last_record()
+        player_1_emoji = (self._emojis[last_result.player_1_choice]
+                          if last_result.player_1_choice is not None else "_N/A_")
+        player_2_emoji = (self._emojis[last_result.player_2_choice]
+                          if last_result.player_2_choice is not None else "_N/A_")
         container.add_item(TextDisplay(
-            (f"## {self.player_1.username}  {self._emojis[last_result.player_1_choice]}\t-\t"
-             f"{self._emojis[last_result.player_2_choice]}  {self.player_2.username}")
+            (f"## {self.player_1.username}  {player_1_emoji}\t-\t"
+             f"{player_2_emoji}  {self.player_2.username}")
         ))
 
         winner = self.game.determine_winner(last_result)
