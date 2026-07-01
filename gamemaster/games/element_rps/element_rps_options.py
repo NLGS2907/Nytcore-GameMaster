@@ -3,9 +3,9 @@ from typing import Self
 from ..options_base import BaseOptions
 from .winning_rounds_enum import WinningRoundsSetting
 
-HEX_EMOJIS_DEFAULT = False
-WINNING_ROUNDS_DEFAULT = WinningRoundsSetting.TWO_ROUNDS
-ROUND_TIMEOUT_SECS_DEFAULT = 30
+HEX_EMOJIS_DEFAULT: bool = False
+WINNING_ROUNDS_DEFAULT: WinningRoundsSetting = WinningRoundsSetting.TWO_ROUNDS
+ROUND_TIMEOUT_SECS_DEFAULT: int = 30
 
 
 class ElementRPSOptions(BaseOptions):
@@ -19,8 +19,7 @@ class ElementRPSOptions(BaseOptions):
                        choices made or not.
     """
 
-    def __init__(self,
-                 *,
+    def __init__(self, *,
                  use_hex_emojis: bool,
                  winning_rounds: WinningRoundsSetting,
                  round_timeout: int):
