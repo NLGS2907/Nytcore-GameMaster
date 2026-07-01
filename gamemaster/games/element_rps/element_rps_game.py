@@ -158,7 +158,7 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         self._player_2_choice = None
 
 
-    def make_choice(self, choice: ElementType, is_player_1: bool):
+    def make_choice(self, choice: Optional[ElementType], is_player_1: bool):
         """Makes a choice and registers it.
 
         Args:
@@ -212,6 +212,23 @@ class ElementRPSGame(BaseGame[ElementRPSOptions]):
         """Determines the winner of the round."""
 
         return self.__results.determine_winner(round_data)
+
+
+    def last_null_rounds(self, n: int) -> bool:
+        """Checks if the last `n` played rounds were 'null'.
+
+        That is, if both choices in that round were not made.
+
+        Args:
+            n: The number of last rounds to inspect.
+
+        Returns:
+            A boolean indicating if the last `n` rounds are effectively null.
+            If `n` has an invalid format or is greater that the history of rounds,
+            then it defaults to `False`.
+        """
+
+        return self.__results.last_null_rounds(n)
 
 
     def process_stats(self) -> RPSResultStats:

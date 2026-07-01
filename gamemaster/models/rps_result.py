@@ -152,8 +152,8 @@ class RPSResult:
 
 
     def last_null_rounds(self, n: int) -> bool:
-        """Checks if the last `n` rounds were 'null'.
-        
+        """Checks if the last `n` played rounds were 'null'.
+
         That is, if both choices in that round were not made.
 
         Args:

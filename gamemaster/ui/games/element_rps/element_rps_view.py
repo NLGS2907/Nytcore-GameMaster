@@ -200,6 +200,6 @@ class ElementRPSView(BaseGameView[ElementRPSGame]):
     def set_round_timeout_msg(self, remaining_loops: Optional[int]):
         """Generates the current round timeout message given the number of remaining loops."""
 
-        msg = ((f"If both players don't decide in {remaining_loops} seconds, "
+        msg = ((f"-# If both players don't decide in {remaining_loops} seconds, "
                 "the round will end on its own.") if remaining_loops is not None else None)
         self._status_msg[TIMEOUT_NAME] = msg

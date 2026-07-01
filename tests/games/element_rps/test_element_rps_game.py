@@ -279,3 +279,12 @@ class TestElementRPSGame(TestCase):
         self.element_rps_game.save()
 
         self.rps_result_repo_mock.save.assert_called_once()
+
+
+    def test_sees_the_last_null_rounds(self):
+        self._play_round(ElementType.WIND, ElementType.IRON)
+        n = 2
+        for _ in range(n):
+            self._play_round(None, None)
+
+        self.assertTrue(self.element_rps_game.last_null_rounds(n))
