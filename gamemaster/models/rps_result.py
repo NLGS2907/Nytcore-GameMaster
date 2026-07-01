@@ -44,6 +44,7 @@ class RPSResult:
         self._saved_at: "datetime" = saved
 
 
+
     @property
     def id(self) -> int:
         return self._id
@@ -148,3 +149,27 @@ class RPSResult:
         """Yields the data from each round of the game."""
 
         yield from self.rounds
+
+
+    def last_null_rounds(self, n: int) -> bool:
+        """Checks if the last `n` rounds were 'null'.
+        
+        That is, if both choices in that round were not made.
+
+        Args:
+            n: The number of last rounds to inspect.
+
+        Returns:
+            A boolean indicating if the last `n` rounds are effectively null.
+            If `n` has an invalid format or is greater that the history of rounds,
+            then it defaults to `False`.
+        """
+
+        if n < 1 or n > self.how_many_rounds():
+            return False
+
+        for round_data in self.rounds[-n:]:
+            if not round_data.choices_are_null():
+                return False
+
+        return True

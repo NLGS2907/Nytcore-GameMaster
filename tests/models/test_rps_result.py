@@ -137,19 +137,19 @@ class TestRPSResult(TestCase):
     def test_can_yield_from_rounds(self):
         rounds = [
             Mock(RPSRoundData, **{
-            "player_1_choice": ElementType.IRON,
-            "player_2_choice": ElementType.IRON,
-            "result": RPSRoundResult.TIE,
+                "player_1_choice": ElementType.IRON,
+                "player_2_choice": ElementType.IRON,
+                "result": RPSRoundResult.TIE,
             }),
             Mock(RPSRoundData, **{
-            "player_1_choice": ElementType.WATER,
-            "player_2_choice": ElementType.IRON,
-            "result": RPSRoundResult.TIE,
+                "player_1_choice": ElementType.WATER,
+                "player_2_choice": ElementType.IRON,
+                "result": RPSRoundResult.TIE,
             }),
             Mock(RPSRoundData, **{
-            "player_1_choice": ElementType.IRON,
-            "player_2_choice": ElementType.WIND,
-            "result": RPSRoundResult.DEFEAT,
+                "player_1_choice": ElementType.IRON,
+                "player_2_choice": ElementType.WIND,
+                "result": RPSRoundResult.DEFEAT,
             })
         ],
         self.rps_result.rounds = rounds
@@ -157,3 +157,28 @@ class TestRPSResult(TestCase):
         for i, round in enumerate(self.rps_result.walk_rounds()):
             with self.subTest(index=i, cur_round=round):
                 self.assertEqual(round, rounds[i])
+
+
+    def test_can_detect_last_two_null_rounds(self):
+        rounds = [
+            Mock(RPSRoundData, **{"choices_are_null.return_value": False}),
+            Mock(RPSRoundData, **{"choices_are_null.return_value": True}),
+            Mock(RPSRoundData, **{"choices_are_null.return_value": True})
+        ]
+        self.rps_result.rounds = rounds
+
+        self.assertFalse(self.rps_result.last_null_rounds(3))
+        self.assertTrue(self.rps_result.last_null_rounds(2))
+
+
+    def test_last_rounds_null_with_invalid_value(self):
+        rounds = [
+            Mock(RPSRoundData, **{"choices_are_null.return_value": False}),
+            Mock(RPSRoundData, **{"choices_are_null.return_value": False}),
+            Mock(RPSRoundData, **{"choices_are_null.return_value": True})
+        ]
+        self.rps_result.rounds = rounds
+
+        self.assertFalse(self.rps_result.last_null_rounds(0))
+        self.assertFalse(self.rps_result.last_null_rounds(-1))
+        self.assertFalse(self.rps_result.last_null_rounds(10))
