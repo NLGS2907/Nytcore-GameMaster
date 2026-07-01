@@ -55,20 +55,22 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
         round_timeout: TextInput
         use_hex, win_rounds, round_timeout = self._unpack_components()
 
-        self.options.use_hex_emojis = use_hex.value
-        self.options.winning_rounds = WinningRoundsSetting(int(win_rounds.value))
-
         # needs to be in a separate line from assigment, since it can raise exceptions
         candidate_timeout = self._validate_round_timeout(round_timeout.value)
+
+        self.options.use_hex_emojis = use_hex.value
+        self.options.winning_rounds = WinningRoundsSetting(int(win_rounds.value))
         self.options.round_timeout = candidate_timeout
 
 
     def _validate_round_timeout(self, timeout: str) -> int:
         """Ensures the round timeout is a valid numeric number.
 
+        Args:
+            timeout: The candidate value to check.
+
         Raises:
-            TypeError: If the value passed isn't numeric.
-            ValueError: If the value isn't between the min and max range allowed.
+            ValueError: If the value isn't numeric or between the min and max range allowed.
 
         Returns:
             The timeout in seconds, ready to be assigned.
@@ -78,11 +80,11 @@ class ElementRPSOptionsModal(BaseOptionsModal[ElementRPSOptions]):
             return self.options.round_timeout
 
         if not timeout.isdecimal():
-            raise TypeError(f"Round timeout {timeout!r} ought to have a numeric value")
+            raise ValueError(f"Round timeout {timeout!r} ought to have a numeric value")
 
         num_timeout = int(timeout)
         if num_timeout < ROUND_TIMEOUT_MIN or num_timeout > ROUND_TIMEOUT_MAX:
-            raise ValueError(f"Round timeout {timeout!r} should be in the range "
+            raise ValueError(f"Round timeout {timeout} should be in the range "
                              f"[{ROUND_TIMEOUT_MIN}, {ROUND_TIMEOUT_MAX}]")
 
         return num_timeout
