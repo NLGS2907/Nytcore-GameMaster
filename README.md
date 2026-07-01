@@ -11,7 +11,7 @@ with the cached link of the relevant asset.
 -->
 ![status](https://dcbadge.limes.pink/api/shield/1505284412907192480?bot=true&theme=discord&logoColor=ffffff)
 
-![version](https://img.shields.io/badge/version-0.1.0-brightgreen)
+![version](https://img.shields.io/badge/version-0.2.0-brightgreen)
 ![estrellas](https://img.shields.io/github/stars/NLGS2907/Nytcore-GameMaster?label=Estrellas&style=social)
 ![forks](https://img.shields.io/github/forks/NLGS2907/Nytcore-GameMaster?style=social)
 ![Tests](https://github.com/NLGS2907/Nytcore-GameMaster/actions/workflows/tests.yml/badge.svg)

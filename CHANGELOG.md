@@ -4,12 +4,22 @@ Details about the changes between verisons.
 
 |      Version     |
 |:----------------:|
+|[**0.2.0**](#v020)|
 |[**0.1.0**](#v010)|
 
 <!--hr style="height:2px" /-->
 <!--hr style="height:4px" /-->
 
 <hr/>
+
+### v0.2.0
+
+* **Added unit tests**
+    - For pretty much anything that wasn't a controller or UI element.
+* **Element RPS now accepts AFK games**
+    - _And it cancels the game when it detects three (3) empty rounds._
+
+<hr style="height:4px" />
 
 ### v0.1.0
 
