@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from gamemaster.models import ImageProperties
 
+from ...helper import dummy_bmp
+
 
 class TestImageProperties(TestCase):
     def setUp(self):
@@ -28,15 +30,12 @@ class TestImageProperties(TestCase):
 
 
 
-    def test_can_initialize_from_dict(self):
-        props_dict = dict(format=self.format,
-                          width=self.width,
-                          height=self.height,
-                          size=self.size)
+    def test_can_initialize_from_file(self):
+        img_file = dummy_bmp(self.width, self.height)
+        img_format = "BMP"
 
-        img_props = ImageProperties.from_dict(props_dict)
+        img_props = ImageProperties.from_file(img_file)
 
-        self.assertEqual(img_props.format, props_dict["format"])
-        self.assertEqual(img_props.width, props_dict["width"])
-        self.assertEqual(img_props.height, props_dict["height"])
-        self.assertEqual(img_props.size, props_dict["size"])
+        self.assertEqual(img_props.format, img_format)
+        self.assertEqual(img_props.width, self.width)
+        self.assertEqual(img_props.height, self.height)

@@ -129,15 +129,7 @@ class Player:
             return None
 
         if self.__img_props is None:
-            img_props = {}
-            with img_open(self.profile_img) as img:
-                img_props["format"] = img.format
-                width, height = img.size
-                img_props["width"] = width
-                img_props["height"] = height
-            img_props["size"] = self.profile_img.getbuffer().nbytes
-            self.__img_props = ImageProperties.from_dict(img_props)
-            self.profile_img.seek(0)
+            self.__img_props = ImageProperties.from_file(self.profile_img)
 
         return self.__img_props
 

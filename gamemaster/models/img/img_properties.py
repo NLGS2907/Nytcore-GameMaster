@@ -1,5 +1,10 @@
 from dataclasses import dataclass
-from typing import Self, TypedDict
+from typing import TYPE_CHECKING, Self, TypedDict
+
+from PIL.Image import open as img_open
+
+if TYPE_CHECKING:
+    from io import BytesIO
 
 
 class _ImagePropDict(TypedDict):
@@ -29,7 +34,20 @@ class ImageProperties:
 
 
     @classmethod
-    def from_dict(cls, props: _ImagePropDict) -> Self:
-        "Instantiates an object from the dict version."
+    def from_file(cls, file: "BytesIO") -> Self:
+        """Creates a properties object from binary data.
+        
+        Args:
+            file: A file-like object that contains the binary data.
 
-        return cls(props["format"], props["width"], props["height"], props["size"])
+        Returns:
+            The properties object of said file.
+        """
+
+        with img_open(file) as img:
+            format = img.format
+            width, height = img.size
+        size = file.getbuffer().nbytes
+        file.seek(0)
+
+        return cls(format, width, height, size)

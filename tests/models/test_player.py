@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from gamemaster.models.player import Player, ProfileImgType
 
+from ..helper import dummy_bmp
+
 
 class TestPlayer(TestCase):
     def setUp(self):
@@ -49,7 +51,7 @@ class TestPlayer(TestCase):
 
     def test_can_edit_profile_image(self):
         size = 250
-        new_img = self._dummy_bmp(size, size)
+        new_img = dummy_bmp(size, size)
         self.player.profile_img = new_img
         img_props = self.player.image_properties
 
@@ -120,12 +122,12 @@ class TestPlayer(TestCase):
 
     def test_img_is_too_small(self):
         with self.assertRaises(ValueError):
-            Player(0, "player", 12345678, profile_img=self._dummy_bmp(100, 100))
+            Player(0, "player", 12345678, profile_img=dummy_bmp(100, 100))
 
 
     def test_img_is_too_large(self):
         with self.assertRaises(ValueError):
-            Player(0, "player", 12345678, profile_img=self._dummy_bmp(1600, 1600))
+            Player(0, "player", 12345678, profile_img=dummy_bmp(1600, 1600))
 
 
     def test_img_not_square(self):
@@ -133,9 +135,9 @@ class TestPlayer(TestCase):
         height = 500
 
         player_with_wide_img = Player(0, "player", 12345678,
-                                      profile_img=self._dummy_bmp(height * 2, height))
+                                      profile_img=dummy_bmp(height * 2, height))
         player_with_tall_img = Player(0, "player", 12345678,
-                                      profile_img=self._dummy_bmp(width, width * 2))
+                                      profile_img=dummy_bmp(width, width * 2))
 
 
         wide_img_props = player_with_wide_img.image_properties
@@ -148,7 +150,7 @@ class TestPlayer(TestCase):
 
 
     def test_image_is_always_webp(self):
-        player = Player(0, "player", 12345678, profile_img=self._dummy_bmp(500, 500))
+        player = Player(0, "player", 12345678, profile_img=dummy_bmp(500, 500))
 
         self.assertEqual(player.image_properties.format.upper(), "WEBP")
 
@@ -161,28 +163,3 @@ class TestPlayer(TestCase):
     def test_incorrect_color_format(self):
         with self.assertRaises(ValueError):
             Player(0, "player", 12345678, fav_color="abcdef")
-
-
-    @staticmethod
-    def _dummy_bmp(width: int, height: int) -> ProfileImgType:
-        """Makes a dummy BMP image of the given width and height."""
-
-        # BMP rows must align to a 4-byte storage boundary
-        row_bytes = (width * 3 + 3) & ~3
-        pixel_payload = b"\x00" * (row_bytes * height)
-        
-        # Extract little-endian 4-byte dimensions
-        w_bytes = width.to_bytes(4, byteorder='little')
-        h_bytes = height.to_bytes(4, byteorder='little')
-        
-        # Combine stripped headers and calculated pixel data inside the constructor
-        return ProfileImgType(
-            (
-                b"BM\x00\x00\x00\x00\x00\x00\x00\x00\x36\x00\x00\x00\x28\x00\x00\x00"
-                b"%b"  # 4 bytes for Width
-                b"%b"  # 4 bytes for Height
-                b"\x01\x00\x18\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-                b"%b"  # Dynamically sized pixel data block
-            ) % (w_bytes, h_bytes, pixel_payload)
-        )
