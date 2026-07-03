@@ -1,8 +1,7 @@
-from typing import Optional
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, Mock
 
-from discord import Attachment, Interaction, InteractionResponse
+from discord import Interaction, InteractionResponse
 
 from gamemaster.modals import ProfileEditModal
 from gamemaster.models import Player
@@ -37,11 +36,3 @@ class TestProfileEditModal(IsolatedAsyncioTestCase):
 
         self.response_mock.send_message.assert_called_once_with("_No changes were made._",
                                                                 ephemeral=True)
-
-
-    def _populate_modal_values(self, *,
-                               player_name: Optional[str]=None,
-                               emoji_selection: Optional[str]=None,
-                               file_upload: Optional[Attachment]=None,
-                               selected_color: Optional[str]=None):
-        pass
