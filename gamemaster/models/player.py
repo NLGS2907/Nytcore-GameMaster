@@ -257,7 +257,6 @@ class Player:
             if img is not None:
                 img.close()
 
-        print(result_img.getvalue())
         return result_img
 
 
