@@ -19,7 +19,7 @@ class _ImagePropDict(TypedDict):
 @dataclass
 class ImageProperties:
     """Helper type to hold a profile image's properties.
-    
+
     Attributes:
         format: The image format of the image, like 'PNG' or 'JPEG'.
         width: The width in pixels of the image.
