@@ -4,9 +4,10 @@ from io import BytesIO
 from typing import TYPE_CHECKING
 
 from discord import TextStyle
-from discord.ui import FileUpload, Label, Modal, TextInput
+from discord.ui import FileUpload, Label, TextInput
 
 from ...models import IMG_MAX_SIZE, IMG_MIN_SIZE, MAX_COLOR_DIGITS, NAME_MAX_LENGTH
+from ..base_modal import BaseModal
 
 if TYPE_CHECKING:
     from discord import Attachment, Interaction
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
     from ...repositories import IPlayerRepository
 
 
-class ProfileEditModal(Modal):
+class ProfileEditModal(BaseModal):
     """Asks for info to edit the profile of a user.
 
     Attributes:
@@ -31,10 +32,13 @@ class ProfileEditModal(Modal):
             player_repository: The repository from which to load and save players.
         """
 
-        super().__init__(title=f" Edit {player.username} Profile Details", timeout=None)
         self.player: "Player" = player
         self.player_repo: "IPlayerRepository" = player_repository
 
+        super().__init__(title=f" Edit {player.username} Profile Details", timeout=None)
+
+
+    def prepare(self):
         image_description = (f"Square image of {IMG_MIN_SIZE}x{IMG_MIN_SIZE} "
                              f"- {IMG_MAX_SIZE}x{IMG_MAX_SIZE} in size. "
                              "If not square, it will be transformed so that it is.")
@@ -44,20 +48,20 @@ class ProfileEditModal(Modal):
                             component=TextInput(style=TextStyle.short,
                                                 required=False,
                                                 min_length=0,
-                                                placeholder=player.username)))
+                                                placeholder=self.player.username)))
         self.add_item(Label(text="Emoji",
                             description="Only unicode, single character emojis are allowed.",
                             component=TextInput(style=TextStyle.short,
                                                 required=False,
                                                 min_length=0,
-                                                placeholder=player.emoji)))
+                                                placeholder=self.player.emoji)))
         self.add_item(Label(text="Favourite Color",
                             description="A color of your preference, in #rrggbb format.",
                             component=TextInput(style=TextStyle.short,
                                                 required=False,
                                                 min_length=0,
                                                 max_length=MAX_COLOR_DIGITS + 1,
-                                                placeholder=player.fav_color)))
+                                                placeholder=self.player.fav_color)))
         self.add_item(Label(text="Profile image",
                             description=image_description,
                             component=FileUpload(required=False, min_values=0, max_values=1)))
@@ -81,40 +85,43 @@ class ProfileEditModal(Modal):
         self.player.profile_img = img_file
 
 
-    async def on_submit(self, interaction: "Interaction"):
-        """The user sucessfully sent the profile editing modal."""
+    @property
+    def error_message(self):
+        return "It seems there was an error updating your profile."
 
+
+    @property
+    def success_message(self):
         player_name: TextInput
         emoji_selection: TextInput
         selected_color: TextInput
         profile_upload: FileUpload
-        player_name, emoji_selection, selected_color, profile_upload = (
-            child for child in self.walk_children() if not isinstance(child, Label)
-        )
-        
-        try:
-            if player_name.value:
-                self.player.username = player_name.value.strip()
+        player_name, emoji_selection, selected_color, profile_upload = self._unpack_components()
 
-            if emoji_selection.value:
-                self.player.emoji = emoji_selection.value.strip()
+        no_changes = not (player_name.value
+                          or emoji_selection.value
+                          or selected_color.value
+                          or profile_upload.values)
+        return ("No changes were made." if no_changes else "Your profile was updated successfully!")
 
-            if profile_upload.values:
-                await self._change_profile_image(profile_upload.values[0])
 
-            if selected_color.value:
-                self.player.fav_color = selected_color.value.strip()
+    async def callback(self, interaction: "Interaction"):
+        player_name: TextInput
+        emoji_selection: TextInput
+        selected_color: TextInput
+        profile_upload: FileUpload
+        player_name, emoji_selection, selected_color, profile_upload = self._unpack_components()
 
-            self.player_repo.save(self.player)
-        except (TypeError, ValueError) as err:
-            msg = f"**[ERROR]** It seems there was an error updating your profile.\n\n> _{err}_"
-            await interaction.response.send_message(msg, ephemeral=True)
+        if player_name.value:
+            self.player.username = player_name.value.strip()
 
-            raise err from err
+        if emoji_selection.value:
+            self.player.emoji = emoji_selection.value.strip()
 
-        no_changes = not (player_name.value or emoji_selection.value or profile_upload.values)
-        message_content = ("No changes were made." if no_changes
-                           else "Your profile was updated successfully!")
-        await interaction.response.send_message(f"_{message_content}_", ephemeral=True)
+        if profile_upload.values:
+            await self._change_profile_image(profile_upload.values[0])
 
-        
+        if selected_color.value:
+            self.player.fav_color = selected_color.value.strip()
+
+        self.player_repo.save(self.player)

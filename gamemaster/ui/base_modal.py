@@ -91,5 +91,5 @@ class BaseModal(Modal, ABC):
 
 
     async def on_submit(self, interaction: "Interaction"):
-        await self.callback()
+        await self.callback(interaction)
         await interaction.response.send_message(f"_{self.success_message}_", ephemeral=True)
