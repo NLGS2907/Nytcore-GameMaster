@@ -3,9 +3,9 @@ from unittest.mock import AsyncMock, Mock
 
 from discord import Interaction, InteractionResponse
 
-from gamemaster.modals import ProfileEditModal
 from gamemaster.models import Player
 from gamemaster.repositories import PlayerRepository
+from gamemaster.ui import ProfileEditModal
 
 
 class TestProfileEditModal(IsolatedAsyncioTestCase):

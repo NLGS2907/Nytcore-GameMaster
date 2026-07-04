@@ -5,8 +5,7 @@ from discord import Member
 from discord.app_commands import command, describe
 
 from ...embeds import ProfileEmbed
-from ...modals import ProfileEditModal
-from ...ui import ProfileView
+from ...ui import ProfileEditModal, ProfileView
 from ..cog_base import _BaseCog, _BaseGroup
 
 if TYPE_CHECKING:

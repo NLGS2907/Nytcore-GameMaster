@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from discord import ButtonStyle, PartialEmoji
 from discord.ui import Button
 
-from ...modals import ProfileEditModal
+from .profile_edit_modal import ProfileEditModal
 
 if TYPE_CHECKING:
     from discord import Interaction
