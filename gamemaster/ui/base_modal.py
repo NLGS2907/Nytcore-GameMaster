@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from traceback import format_exc
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Generator, Optional
 
-from discord.ui import Modal
+from discord.ui import Item, Label, Modal
 
 from ..logger import DISCORD_NAMESPACE, get_logger
 
@@ -44,6 +44,17 @@ class BaseModal(Modal, ABC):
         """
 
         return "Modal processed succesfully."
+
+
+    def _unpack_components(self) -> Generator[Item[Any]]:
+        """Automatically unpacks components inside the labels.
+
+        Yields:
+            All the components of the children items of the modal, provided they are labels.
+            If the current item is not a label, yield as-is.
+        """
+
+        yield from (child for child in self.walk_children() if not isinstance(child, Label))
 
 
     def prepare(self):

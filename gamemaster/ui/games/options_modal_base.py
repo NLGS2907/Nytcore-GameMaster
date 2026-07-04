@@ -1,13 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generator, Generic, Optional, TypeVar
-
-from discord.ui import Label
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 from ..base_modal import BaseModal
 
 if TYPE_CHECKING:
     from discord import Interaction
-    from discord.ui import Item
 
     from ...gamemaster import GameMaster
 
@@ -45,17 +42,6 @@ class BaseOptionsModal(Generic[OptionsType], BaseModal, ABC):
         """Updates the underlying options with the selected values."""
 
         raise NotImplementedError
-
-
-    def _unpack_components(self) -> Generator[Item[Any]]:
-        """Automatically unpacks components inside the labels.
-
-        Yields:
-            All the components of the children items of the modal, provided they are labels.
-            If the current item is not a label, yield as-is.
-        """
-
-        yield from (child for child in self.walk_children() if not isinstance(child, Label))
 
 
     @property
