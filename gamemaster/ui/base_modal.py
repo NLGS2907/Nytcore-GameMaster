@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from traceback import format_exc
 from typing import TYPE_CHECKING, Optional
 
 from discord.ui import Modal
+
+from ..logger import DISCORD_NAMESPACE, get_logger
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -65,13 +68,17 @@ class BaseModal(Modal, ABC):
         raise NotImplementedError
 
 
-    async def on_submit(self, interaction: "Interaction"):
-        try:
-            await self.callback()
-        except (TypeError, ValueError) as err:
-            msg_content = (f"**[ERROR]** {self.error_message}\n\n> _{err}_")
+    async def on_error(self, interaction: "Interaction", error: Exception):
+        msg_content = (f"**[ERROR]** {self.error_message}\n\n> _{error}_")
+        if interaction.response.is_done():
+            await interaction.edit_original_response(content=msg_content)
+        else:
             await interaction.response.send_message(msg_content, ephemeral=True)
+        graceful_err = "\n\t|\t".join(f"Modal has thrown exception {error.__class__!r}:\n"
+                                      f"{format_exc()}".split("\n"))
+        get_logger(DISCORD_NAMESPACE).error(graceful_err)
 
-            raise err from err
 
+    async def on_submit(self, interaction: "Interaction"):
+        await self.callback()
         await interaction.response.send_message(f"_{self.success_message}_", ephemeral=True)
