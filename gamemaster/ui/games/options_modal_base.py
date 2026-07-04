@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Generator, Generic, Optional, TypeVar
 
-from discord.ui import Label, Modal
+from discord.ui import Label
+
+from ..base_modal import BaseModal
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -12,7 +14,7 @@ if TYPE_CHECKING:
 OptionsType = TypeVar("OptionsType")
 
 
-class BaseOptionsModal(Generic[OptionsType], Modal, ABC):
+class BaseOptionsModal(Generic[OptionsType], BaseModal, ABC):
     """Base interface of an options modal."""
 
     def __init__(self,
@@ -31,20 +33,11 @@ class BaseOptionsModal(Generic[OptionsType], Modal, ABC):
             options: The options to modify.
         """
 
-        super().__init__(title=title, timeout=timeout)
-
         self.bot: "GameMaster" = bot
         self.options: OptionsType = options
-        self.prepare()
 
-
-    def prepare(self):
-        """Hook for doing tasks right after initialization.
-        
-        The default implementation does nothing, but it can be inherited and edited.
-        """
-
-        pass
+        # so that prepare() can access the options, this goes last
+        super().__init__(title=title, timeout=timeout)
 
 
     @abstractmethod
@@ -65,16 +58,15 @@ class BaseOptionsModal(Generic[OptionsType], Modal, ABC):
         yield from (child for child in self.walk_children() if not isinstance(child, Label))
 
 
+    @property
+    def error_message(self) -> str:
+        return "It seems there was an error trying to update the options."
 
-    async def on_submit(self, interaction: "Interaction"):
-        try:
-            self.update_options()
-        except (TypeError, ValueError) as err:
-            msg_content = ("**[ERROR]** It seems there was an error trying to update the "
-                           f"options.\n\n> _{err}_")
-            await interaction.response.send_message(msg_content, ephemeral=True)
 
-            raise err from err
+    @property
+    def success_message(self) -> str:
+        return "Settings updated successfuly."
 
-        msg_content = "_Settings updated successfuly_"
-        await interaction.response.send_message(msg_content, ephemeral=True)
+
+    async def callback(self, interaction: "Interaction"):
+        self.update_options()    
