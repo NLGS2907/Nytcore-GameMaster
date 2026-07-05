@@ -63,3 +63,12 @@ class BaseGameView(Generic[GameType], BaseView):
         self.add_item(container)
         await self.refresh_parent_msg(interaction)
         self.stop()
+
+
+    def is_host(self, user_id: int) -> bool:
+        """Determines if a given user ID is the one of the game's host.
+        
+        This is usually the same as the origin user of the view.
+        """
+
+        return user_id == self.user.id
