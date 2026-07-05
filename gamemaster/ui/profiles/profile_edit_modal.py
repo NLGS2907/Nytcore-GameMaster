@@ -38,6 +38,26 @@ class ProfileEditModal(BaseModal):
         super().__init__(title=f" Edit {player.username} Profile Details", timeout=None)
 
 
+    @property
+    def error_message(self):
+        return "It seems there was an error updating your profile."
+
+
+    @property
+    def success_message(self):
+        player_name: TextInput
+        emoji_selection: TextInput
+        selected_color: TextInput
+        profile_upload: FileUpload
+        player_name, emoji_selection, selected_color, profile_upload = self._unpack_components()
+
+        no_changes = not (player_name.value
+                          or emoji_selection.value
+                          or selected_color.value
+                          or profile_upload.values)
+        return ("No changes were made." if no_changes else "Your profile was updated successfully!")
+
+
     def prepare(self):
         image_description = (f"Square image of {IMG_MIN_SIZE}x{IMG_MIN_SIZE} "
                              f"- {IMG_MAX_SIZE}x{IMG_MAX_SIZE} in size. "
@@ -77,32 +97,12 @@ class ProfileEditModal(BaseModal):
             TypeError: If the media type of the file isn't that of an image.
         """
 
-        if "image" not in attachment.content_type:
+        if not self._is_image(attachment):
             raise TypeError("Attached file does not seem to be an image")
 
         img_file = BytesIO()
         await attachment.save(img_file, seek_begin=True)
         self.player.profile_img = img_file
-
-
-    @property
-    def error_message(self):
-        return "It seems there was an error updating your profile."
-
-
-    @property
-    def success_message(self):
-        player_name: TextInput
-        emoji_selection: TextInput
-        selected_color: TextInput
-        profile_upload: FileUpload
-        player_name, emoji_selection, selected_color, profile_upload = self._unpack_components()
-
-        no_changes = not (player_name.value
-                          or emoji_selection.value
-                          or selected_color.value
-                          or profile_upload.values)
-        return ("No changes were made." if no_changes else "Your profile was updated successfully!")
 
 
     async def callback(self, interaction: "Interaction"):
