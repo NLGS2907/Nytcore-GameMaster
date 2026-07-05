@@ -47,7 +47,7 @@ class ChubMinesUploadModal(BaseModal):
 
 
     def prepare(self):
-        max_safes = SAFES_MAX # TODO: change this to the options from the game!!
+        max_safes = self.parent_view.game.options.amount_safes
         safes_upload = Label(
             text="Safe Images",
             description=IMG_DESC_TEMPLATE.format(img_min=IMG_MIN_SIZE, img_max=IMG_MAX_SIZE,
@@ -60,7 +60,7 @@ class ChubMinesUploadModal(BaseModal):
         )
         self.add_item(safes_upload)
 
-        max_mines = MINES_MAX # TODO: change this to the options from the game!!
+        max_mines = self.parent_view.game.options.amount_mines
         mines_upload = Label(
             text="ChubMines™",
             description=IMG_DESC_TEMPLATE.format(img_min=IMG_MIN_SIZE, img_max=IMG_MAX_SIZE,
