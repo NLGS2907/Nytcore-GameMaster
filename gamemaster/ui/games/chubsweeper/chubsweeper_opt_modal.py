@@ -23,7 +23,7 @@ class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
 
     def prepare(self):
         use_private_mode = Label(
-            text="Activate Private Mode",
+            text="[WIP] Activate Private Mode",
             description="Each player will be served the images in their own DMs.",
             component=Checkbox(
                 default=self.options.private_mode
