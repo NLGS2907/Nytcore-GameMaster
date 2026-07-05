@@ -45,7 +45,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self.__started = True
 
         self.add_item(TextDisplay(
-            f"**{self.game.dealer.username}**, as the Dealer, you will first need tu upload "
+            f"**{self.game.dealer.username}**, as the Dealer, you will first need to upload "
             "the images that will be used for the rest of this round.\n"
             "Upload them, preview them, and see if they are okay before starting the game."
         ))
