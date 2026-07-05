@@ -58,8 +58,11 @@ class BlurEditModal(BaseModal):
 
 
     async def callback(self, interaction: "Interaction"):
+        await interaction.response.defer(ephemeral=True)
+        await self.parent_view.switch_processing_flag()
+
         blur_level: RadioGroup
         blur_level, = self._unpack_components()
 
         self.parent_view.reblur_images(BlurLevel(int(blur_level.value)))
-        await self.parent_view.refresh(interaction)
+        await self.parent_view.switch_processing_flag()
