@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
+from discord.ui import ActionRow, TextDisplay
+
 from ....games import ChubSweeperGame
 from ..game_view_base import BaseGameView
+from .chubsweeper_start_btn import ChubSweeperStartButton
 from .images_upload import ChubMinesUploadView
 
 if TYPE_CHECKING:
@@ -24,6 +27,26 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             self.bot, self.parent_msg, self.user, self.game, parent_view=self, timeout=timeout
         )
 
+        self.__started: bool = False
+        self.__chubsweeper_start_btn: ChubSweeperStartButton = ChubSweeperStartButton(self)
+
 
     async def reset(self):
-        pass
+        if not self.__started:
+            await self._start_view()
+            return
+
+        # rest of the game
+
+
+    async def _start_view(self):
+        """Shows a mini-view for starting the ChubSweeper game."""
+
+        self.__started = True
+
+        self.add_item(TextDisplay(
+            f"**{self.game.dealer.username}**, as the Dealer, you will first need tu upload "
+            "the images that will be used for the rest of this round.\n"
+            "Upload them, preview them, and see if they are okay before starting the game."
+        ))
+        self.add_item(ActionRow(self.__chubsweeper_start_btn))
