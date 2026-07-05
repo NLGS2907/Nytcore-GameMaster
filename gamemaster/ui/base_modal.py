@@ -7,7 +7,7 @@ from discord.ui import Item, Label, Modal
 from ..logger import DISCORD_NAMESPACE, get_logger
 
 if TYPE_CHECKING:
-    from discord import Interaction
+    from discord import Attachment, Interaction
 
 
 class BaseModal(Modal, ABC):
@@ -55,6 +55,12 @@ class BaseModal(Modal, ABC):
         """
 
         yield from (child for child in self.walk_children() if not isinstance(child, Label))
+
+
+    def _is_image(self, attachment: "Attachment") -> bool:
+        """Determines if the given attachment is that of an image."""
+
+        return "image" in attachment.content_type
 
 
     def prepare(self):
