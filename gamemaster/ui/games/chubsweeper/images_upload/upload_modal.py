@@ -119,6 +119,7 @@ class ChubMinesUploadModal(BaseModal):
 
     async def callback(self, interaction: "Interaction"):
         await interaction.response.defer(ephemeral=True)
+        await self.parent_view.switch_processing_flag()
 
         safes_upload: FileUpload
         mines_upload: FileUpload
@@ -131,4 +132,4 @@ class ChubMinesUploadModal(BaseModal):
         if mines_upload.values:
             await self.parent_view.set_mines(mines_upload.values)
 
-        await self.parent_view.refresh(interaction)
+        await self.parent_view.switch_processing_flag()

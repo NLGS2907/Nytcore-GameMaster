@@ -36,6 +36,7 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         self.chubsweeper_view: "ChubSweeperView" = parent_view
         self._safes: list["Attachment"] = []
         self._mines: list["Attachment"] = []
+        self.__processing: bool = False
 
         self._upload_btn: ImagesUploadButton = ImagesUploadButton(self, "Upload Images")
         self._blur_edit_btn: BlurEditButton = BlurEditButton(self)
@@ -47,6 +48,18 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         return not self._safes and not self._mines
 
 
+    async def switch_processing_flag(self, refresh: bool=True):
+        """Switches the internal flag for internal image processing.
+        
+        Args:
+            refresh: Wether to additionally refresh the parent view.
+        """
+
+        self.__processing = not self.__processing
+        if refresh:
+            await self.refresh()
+
+
     async def reset(self):
         nothing_uploaded = self._not_uploaded_yet()
         chubmines = "ChubMines™"
@@ -56,11 +69,11 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
             TextDisplay("## ChubSweeper Images Upload"),
             Separator(spacing=SeparatorSpacing.large)
         )
-        
-        container.add_item(
-            TextDisplay(f"**{self.game.dealer.username}**, as the dealer, you must upload the "
-                        f"safe images as well as the {chubmines} to be used in the next rounds.")
-        )
+
+        status_msg = ((f"**{self.game.dealer.username}**, as the dealer, you must upload the "
+                       f"safe images as well as the {chubmines} to be used in the next rounds.")
+                      if not self.__processing else "_Processing images..._")
+        container.add_item(TextDisplay(status_msg))
         container.add_item(Separator(spacing=SeparatorSpacing.small))
 
         container.add_item(TextDisplay(
