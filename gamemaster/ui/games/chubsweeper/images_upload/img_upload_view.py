@@ -57,23 +57,23 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
             Separator(spacing=SeparatorSpacing.large)
         )
         
-        container.add(
+        container.add_item(
             TextDisplay(f"**{self.game.dealer.username}**, as the dealer, you must upload the "
                         f"safe images as well as the {chubmines} to be used in the next rounds.")
         )
-        container.add(Separator(spacing=SeparatorSpacing.small))
+        container.add_item(Separator(spacing=SeparatorSpacing.small))
 
-        container.add(TextDisplay(
+        container.add_item(TextDisplay(
             NOT_UPLOADED_TEMPLATE.format(img_type=safes)
             if nothing_uploaded
             else UPLOADED_TEMPLATE.format(img_type=safes, amount=len(self._safes))
         ))
-        container.add(TextDisplay(
+        container.add_item(TextDisplay(
             NOT_UPLOADED_TEMPLATE.format(img_type=chubmines)
             if nothing_uploaded
             else UPLOADED_TEMPLATE.format(img_type=chubmines, amount=len(self._mines))
         ))
-        container.add(Separator(spacing=SeparatorSpacing.small))
+        container.add_item(Separator(spacing=SeparatorSpacing.small))
 
         self._upload_btn.label = ("Upload ChubMines™"
                                   if nothing_uploaded
