@@ -1,6 +1,6 @@
 from asyncio import Lock
 from traceback import format_exc
-from typing import TYPE_CHECKING, Optional, TypeAlias, Union
+from typing import TYPE_CHECKING, Optional, Self, TypeAlias, Union
 
 from discord.ui import LayoutView
 
@@ -84,19 +84,25 @@ class BaseView(LayoutView):
         pass
 
 
-    async def refresh_parent_msg(self, interaction: Optional["Interaction"]=None):
+    async def refresh_parent_msg(self,
+                                 interaction: Optional["Interaction"]=None,
+                                 view: Optional[Self]=None):
         """Refreshes the message that contains the view.
         
         Args:
             interaction: The interaction that triggered the response. If not present, it will try
                          to edit the message as-is.
+            view: The view to refresh the message with. If not specified, it will use this
+                  very instance.
         """
 
+        usable_view = view or self
+
         if interaction is not None and not interaction.response.is_done():
-            await interaction.response.edit_message(view=self)
+            await interaction.response.edit_message(view=usable_view)
             return
 
-        await self.parent_msg.edit(view=self)
+        await self.parent_msg.edit(view=usable_view)
 
 
     async def refresh(self, interaction: Optional["Interaction"]=None):
