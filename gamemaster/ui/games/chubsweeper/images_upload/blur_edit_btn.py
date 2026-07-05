@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from discord import ButtonStyle
+from discord import ButtonStyle, PartialEmoji
 from discord.ui import Button
 
 from .blur_edit_modal import BlurEditModal
@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from discord import Interaction
 
     from .img_upload_view import ChubMinesUploadView
+
+BLUR_EDIT_EMOJI: str = "⚙️"
 
 
 class BlurEditButton(Button):
@@ -23,7 +25,8 @@ class BlurEditButton(Button):
 
         super().__init__(style=ButtonStyle.gray,
                          label="Edit Blur",
-                         disabled=False)
+                         disabled=False,
+                         emoji=PartialEmoji.from_str(BLUR_EDIT_EMOJI))
         self.parent_view: "ChubMinesUploadView" = parent_view
 
 

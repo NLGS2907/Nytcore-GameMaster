@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from discord import ButtonStyle
+from discord import ButtonStyle, PartialEmoji
 from discord.ui import Button
 
 from .upload_modal import ChubMinesUploadModal
@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from discord import Interaction
 
     from .img_upload_view import ChubMinesUploadView
+
+IMAGE_UPLOAD_EMOJI: str = "📤"
 
 
 class ImagesUploadButton(Button):
@@ -24,7 +26,8 @@ class ImagesUploadButton(Button):
 
         super().__init__(style=ButtonStyle.blurple,
                          label=title,
-                         disabled=False)
+                         disabled=False,
+                         emoji=PartialEmoji.from_str(IMAGE_UPLOAD_EMOJI))
         self.parent_view: "ChubMinesUploadView" = parent_view
 
 
