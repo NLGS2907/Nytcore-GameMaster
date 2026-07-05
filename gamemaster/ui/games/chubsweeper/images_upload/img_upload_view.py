@@ -75,6 +75,10 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         ))
         container.add_item(Separator(spacing=SeparatorSpacing.small))
 
+        container.add_item(TextDisplay(
+            "-# **Please note** that uploading the images may take a few seconds."
+        ))
+
         self._upload_btn.label = ("Upload ChubMines™"
                                   if nothing_uploaded
                                   else "Reupload ChubMines™")
