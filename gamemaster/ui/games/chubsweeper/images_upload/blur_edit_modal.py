@@ -62,3 +62,4 @@ class BlurEditModal(BaseModal):
         blur_level, = self._unpack_components()
 
         self.parent_view.reblur_images(BlurLevel(int(blur_level.value)))
+        await self.parent_view.refresh(interaction)
