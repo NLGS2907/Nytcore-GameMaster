@@ -14,6 +14,9 @@ TRANSFORM_MIN: int = 50
 TRANSFORM_MAX: int = 1500
 TRANSFORM_PATTERN: "Pattern" = compile(r'^-?(0|[1-9]\d*)$', flags=ASCII)
 
+AMOUNT_MIN: int = 1
+AMOUNT_MAX: int = 10 # Discord limitation, not my fault
+
 
 class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
     """Options modal for a game of ChubSweeper."""
@@ -55,22 +58,53 @@ class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
             )
         )
         self.add_item(transform_height)
+
+        range_msg = f"You can upload between {AMOUNT_MIN} and {AMOUNT_MAX} images."
+
+        amount_safes = Label(
+            text="Amount of Safe Images",
+            description=f"How many \"safes\" to upload for each round. {range_msg}",
+            component=TextInput(
+                style=TextStyle.short,
+                placeholder=self.options.amount_safes,
+                required=False
+            )
+        )
+        self.add_item(amount_safes)
+
+        amount_safes = Label(
+            text="Amount of ChubMines",
+            description=f"How many mines to upload for each round. {range_msg}",
+            component=TextInput(
+                style=TextStyle.short,
+                placeholder=self.options.amount_mines,
+                required=False
+            )
+        )
+        self.add_item(amount_safes)
         
 
     def update_options(self):
         use_private_mode: Checkbox
         transform_width: TextInput
         transform_height: TextInput
-        use_private_mode, transform_width, transform_height = self._unpack_components()
+        amount_safes: TextInput
+        amount_mines: TextInput
+        (use_private_mode, transform_width, transform_height,
+         amount_safes, amount_mines) = self._unpack_components()
 
         validated_width = self._validate_transform(transform_width.value,
                                                    self.options.fixed_width)
         validated_height = self._validate_transform(transform_height.value,
                                                     self.options.fixed_height)
+        validated_safes = self._validate_amount(amount_safes.value, self.options.amount_safes)
+        validated_mines = self._validate_amount(amount_mines.value, self.options.amount_mines)
 
         self.options.private_mode = use_private_mode.value
         self.options.fixed_width = validated_width
         self.options.fixed_height = validated_height
+        self.options.amount_safes = validated_safes
+        self.options.amount_mines = validated_mines
 
 
     def _validate_transform(self, px: str, default: Optional[int]) -> Optional[int]:
@@ -102,3 +136,31 @@ class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
                              f"[{TRANSFORM_MIN}, {TRANSFORM_MAX}]")
 
         return num_px
+
+
+    def _validate_amount(self, amount: str, default: int) -> int:
+        """Checks if the given string is in the correct format for an amount of images.
+        
+        Args:
+            amount: The string containing the amount to check.
+            default: A default value to return in case of invalid amount.
+
+        Raises:
+            ValueError: If the given amount is numeric or not in the allowed range.
+
+        Returns:
+            The validated amount, ready to be stored.
+        """
+
+        if not amount:
+            return default
+
+        if not amount.isdecimal():
+            raise ValueError(f"Amount of images {amount} does not seem to be a valid number.")
+
+        num_amount = int(amount)
+        if num_amount < AMOUNT_MIN or num_amount > AMOUNT_MAX:
+            raise ValueError(f"Amount of images {amount} should be in the range "
+                             f"[{AMOUNT_MIN}, {AMOUNT_MAX}].")
+
+        return num_amount
