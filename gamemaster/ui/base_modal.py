@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from traceback import format_exc
 from typing import TYPE_CHECKING, Any, Generator, Optional
 
+from discord import InteractionResponseType
 from discord.ui import Item, Label, Modal
 
 from ..logger import DISCORD_NAMESPACE, get_logger
 
 if TYPE_CHECKING:
-    from discord import Attachment, Interaction
+    from discord import Attachment, Interaction, InteractionResponse
 
 
 class BaseModal(Modal, ABC):
@@ -85,12 +86,38 @@ class BaseModal(Modal, ABC):
         raise NotImplementedError
 
 
-    async def on_error(self, interaction: "Interaction", error: Exception):
-        msg_content = (f"**[ERROR]** {self.error_message}\n\n> _{error}_")
-        if interaction.response.is_done():
-            await interaction.edit_original_response(content=msg_content)
+    def _response_was_deferred(self, response: "InteractionResponse") -> bool:
+        """Checks if the given response was done due to being deferred."""
+
+        return response.type in (
+            InteractionResponseType.deferred_channel_message,
+            InteractionResponseType.deferred_message_update
+        )
+
+
+    async def _send_message(self, interaction: "Interaction", *, content: str, ephemeral: bool=False):
+        """Sends a message while being aware of the interaction state.
+        
+        Args:
+            interaction: The interaction from which to get the context.
+            content: The content of the message.
+            ephemeral: Wether the message should only appear to the originator of the interaciton.
+        """
+
+        if not interaction.response.is_done():
+            await interaction.response.send_message(content, ephemeral=ephemeral)
+        elif self._response_was_deferred(interaction.response):
+            # in practice, the message is only truly ephemeral if the value declared is the same
+            # as that of `defer()`
+            await interaction.followup.send(content, ephemeral=ephemeral)
         else:
-            await interaction.response.send_message(msg_content, ephemeral=True)
+            await interaction.edit_original_response(content)
+
+
+    async def on_error(self, interaction: "Interaction", error: Exception):
+        msg_content = (f"**[ERROR]** {self.error_message}\n\n> {error}")
+        await self._send_message(interaction, content=msg_content, ephemeral=True)
+
         graceful_err = "\n\t|\t".join(f"Modal has thrown exception {error.__class__!r}:\n"
                                       f"{format_exc()}".split("\n"))
         get_logger(DISCORD_NAMESPACE).error(graceful_err)
@@ -98,4 +125,4 @@ class BaseModal(Modal, ABC):
 
     async def on_submit(self, interaction: "Interaction"):
         await self.callback(interaction)
-        await interaction.response.send_message(f"_{self.success_message}_", ephemeral=True)
+        await self._send_message(interaction, content=f"_{self.success_message}_", ephemeral=True)
