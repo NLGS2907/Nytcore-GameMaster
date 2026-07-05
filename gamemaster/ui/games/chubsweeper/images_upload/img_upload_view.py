@@ -88,9 +88,9 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
 
         container.add_item(img_buttons)
 
-        if not nothing_uploaded:
-            preview_btn = None # TODO: add preview btn
-            container.add_item(ActionRow(preview_btn))
+        # if not nothing_uploaded:
+        #     preview_btn = None # TODO: add preview btn
+        #     container.add_item(ActionRow(preview_btn))
 
         self.add_item(container)
 
