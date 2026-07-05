@@ -76,34 +76,35 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         container.add_item(TextDisplay(status_msg))
         container.add_item(Separator(spacing=SeparatorSpacing.small))
 
-        container.add_item(TextDisplay(
-            NOT_UPLOADED_TEMPLATE.format(img_type=safes)
-            if nothing_uploaded
-            else UPLOADED_TEMPLATE.format(img_type=safes, amount=len(self._safes))
-        ))
-        container.add_item(TextDisplay(
-            NOT_UPLOADED_TEMPLATE.format(img_type=chubmines)
-            if nothing_uploaded
-            else UPLOADED_TEMPLATE.format(img_type=chubmines, amount=len(self._mines))
-        ))
-        container.add_item(Separator(spacing=SeparatorSpacing.small))
+        if self.__processing:
+            container.add_item(TextDisplay(
+                "-# **Please note** that uploading the images may take a few seconds."
+            ))
+        else:
+            container.add_item(TextDisplay(
+                NOT_UPLOADED_TEMPLATE.format(img_type=safes)
+                if nothing_uploaded
+                else UPLOADED_TEMPLATE.format(img_type=safes, amount=len(self._safes))
+            ))
+            container.add_item(TextDisplay(
+                NOT_UPLOADED_TEMPLATE.format(img_type=chubmines)
+                if nothing_uploaded
+                else UPLOADED_TEMPLATE.format(img_type=chubmines, amount=len(self._mines))
+            ))
+            container.add_item(Separator(spacing=SeparatorSpacing.small))
 
-        container.add_item(TextDisplay(
-            "-# **Please note** that uploading the images may take a few seconds."
-        ))
+            self._upload_btn.label = ("Upload ChubMines™"
+                                    if nothing_uploaded
+                                    else "Reupload ChubMines™")
+            img_buttons = ActionRow(self._upload_btn)
+            if not nothing_uploaded:
+                img_buttons.add_item(self._blur_edit_btn)
 
-        self._upload_btn.label = ("Upload ChubMines™"
-                                  if nothing_uploaded
-                                  else "Reupload ChubMines™")
-        img_buttons = ActionRow(self._upload_btn)
-        if not nothing_uploaded:
-            img_buttons.add_item(self._blur_edit_btn)
+            container.add_item(img_buttons)
 
-        container.add_item(img_buttons)
-
-        # if not nothing_uploaded:
-        #     preview_btn = None # TODO: add preview btn
-        #     container.add_item(ActionRow(preview_btn))
+            # if not nothing_uploaded:
+            #     preview_btn = None # TODO: add preview btn
+            #     container.add_item(ActionRow(preview_btn))
 
         self.add_item(container)
 
