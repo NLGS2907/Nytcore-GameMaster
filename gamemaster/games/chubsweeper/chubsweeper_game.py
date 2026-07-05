@@ -1,14 +1,20 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias
 
 from ..game_base import BaseGame
 from .chubsweeper_options import ChubSweeperOptions
+from .img_holder import ImagePairHolder
 
 if TYPE_CHECKING:
+    from io import BytesIO
+
     from discord.abc import User
 
     from ...gamemaster import GameMaster
     from ...models import Player
     from ..game_base import EmojisCollection
+    from .blur_level import BlurLevel
+
+FilesIter: TypeAlias = Iterable["BytesIO"]
 
 
 class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
@@ -29,6 +35,8 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
                  options: ChubSweeperOptions):
         super().__init__(bot, host_user, players, options=options)
         self._dealer, self._miners = self._distinguish_players()
+        self._safes: list[ImagePairHolder] = []
+        self._mines: list[ImagePairHolder] = []
 
 
     @staticmethod
@@ -94,3 +102,45 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         """Fetches the players of this game, other than the host."""
 
         return self._miners
+
+
+    def _generate_img_holders(self, files: FilesIter):
+        """Generates a image holder for every element in the files iterable."""
+
+        return [
+            ImagePairHolder(
+                file,
+                blur_level=self.options.blur_level,
+                fixed_width=self.options.fixed_width,
+                fixed_height=self.options.fixed_height
+            )
+            for file in files
+        ]
+
+
+    def set_safes(self, safes: FilesIter):
+        """Saves all the given images into the safe images list."""
+
+        self._safes = self._generate_img_holders(safes)
+
+
+    def set_mines(self, mines: FilesIter):
+        """Saves all the given images into the ChubMines list."""
+
+        self._mines = self._generate_img_holders(mines)
+
+
+    def reblur_images(self, blur_level: "BlurLevel"):
+        """Tries to obfuscate the images again, without resetting the holders.
+        
+        Args:
+            blur_level: The new obfuscation intensity.
+        """
+
+        self.options.blur_level = blur_level
+
+        for safe in self._safes:
+            safe.reblur(blur_level)
+
+        for mine in self._mines:
+            mine.reblur(blur_level)

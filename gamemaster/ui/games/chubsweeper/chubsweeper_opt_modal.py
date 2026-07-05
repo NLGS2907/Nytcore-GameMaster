@@ -1,10 +1,10 @@
 from re import ASCII, compile
 from typing import TYPE_CHECKING, Optional
 
-from discord import RadioGroupOption, TextStyle
-from discord.ui import Checkbox, Label, RadioGroup, TextInput
+from discord import TextStyle
+from discord.ui import Checkbox, Label, TextInput
 
-from ....games import BlurLevel, ChubSweeperOptions
+from ....games import ChubSweeperOptions
 from ..options_modal_base import BaseOptionsModal
 
 if TYPE_CHECKING:
@@ -55,31 +55,13 @@ class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
             )
         )
         self.add_item(transform_height)
-
-        blur_level_setting = RadioGroup(
-            required=True,
-            options=[
-                RadioGroupOption(
-                    label=lvl.name.replace("_", " ").capitalize(),
-                    value=lvl.value,
-                    default=(lvl == self.options.blur_level)
-                ) for lvl in BlurLevel if lvl != BlurLevel.NONE
-            ]
-        )
-        blur_level = Label(
-            text="Blur Level",
-            description="The level of obfuscation to use for the images each round.",
-            component=blur_level_setting
-        )
-        self.add_item(blur_level)
         
 
     def update_options(self):
         use_private_mode: Checkbox
         transform_width: TextInput
         transform_height: TextInput
-        blur_level: RadioGroup
-        use_private_mode, transform_width, transform_height, blur_level = self._unpack_components()
+        use_private_mode, transform_width, transform_height = self._unpack_components()
 
         validated_width = self._validate_transform(transform_width.value,
                                                    self.options.fixed_width)
@@ -89,7 +71,6 @@ class ChubSweeperOptionsModal(BaseOptionsModal[ChubSweeperOptions]):
         self.options.private_mode = use_private_mode.value
         self.options.fixed_width = validated_width
         self.options.fixed_height = validated_height
-        self.options.blur_level = BlurLevel(int(blur_level.value))
 
 
     def _validate_transform(self, px: str, default: Optional[int]) -> Optional[int]:
