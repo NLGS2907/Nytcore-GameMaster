@@ -146,9 +146,9 @@ class ImagePairHolder:
             self._save_img(image, copied_img)
         finally:
             if image is not None:
+                image.seek(0) # just in case
                 image.close()
 
-        img.seek(0) # just in case
         return copied_img
 
 
