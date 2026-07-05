@@ -53,7 +53,7 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         safes = "Safes"
 
         container = Container(
-            TextDisplay("## Files Upload"),
+            TextDisplay("## ChubSweeper Images Upload"),
             Separator(spacing=SeparatorSpacing.large)
         )
         
