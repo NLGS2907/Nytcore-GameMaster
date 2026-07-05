@@ -96,27 +96,27 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
 
 
     @staticmethod
-    def _attachment_to_file(attachment: "Attachment") -> BytesIO:
+    async def _attachment_to_file(attachment: "Attachment") -> BytesIO:
         """Transforms a Discord attachment into a in-memory binary file."""
 
         file = BytesIO()
-        attachment.save(file, seek_begin=True)
+        await attachment.save(file, seek_begin=True)
 
         return file
 
 
-    def set_safes(self, safes: list["Attachment"]):
+    async def set_safes(self, safes: list["Attachment"]):
         """Sets the attachment sfor the safe images."""
 
         self._safes = safes
-        self.game.set_safes(self._attachment_to_file(safe) for safe in self._safes)
+        self.game.set_safes([await self._attachment_to_file(safe) for safe in self._safes])
 
 
-    def set_mines(self, mines: list["Attachment"]):
+    async def set_mines(self, mines: list["Attachment"]):
         """Sets the attachment sfor the ChubMines™."""
 
         self._mines = mines
-        self.game.set_mines(self._attachment_to_file(mine) for mine in self._mines)
+        self.game.set_mines([await self._attachment_to_file(mine) for mine in self._mines])
 
 
     def reblur_images(self, blur_level: "BlurLevel"):

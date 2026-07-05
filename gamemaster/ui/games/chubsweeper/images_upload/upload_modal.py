@@ -124,7 +124,7 @@ class ChubMinesUploadModal(BaseModal):
         self._validate_images(safes_upload.values, mines_upload.values)
 
         if safes_upload.values:
-            self.parent_view.set_safes(safes_upload.values)
+            await self.parent_view.set_safes(safes_upload.values)
 
         if mines_upload.values:
-            self.parent_view.set_mines(mines_upload.values)
+            await self.parent_view.set_mines(mines_upload.values)
