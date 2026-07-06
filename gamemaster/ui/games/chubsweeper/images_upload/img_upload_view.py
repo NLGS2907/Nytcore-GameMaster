@@ -7,6 +7,7 @@ from discord.ui import ActionRow, Container, Separator, TextDisplay
 from .....games import ChubSweeperGame
 from ...game_view_base import BaseGameView
 from .blur_edit_btn import BlurEditButton
+from .preview_btn import ImagePreviewButton
 from .upload_btn import ImagesUploadButton
 
 if TYPE_CHECKING:
@@ -40,6 +41,7 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
 
         self._upload_btn: ImagesUploadButton = ImagesUploadButton(self, "Upload Images")
         self._blur_edit_btn: BlurEditButton = BlurEditButton(self)
+        self._preview_btn: ImagePreviewButton = ImagePreviewButton(self)
 
 
     def _not_uploaded_yet(self) -> bool:
@@ -102,9 +104,8 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
 
             container.add_item(img_buttons)
 
-            # if not nothing_uploaded:
-            #     preview_btn = None # TODO: add preview btn
-            #     container.add_item(ActionRow(preview_btn))
+            if not nothing_uploaded:
+                container.add_item(ActionRow(self._preview_btn))
 
         self.add_item(container)
 
@@ -141,3 +142,9 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         """
 
         self.game.reblur_images(blur_level)
+
+
+    def fetch_blurred(self) -> tuple[list[BytesIO], list[BytesIO]]:
+        """Returns a tuple with the blurred versions of both list of images."""
+
+        return self.game.safes_blurred(), self.game.mines_blurred()

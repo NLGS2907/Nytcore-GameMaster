@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..game_base import EmojisCollection
     from .blur_level import BlurLevel
 
+HoldersList: TypeAlias = list[ImagePairHolder]
 FilesIter: TypeAlias = Iterable["BytesIO"]
 
 
@@ -35,8 +36,8 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
                  options: ChubSweeperOptions):
         super().__init__(bot, host_user, players, options=options)
         self._dealer, self._miners = self._distinguish_players()
-        self._safes: list[ImagePairHolder] = []
-        self._mines: list[ImagePairHolder] = []
+        self._safes: HoldersList = []
+        self._mines: HoldersList = []
 
 
     @staticmethod
@@ -144,3 +145,21 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
 
         for mine in self._mines:
             mine.reblur(blur_level)
+
+
+    def _load_blurred(self, images: HoldersList) -> list["BytesIO"]:
+        """Fetches the blurred version of each par in the given list."""
+
+        return [img.blurred for img in images]
+
+
+    def safes_blurred(self) -> list["BytesIO"]:
+        """Retrieves the blurred versions of the safe images."""
+
+        return self._load_blurred(self._safes)
+
+
+    def mines_blurred(self) -> list["BytesIO"]:
+        """Retrieves the blurred versions of the ChubMines."""
+
+        return self._load_blurred(self._mines)
