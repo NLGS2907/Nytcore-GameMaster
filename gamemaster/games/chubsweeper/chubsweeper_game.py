@@ -1,3 +1,4 @@
+from random import shuffle
 from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias
 
 from ..game_base import BaseGame
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 HoldersList: TypeAlias = list[ImagePairHolder]
 FilesIter: TypeAlias = Iterable["BytesIO"]
+FilesList: TypeAlias = list["BytesIO"]
 
 
 class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
@@ -119,7 +121,7 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self._mines
 
 
-    def _generate_img_holders(self, files: FilesIter):
+    def _generate_img_holders(self, files: FilesIter) -> HoldersList:
         """Generates a image holder for every element in the files iterable."""
 
         return [
@@ -161,19 +163,38 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
             mine.reblur(blur_level)
 
 
-    def _load_blurred(self, images: HoldersList) -> list["BytesIO"]:
+    def _load_blurred(self, images: HoldersList) -> FilesList:
         """Fetches the blurred version of each par in the given list."""
 
         return [img.blurred for img in images]
 
 
-    def safes_blurred(self) -> list["BytesIO"]:
+    def safes_blurred(self) -> FilesList:
         """Retrieves the blurred versions of the safe images."""
 
         return self._load_blurred(self._safes)
 
 
-    def mines_blurred(self) -> list["BytesIO"]:
+    def mines_blurred(self) -> FilesList:
         """Retrieves the blurred versions of the ChubMines."""
 
         return self._load_blurred(self._mines)
+
+
+    def shuffled(self, numbers: bool=True) -> FilesList:
+        """Generates a shuffled list of the blurred images.
+        
+        Args:
+            numbers: Wether to draw numbers on each image.
+
+        Returns:
+            A list of all the blurred images, safe or mine, in a random order.
+        """
+
+        all_holders = self.safes + self.mines
+        shuffle(all_holders)
+
+        if not numbers:
+            return self._load_blurred(all_holders)
+
+        return [holder.blurred_copy_with_number(i) for i, holder in enumerate(all_holders, 1)]

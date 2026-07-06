@@ -3,7 +3,9 @@ from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from PIL.Image import new as img_new
 from PIL.Image import open as img_open
+from PIL.ImageDraw import Draw
 from PIL.ImageFilter import GaussianBlur
+from PIL.ImageFont import load_default as font_load_default
 
 from ...models import ImageProperties
 from .blur_level import BlurLevel
@@ -14,6 +16,8 @@ if TYPE_CHECKING:
 ImageType: TypeAlias = BytesIO
 
 BG_COLOR: str = "#383838"
+CIRCLE_COLOR: str = "#212121"
+NUMBER_COLOR: str = "#dfdfdf"
 PREFERRED_IMG_FORMAT: str = "webp"
 
 
@@ -87,6 +91,20 @@ class ImagePairHolder:
         return self._preferred_blur_lvl
 
 
+    @property
+    def number(self) -> Optional[int]:
+        """Retrieves the assigned number of this holder."""
+
+        return self._num
+
+
+    @number.setter
+    def number(self, new_num: Optional[int]):
+        """Assigns a new number to this holder."""
+
+        self._num = new_num
+
+
     @staticmethod
     def _load_properties(properties: Optional[ImageProperties], img: ImageType) -> ImageProperties:
         """Lazy loads the properties of an image and stores it.
@@ -154,8 +172,43 @@ class ImagePairHolder:
         return copied_img
 
 
+    def _draw_number(self, image: "ImageFile", number: int):
+        """Modifies an image in-place to include a number in the middle.
+        
+        Args:
+            image: The image to use as canvas.
+            number: The number to write in the image.
+        """
+
+        width, height = image.size
+        center_x = width // 2
+        center_y = height // 2
+        radius = min(width, height) // 4
+
+        draw = Draw(image)
+        draw.ellipse(
+            [center_x - radius, center_y - radius,
+             center_x + radius, center_y + radius],
+            fill=CIRCLE_COLOR
+        )
+        draw.text(
+            (center_x, center_y),
+            text=str(number),
+            fill=NUMBER_COLOR,
+            font=font_load_default(int(radius * 1.2)),
+            anchor="mm"
+        )
+
+
     def _blur_image(self, img: ImageType) -> ImageType:
-        """Blurs the given image with the preferred blur level."""
+        """Blurs the given image with the preferred blur level.
+        
+        Args:
+            img: The image to blur:
+
+        Returns:
+            The blurred version of the image.
+        """
 
         blur_lvl = self._preferred_blur_lvl.value
         blurred_img = ImageType()
@@ -173,3 +226,15 @@ class ImagePairHolder:
 
         self._preferred_blur_lvl = blur_lvl
         self._blurred_img = self._blur_image(self._base_img)
+
+
+    def blurred_copy_with_number(self, number: int) -> ImageType:
+        """Creates a copy of the blurred image, with the given number drawed on it."""
+
+        numbered = ImageType()
+        with img_open(self.blurred) as blurred:
+            copied = blurred.copy()
+            self._draw_number(copied, number)
+            self._save_img(copied, numbered)
+
+        return numbered
