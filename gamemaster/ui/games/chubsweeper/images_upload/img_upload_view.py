@@ -8,6 +8,7 @@ from .....games import ChubSweeperGame
 from ...game_view_base import BaseGameView
 from .blur_edit_btn import BlurEditButton
 from .preview_btn import ImagePreviewButton
+from .round_begin_btn import RoundBeginButton
 from .upload_btn import ImagesUploadButton
 
 if TYPE_CHECKING:
@@ -42,6 +43,7 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         self._upload_btn: ImagesUploadButton = ImagesUploadButton(self, "Upload Images")
         self._blur_edit_btn: BlurEditButton = BlurEditButton(self)
         self._preview_btn: ImagePreviewButton = ImagePreviewButton(self)
+        self._round_begin_btn: RoundBeginButton = RoundBeginButton(self, self.chubsweeper_view)
 
 
     def _not_uploaded_yet(self) -> bool:
@@ -105,7 +107,7 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
             container.add_item(img_buttons)
 
             if not nothing_uploaded:
-                container.add_item(ActionRow(self._preview_btn))
+                container.add_item(ActionRow(self._preview_btn, self._round_begin_btn))
 
         self.add_item(container)
 

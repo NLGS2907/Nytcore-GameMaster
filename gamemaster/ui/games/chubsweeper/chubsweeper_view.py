@@ -36,7 +36,8 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             await self._start_view()
             return
 
-        # rest of the game
+        await self.cancel_game(title="Rest of the game",
+                               reason="This section of the game is not made yet.")
 
 
     async def _start_view(self):
