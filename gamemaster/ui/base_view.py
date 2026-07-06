@@ -62,7 +62,8 @@ class BaseView(LayoutView):
             item: The UI item from where the error originated.
         """
 
-        msg_content = f"**[ERROR]** Looks like an error has ocurred.\n> _{error}_"
+        error_msg = "\n".join(f"> _{line}_" for line in str(error).split("\n"))
+        msg_content = f"**[ERROR]** Looks like an error has ocurred.\n\n{error_msg}"
         if interaction.response.is_done():
             await interaction.edit_original_response(content=msg_content)
         else:

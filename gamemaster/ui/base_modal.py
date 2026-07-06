@@ -115,7 +115,8 @@ class BaseModal(Modal, ABC):
 
 
     async def on_error(self, interaction: "Interaction", error: Exception):
-        msg_content = (f"**[ERROR]** {self.error_message}\n\n> {error}")
+        error_msg = "\n".join(f"> _{line}_" for line in str(error).split("\n"))
+        msg_content = (f"**[ERROR]** {self.error_message}\n\n{error_msg}")
         await self._send_message(interaction, content=msg_content, ephemeral=True)
 
         graceful_err = "\n\t|\t".join(f"Modal has thrown exception {error.__class__!r}:\n"
