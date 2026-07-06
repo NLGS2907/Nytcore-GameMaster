@@ -105,6 +105,20 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self._miners
 
 
+    @property
+    def safes(self) -> HoldersList:
+        """Fetches the safe images holders."""
+
+        return self._safes
+
+
+    @property
+    def mines(self) -> HoldersList:
+        """Fetches the safe images holders."""
+
+        return self._mines
+
+
     def _generate_img_holders(self, files: FilesIter):
         """Generates a image holder for every element in the files iterable."""
 
