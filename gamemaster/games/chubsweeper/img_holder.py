@@ -1,6 +1,7 @@
 from io import BytesIO
 from typing import TYPE_CHECKING, Optional, TypeAlias
 
+from PIL.Image import new as img_new
 from PIL.Image import open as img_open
 from PIL.ImageFilter import GaussianBlur
 
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
 
 ImageType: TypeAlias = BytesIO
 
+BG_COLOR: str = "#383838"
 PREFERRED_IMG_FORMAT: str = "webp"
 
 
@@ -155,9 +157,12 @@ class ImagePairHolder:
     def _blur_image(self, img: ImageType) -> ImageType:
         """Blurs the given image with the preferred blur level."""
 
+        blur_lvl = self._preferred_blur_lvl.value
         blurred_img = ImageType()
         with img_open(img) as image:
-            blurred_image = image.filter(GaussianBlur(radius=self._preferred_blur_lvl.value))
+            blurred_image = (img_new("RGB", image.size, BG_COLOR)
+                             if blur_lvl == BlurLevel.OPAQUE
+                             else image.filter(GaussianBlur(radius=blur_lvl)))
             self._save_img(blurred_image, blurred_img)
 
         return blurred_img
