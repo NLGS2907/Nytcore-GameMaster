@@ -1,7 +1,7 @@
-from random import shuffle
 from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias
 
 from ..game_base import BaseGame
+from .choice_tracker import ChoiceTracker
 from .chubsweeper_options import ChubSweeperOptions
 from .img_holder import ImagePairHolder
 
@@ -40,6 +40,11 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         self._dealer, self._miners = self._distinguish_players()
         self._safes: HoldersList = []
         self._mines: HoldersList = []
+
+        self._cur_round: int = 0
+        self._play_deck: HoldersList = []
+        self._choice_tracker: Optional[ChoiceTracker] = None
+        self._cur_miner_i: Optional[int] = None
 
 
     @staticmethod
@@ -121,6 +126,13 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self._mines
 
 
+    @property
+    def current_player(self) -> Optional["Player"]:
+        """Retrieves the player whose turn it is right now, or `None` if the game didn't start."""
+
+        return (None if self._cur_miner_i is None else self._miners[self._cur_miner_i])
+
+
     def _generate_img_holders(self, files: FilesIter) -> HoldersList:
         """Generates a image holder for every element in the files iterable."""
 
@@ -181,20 +193,20 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self._load_blurred(self._mines)
 
 
-    def shuffled(self, numbers: bool=True) -> FilesList:
-        """Generates a shuffled list of the blurred images.
-        
-        Args:
-            numbers: Wether to draw numbers on each image.
+    def _next_player(self):
+        """Advances the current player to the next one in the list."""
 
-        Returns:
-            A list of all the blurred images, safe or mine, in a random order.
-        """
+        if self._cur_miner_i is None:
+            self._cur_miner_i = 0
+            return
 
-        all_holders = self.safes + self.mines
-        shuffle(all_holders)
+        self._cur_miner_i = (self._cur_miner_i + 1) % len(self._miners)
 
-        if not numbers:
-            return self._load_blurred(all_holders)
 
-        return [holder.blurred_copy_with_number(i) for i, holder in enumerate(all_holders, 1)]
+    def reset_round(self):
+        """Runs the final arrangements just before starting a round."""
+
+        self._cur_round += 1
+        self._next_player()
+        self._choice_tracker = ChoiceTracker(safes=self._safes, mines=self._mines)
+
