@@ -45,7 +45,7 @@ class BaseView(LayoutView):
         super().__init__(timeout=timeout)
 
         self.bot: "GameMaster" = bot
-        self.parent_msg: "InteractionMessage" = parent_msg
+        self.parent_msg: PossibleMessage = parent_msg
         self.user: PossibleUser = origin_user
         self.lock: Lock = Lock()
 
