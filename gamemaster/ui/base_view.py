@@ -117,3 +117,18 @@ class BaseView(LayoutView):
         self.clear_items()
         await self.reset()
         await self.refresh_parent_msg(interaction)
+
+
+    async def destroy(self, interaction: Optional["Interaction"]=None):
+        """Deletes the original message where this view lives.
+
+        Args:
+            interaction: If present, it will fetch the original message this way.
+        """
+
+        if interaction is not None:
+            await interaction.delete_original_response()
+            return
+
+        await self.parent_msg.delete()
+
