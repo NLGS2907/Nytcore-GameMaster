@@ -43,7 +43,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
     async def pre_detach(self):
         content = (f"**[ROUND {self.game.current_round}]** "
                    f"_Showing {len(self.game.current_deck())} images_")
-        await self.refresh_parent_msg(view=ThrowableView(content))
+        await self.parent_msg.edit(view=ThrowableView(content))
 
 
     async def reset(self):
