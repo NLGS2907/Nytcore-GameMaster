@@ -40,10 +40,10 @@ class ImagePreviewButton(Button):
                 return
 
         safes, mines = self.parent_view.fetch_blurred()
-        safes_sender = BatchImageSender(self.parent_view.bot, images=safes,
-                                        title="Safes", container=True)
-        mines_sender = BatchImageSender(self.parent_view.bot, images=mines,
-                                        title="ChubMines™", container=True)
+        safes_sender = BatchImageSender(self.parent_view.bot, self.parent_view.parent_msg,
+                                        images=safes, title="Safes", container=True)
+        mines_sender = BatchImageSender(self.parent_view.bot, self.parent_view.parent_msg,
+                                        images=mines, title="ChubMines™", container=True)
 
         await safes_sender.send(interaction, ephemeral=True)
         await mines_sender.send(interaction, ephemeral=True)

@@ -32,6 +32,7 @@ class BatchImageSender:
 
     def __init__(self,
                  bot: "GameMaster",
+                 root_msg: "PossibleMessage",
                  *,
                  images: "Files",
                  group_size: int=DEFAULT_GROUP_SIZE,
@@ -41,6 +42,7 @@ class BatchImageSender:
         
         Args:
             bot: The Bot user, for convenience purposes.
+            root_msg: The anchor message that the batch messages will refer.
             images: The image files, already wrapped and ready to send. Unlike other objects that
                     deal with these, its size may be arbitrary.
             group_size: The individual size of every sub-group of images that the global list
@@ -52,6 +54,7 @@ class BatchImageSender:
         """
 
         self.bot: "GameMaster" = bot
+        self._root_msg: "PossibleMessage" = root_msg
         self._images: FileBatches = tuple(batched(images, self.validate_group_size(group_size)))
         self._title: str = title
         self._container: bool = container
@@ -163,12 +166,18 @@ class BatchImageSender:
             await self._send_message(interaction, img_batch, ephemeral=ephemeral)
 
 
-    async def cleanup(self, delay: Optional[float]=None):
+    async def cleanup(self, delay: Optional[float]=None, include_root: bool=False):
         """Destroy all messages.
 
         Args:
             delay: The amount in seconds to wait between each removal.
+            include_root: Wether to also delete the original message that spawned the batches.
+                          Please beware that, if this is the same as the current parent message,
+                          it could wipe out the entire view.
         """
 
         for msg in self.__messages:
             await msg.delete(delay=delay)
+
+        if include_root:
+            await self._root_msg.delete(delay=delay)
