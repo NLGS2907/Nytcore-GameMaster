@@ -34,6 +34,4 @@ class ChubSweeperStartButton(Button):
                 await interaction.response.send_message(msg_content, ephemeral=True)
                 return
 
-            await self.parent_view.chubmines_upload_view.reset()
-            await self.parent_view.refresh_parent_msg(interaction,
-                                                      self.parent_view.chubmines_upload_view)
+            await self.parent_view.chubmines_upload_view.refresh(interaction)
