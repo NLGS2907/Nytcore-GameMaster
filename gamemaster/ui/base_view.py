@@ -164,6 +164,8 @@ class BaseView(LayoutView):
             interaction: If present, it will fetch the original message this way.
         """
 
+        self.stop()
+
         if interaction is not None:
             await interaction.delete_original_response()
             return
