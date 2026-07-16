@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, TypeAlias
+from typing import TYPE_CHECKING, Optional, Sequence, TypeAlias
 
 from discord import MediaGalleryItem
 from discord.ui import Container, MediaGallery, TextDisplay
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from ...gamemaster import GameMaster
     from ..base_view import PossibleMessage, PossibleUser
 
-Files: TypeAlias = list["File"]
+Files: TypeAlias = Sequence["File"]
 
 GALLERY_MIN_SIZE: int = 1
 GALLERY_MAX_SIZE: int = 10
