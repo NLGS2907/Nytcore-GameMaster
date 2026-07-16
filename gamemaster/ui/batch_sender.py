@@ -16,10 +16,8 @@ if TYPE_CHECKING:
 _FilesBatch: TypeAlias = tuple["File", ...]
 FileBatches: TypeAlias = tuple[_FilesBatch, ...]
 
-WebHookSender: TypeAlias = Coroutine[Any, Any, WebhookMessage]
-InteractionSender: TypeAlias = Coroutine[Any, Any, "InteractionCallbackResponse"]
-SenderFunc: TypeAlias = Union[WebHookSender, InteractionSender]
 SenderResult: TypeAlias = Union[WebhookMessage, "InteractionCallbackResponse"]
+SenderFunc: TypeAlias = Coroutine[Any, Any, SenderResult]
 SendableMessage: TypeAlias = Union[WebhookMessage, "InteractionMessage"]
 
 DEFAULT_GROUP_SIZE: int = 10
@@ -114,7 +112,11 @@ class BatchImageSender:
                      interaction: "Interaction",
                      title: str="",
                      images: "Files") -> GalleryView:
-        """Creates a GalleryView based on the given parameters."""
+        """Creates a GalleryView based on the given parameters.
+
+        WARNING: A view created this way does not have a parent message, which must be set
+        afterwards.
+        """
 
         return GalleryView(self.bot, None, interaction.user,
                            title=title, container=self._container, images=images)
