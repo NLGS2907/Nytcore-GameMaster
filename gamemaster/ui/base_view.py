@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Optional, Self, TypeAlias, Union
 
 from discord.ui import LayoutView
 
+from .throwable_view import ThrowableView
+
 if TYPE_CHECKING:
     from discord import Interaction, InteractionMessage, Member, Message, User
     from discord.ui import Item
@@ -64,10 +66,11 @@ class BaseView(LayoutView):
 
         error_msg = "\n".join(f"> _{line.replace('_', r'\_')}_" for line in str(error).split("\n"))
         msg_content = f"**[ERROR]** Looks like an error has ocurred.\n\n{error_msg}"
+        error_view = ThrowableView(msg_content)
         if interaction.response.is_done():
-            await interaction.edit_original_response(content=msg_content)
+            await interaction.edit_original_response(view=error_view)
         else:
-            await interaction.response.send_message(msg_content, ephemeral=True)
+            await interaction.response.send_message(view=error_view, ephemeral=True)
         graceful_err = "\n\t|\t".join(f"Item {item!r} has thrown exception {error.__class__!r} "
                                       f"from view {item.view!r}:\n{format_exc()}".split("\n"))
         self.bot.log.error(graceful_err)
