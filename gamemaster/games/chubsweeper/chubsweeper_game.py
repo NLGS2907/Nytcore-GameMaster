@@ -126,6 +126,13 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
 
 
     @property
+    def current_round(self) -> int:
+        """Retrieves the current round number."""
+
+        return self._cur_round
+
+
+    @property
     def current_player(self) -> Optional["Player"]:
         """Retrieves the player whose turn it is right now, or `None` if the game didn't start."""
 
