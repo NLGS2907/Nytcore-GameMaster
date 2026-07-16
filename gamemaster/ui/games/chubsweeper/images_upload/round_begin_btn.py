@@ -38,6 +38,7 @@ class RoundBeginButton(Button):
                 return
 
             await interaction.response.defer()
+            self.parent_view.stop()
 
             await self.target_view.start_game(interaction)
-            await self.parent_view.refresh_parent_msg(interaction, self.target_view)
+            await self.target_view.refresh(interaction, detach=True)

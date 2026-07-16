@@ -76,6 +76,21 @@ class BaseView(LayoutView):
         self.bot.log.error(graceful_err)
 
 
+    async def pre_detach(self):
+        """Prepares the view right before a detach event.
+
+        This is called right before the view migrates to a new parent message, in case the original
+        needs to be edited.
+
+        The default implementations does nothing, but can be inherited to be changed.
+        """
+
+        if self.parent_msg is None:
+            return
+
+        await self.parent_msg.delete()
+
+
     async def reset(self):
         """Resets the view, refreshing all of its elements.
 
@@ -88,16 +103,21 @@ class BaseView(LayoutView):
         pass
 
 
-    async def pre_detach(self):
-        """Prepares the view right before a detach event.
+    async def update_parent_msg(self, interaction: Optional["Interaction"]=None):
+        """Creates a new message and assigns this view to it.
 
-        This is called right before the view migrates to a new parent message, in case the original
-        needs to be edited.
-
-        The default implementations does nothing, but can be inherited to be changed.
+        Args:
+            interaction: The interaction that triggered the response. If not present, it will try
+                         to send a message from previous parent message context.
         """
 
-        pass
+        if interaction is not None and not interaction.response.is_done():
+            callback = await interaction.response.send_message(view=self, ephemeral=False)
+            msg = callback.resource
+        else:
+            msg = await self.parent_msg.channel.send(view=self)
+
+        self.parent_msg = msg
 
 
     async def refresh_parent_msg(self,
@@ -121,39 +141,28 @@ class BaseView(LayoutView):
         await self.parent_msg.edit(view=usable_view)
 
 
-    async def update_parent_msg(self, interaction: Optional["Interaction"]=None):
-        """Creates a new message and assigns this view to it.
-
-        Args:
-            interaction: The interaction that triggered the response. If not present, it will try
-                         to send a message from previous parent message context.
-        """
-
-        if interaction is not None and not interaction.response.is_done():
-            callback = await interaction.response.send_message(view=self, ephemeral=False)
-            msg = callback.resource
-        else:
-            msg = await self.parent_msg.channel.send(view=self)
-
-        self.parent_msg = msg
-
-
-    async def refresh(self, interaction: Optional["Interaction"]=None, detach: bool=False):
+    async def refresh(self, interaction: Optional["Interaction"]=None, *, detach: bool=False):
         """Refreshes the elements of this view, then the message itself.
         
         Args:
             interaction: The interaction that triggered the response. If not present, it will try
                          to edit the message as-is.
             detach: If `True`, migrate this to a new, freshly created parent message.
+
+        Raises:
+            ValueError: If `detach` is `True` but the relevant interaction is `None`.
         """
 
         self.clear_items()
+        await self.reset()
 
         if detach:
+            if interaction is None:
+                raise ValueError("Interaction cannot be None if detaching view")
+
             await self.pre_detach()
             await self.update_parent_msg(interaction)
         else:
-            await self.reset()
             await self.refresh_parent_msg(interaction)
 
 

@@ -5,6 +5,7 @@ from discord.ui import ActionRow, TextDisplay
 
 from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
 from ...batch_sender import BatchImageSender
+from ...throwable_view import ThrowableView
 from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
 from .images_upload import ChubMinesUploadView
@@ -39,12 +40,19 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self.batch_sender: Optional[BatchImageSender] = None
 
 
+    async def pre_detach(self):
+        content = (f"**[ROUND {self.game.current_round}]** "
+                   f"_Showing {len(self.game.current_deck())} images_")
+        await self.refresh_parent_msg(view=ThrowableView(content))
+
+
     async def reset(self):
         if not self.__started:
             await self._start_view()
             return
 
-        await self._reset_batch_sender()
+        await self.cancel_game(title="Buttons for Images",
+                               reason="Here should be the btns for choosing an image")
 
 
     async def _start_view(self):
@@ -64,8 +72,8 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """Intializes the state of the game to the beginning."""
 
         self.game.reset_round()
-        await self.reset()
         await self.show_images(interaction)
+        await self.reset()
 
 
     @staticmethod
@@ -85,7 +93,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """Resets the internal batch sender."""
 
         self.batch_sender = BatchImageSender(
-            self.bot,
+            self.bot, self.parent_msg,
             images=self.convert_to_ds_files(self.game.current_deck()),
             group_size=1,
             container=False
@@ -95,7 +103,5 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
     async def show_images(self, interaction: "Interaction"):
         """Shows the images in many messages if necessary."""
 
-        if self.batch_sender is None:
-            return
-
+        await self._reset_batch_sender()
         await self.batch_sender.send(interaction, ephemeral=False)
