@@ -51,3 +51,9 @@ class ImageChoice:
 
         self._uncovered = True
         return self.mine
+
+
+    def showable_face(self) -> "ImageType":
+        """Retrieves the numbered blurred if not uncovered yet, or the normal image if so."""
+
+        return (self._holder.base if self.uncovered else self.numbered_blurred)

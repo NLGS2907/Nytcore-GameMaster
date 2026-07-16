@@ -100,3 +100,9 @@ class ChoiceTracker:
             self._score += 1
 
         return self.doomed
+
+
+    def showable_faces(self) -> list["ImageType"]:
+        """Retrieves the underlying images based on their individual cover states."""
+
+        return [choice.showable_face() for choice in self._choices]

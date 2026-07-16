@@ -42,9 +42,8 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         self._mines: HoldersList = []
 
         self._cur_round: int = 0
-        self._play_deck: HoldersList = []
-        self._choice_tracker: Optional[ChoiceTracker] = None
         self._cur_miner_i: Optional[int] = None
+        self._choice_tracker: Optional[ChoiceTracker] = None
 
 
     @staticmethod
@@ -210,3 +209,8 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         self._next_player()
         self._choice_tracker = ChoiceTracker(safes=self._safes, mines=self._mines)
 
+
+    def current_deck(self) -> FilesList:
+        """Retrieves a list of files based on their individual 'uncovered' states."""
+
+        return self._choice_tracker.showable_faces()
