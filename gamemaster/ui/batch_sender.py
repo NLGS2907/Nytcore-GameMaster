@@ -22,7 +22,7 @@ SenderFunc: TypeAlias = Union[WebHookSender, InteractionSender]
 SenderResult: TypeAlias = Union[WebhookMessage, "InteractionCallbackResponse"]
 SendableMessage: TypeAlias = Union[WebhookMessage, "InteractionMessage"]
 
-DEFAULT_GROUP_SIZE: int = 1
+DEFAULT_GROUP_SIZE: int = 10
 
 
 class BatchImageSender:
