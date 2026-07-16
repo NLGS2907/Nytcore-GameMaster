@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from discord import File, SeparatorSpacing
 from discord.ui import ActionRow, Container, Separator, TextDisplay
 
-from .....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
+from .....games import ChubSweeperGame
 from ...game_view_base import BaseGameView
 from .blur_edit_btn import BlurEditButton
 from .preview_btn import ImagePreviewButton
@@ -122,14 +122,6 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         return file
 
 
-    @staticmethod
-    def _convert_to_ds_files(file_list: list[BytesIO], name: str="file") -> list[File]:
-        """Takes a sequence of attachments, and converts them to their Discord counterparts."""
-
-        return [File(file, filename=f"{name}_{i}.{PREFERRED_IMG_FORMAT}")
-                for i, file in enumerate(file_list, start=1)]
-
-
     async def set_safes(self, safes: list["Attachment"]):
         """Sets the attachment sfor the safe images."""
 
@@ -157,5 +149,5 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
     def fetch_blurred(self) -> tuple[list[File], list[File]]:
         """Returns a tuple with the blurred versions of both list of images."""
 
-        return (self._convert_to_ds_files(self.game.safes_blurred(), "safe"),
-                self._convert_to_ds_files(self.game.mines_blurred(), "chubmine"))
+        return (self.chubsweeper_view.convert_to_ds_files(self.game.safes_blurred(), "safe"),
+                self.chubsweeper_view.convert_to_ds_files(self.game.mines_blurred(), "chubmine"))

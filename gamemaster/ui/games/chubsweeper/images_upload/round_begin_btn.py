@@ -37,6 +37,7 @@ class RoundBeginButton(Button):
                 await interaction.response.send_message(msg_content, ephemeral=True)
                 return
 
-            await self.target_view.game.reset_round()
-            await self.target_view.reset()
+            await interaction.response.defer()
+
+            await self.target_view.start_game(interaction)
             await self.parent_view.refresh_parent_msg(interaction, self.target_view)
