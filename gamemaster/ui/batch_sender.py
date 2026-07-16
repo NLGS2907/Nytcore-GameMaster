@@ -137,7 +137,8 @@ class BatchImageSender:
 
         batch_view = self.gallery_view(interaction=interaction, title=title, images=images)
         await batch_view.reset()
-        res = await self._sender_func(view=batch_view, files=images, ephemeral=ephemeral)
+        res = await self._sender_func(interaction)(view=batch_view, files=images,
+                                                   ephemeral=ephemeral)
 
         msg = self._extract_msg(res)
         batch_view.parent_msg = msg
