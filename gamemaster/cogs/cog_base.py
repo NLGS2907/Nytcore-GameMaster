@@ -95,7 +95,8 @@ class _BaseCog(Cog):
             error: An instance of the error itself.
         """
 
-        msg_content = f"**[ERROR]** Looks like an error has ocurred.\n> _{error}_"
+        msg_content = (f"**[ERROR]** Looks like an error has ocurred.\n"
+                       f"> _{error.replace('_', r'\_')}_")
         if interaction.response.is_done():
             await interaction.edit_original_response(content=msg_content)
         else:
