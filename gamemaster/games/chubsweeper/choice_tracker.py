@@ -1,5 +1,5 @@
 from random import shuffle
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Self, TypeAlias
 
 from .img_choice import ImageChoice
 
@@ -25,6 +25,9 @@ class ChoiceTracker:
         self._score: int = 0
         self._doomed: bool = False
 
+        self.__len: int = len(self._choices)
+        self.__cur: int = 0
+
 
     def _generate_choices(self, safes: "HoldersList", mines: "HoldersList") -> ImgChoicesList:
         """Generates all the image choices.
@@ -44,6 +47,38 @@ class ChoiceTracker:
             ImageChoice(holder, is_mine, i)
             for i, (holder, is_mine) in enumerate(choices, start=1)
         ]
+
+
+    def __len__(self) -> int:
+        """Retrieves the total length of choices this tracker has."""
+
+        return self.__len
+
+
+    def __iter__(self) -> Self:
+        """Returns this very instance for iteration purposes."""
+
+        self.__cur = 0
+        return self
+
+
+    def __next__(self) -> ImageChoice:
+        """Iterates over the internal registry of choices.
+
+        Raises:
+            StopIteration: Obviously, when all the elements are exhausted.
+
+        Returns:
+            The current element to yield.
+        """
+
+        if self.__cur >= self.__len:
+            raise StopIteration
+
+        current = self._choices[self.__cur]
+        self.__cur += 1
+
+        return current
 
 
     @property

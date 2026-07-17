@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 
-from gamemaster.games import ChoiceTracker, ImagePairHolder
+from gamemaster.games import ChoiceTracker, ImagePairHolder, ImageType
 
 
 class TestChoiceTracker(TestCase):
@@ -9,10 +9,14 @@ class TestChoiceTracker(TestCase):
         self.safes_num = 5
         self.mines_num = 2
 
-        self.choice_tracker = ChoiceTracker(
-            safes=[Mock(ImagePairHolder) for _ in range(self.safes_num)],
-            mines=[Mock(ImagePairHolder) for _ in range(self.mines_num)]
-        )
+        self.safes = [self._holder_mock() for _ in range(self.safes_num)]
+        self.mines = [self._holder_mock() for _ in range(self.mines_num)]
+
+        self.choice_tracker = ChoiceTracker(safes=self.safes, mines=self.mines)
+
+
+    def _holder_mock(self):
+        return Mock(ImagePairHolder, **{"blurred_copy_with_number.return_value": Mock(ImageType)})
 
 
     def test_is_initialized_properly(self):
@@ -21,6 +25,10 @@ class TestChoiceTracker(TestCase):
 
         self.assertHasAttr(self.choice_tracker, "doomed")
         self.assertFalse(self.choice_tracker.doomed)
+
+
+    def test_can_measure_length(self):
+        self.assertEqual(len(self.choice_tracker), self.safes_num + self.mines_num)
 
 
     def test_can_generate_numbered_blurs(self):
@@ -81,6 +89,23 @@ class TestChoiceTracker(TestCase):
         self.assertEqual(choice_tracker.score, score)
 
 
-    def test_can_not_retrieve_with_large_number(self):
+    def test_can_not_retrieve_when_out_of_range(self):
         with self.assertRaises(IndexError):
-            self.choice_tracker.uncover(999999)
+            self.choice_tracker.uncover(len(self.choice_tracker) + 1)
+
+
+    def test_can_show_choices_depending_on_uncover_status(self):
+        dummy_num = 67 # any will do
+        expected = [
+            holder.blurred_copy_with_number(dummy_num) for holder in (self.safes + self.mines)
+        ]
+
+        self.assertCountEqual(self.choice_tracker.showable_faces(), expected)
+
+
+    def test_can_walk_through_choices(self):
+        expected_holders = [*self.safes, *self.mines]
+        holders = [choice._holder for choice in self.choice_tracker]
+
+        self.assertCountEqual(holders, expected_holders)
+
