@@ -22,6 +22,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         sha: ${{ github.event.workflow_run.head_sha }}
         status: pending
+        targetUrl: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ job.check_run_id }}
         context: Test Coverage
         description: Running coverage analysis...
     - uses: actions/checkout@v7
@@ -50,5 +51,6 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         sha: ${{ github.event.workflow_run.head_sha }}
         status: ${{ job.status }}
+        targetUrl: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ job.check_run_id }}
         context: Test Coverage
         description: Coverage report generation finished.
