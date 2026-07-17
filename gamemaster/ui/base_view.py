@@ -1,6 +1,6 @@
 from asyncio import Lock
 from traceback import format_exc
-from typing import TYPE_CHECKING, Optional, TypeAlias, Union
+from typing import TYPE_CHECKING, Optional, Self, TypeAlias, Union
 
 from discord.ui import LayoutView
 
@@ -103,6 +103,12 @@ class BaseView(LayoutView):
         pass
 
 
+    async def _edit_parent_msg(self, view: Self):
+        """Modifies the parent message with the given view."""
+
+        await self.parent_msg.edit(view=view)
+
+
     async def update_parent_msg(self, interaction: Optional["Interaction"]=None):
         """Creates a new message and assigns this view to it.
 
@@ -132,7 +138,7 @@ class BaseView(LayoutView):
             await interaction.response.edit_message(view=self)
             return
 
-        await self.parent_msg.edit(view=self)
+        await self._edit_parent_msg(view=self)
 
 
     async def refresh(self, interaction: Optional["Interaction"]=None, *, detach: bool=False):

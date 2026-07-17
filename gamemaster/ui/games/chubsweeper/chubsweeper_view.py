@@ -6,7 +6,6 @@ from discord.ui import ActionRow, TextDisplay
 
 from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
 from ...batch_sender import BatchImageSender
-from ...throwable_view import ThrowableView
 from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
 from .images_upload import ChubMinesUploadView
@@ -48,7 +47,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
     async def pre_detach(self):
         content = (f"**[ROUND {self.game.current_round}]** "
                    f"_Showing {len(self.game.current_deck())} images_")
-        await self.parent_msg.edit(view=ThrowableView(content))
+        await self.throw_message(content)
 
 
     async def reset(self):
@@ -81,6 +80,8 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
     async def start_game(self, interaction: "Interaction"):
         """Initializes the parameters of the game, and sets them to an initial state."""
+
+        await self.throw_message("_Initiating game..._")
 
         self.game.reset_round()
         await self.reset_selection(interaction)

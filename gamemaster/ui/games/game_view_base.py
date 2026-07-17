@@ -4,6 +4,7 @@ from discord import SeparatorSpacing
 from discord.ui import Container, Separator, TextDisplay
 
 from ..base_view import BaseView
+from ..throwable_view import ThrowableView
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -72,3 +73,12 @@ class BaseGameView(Generic[GameType], BaseView):
         """
 
         return user_id == self.user.id
+
+
+    async def throw_message(self, content: str):
+        """Replaces the current view with a throwable version of the given content.
+        
+        It does not need an interaction to do so, but the parent message must exist.
+        """
+
+        await self._edit_parent_msg(view=ThrowableView(content))
