@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias
 
 from ..game_base import BaseGame
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
     from ...models import Player
     from ..game_base import EmojisCollection
     from .blur_level import BlurLevel
+    from .img_choice import ImageChoice
 
 HoldersList: TypeAlias = list[ImagePairHolder]
 FilesIter: TypeAlias = Iterable["BytesIO"]
@@ -221,3 +223,12 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         """Retrieves a list of files based on their individual 'uncovered' states."""
 
         return self._choice_tracker.showable_faces()
+
+
+    def walk_choices(self) -> Iterator["ImageChoice"]:
+        """Yields all the choices of the tracker, in order."""
+
+        if self._choice_tracker is None:
+            return
+
+        yield from self._choice_tracker

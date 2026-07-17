@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from discord.abc import User
 
 from gamemaster.gamemaster import GameMaster
-from gamemaster.games import BlurLevel, ChubSweeperGame, ChubSweeperOptions
+from gamemaster.games import BlurLevel, ChubSweeperGame, ChubSweeperOptions, ImageChoice, ImageType
 from gamemaster.models import Player
 
 from ...helper import dummy_bmp
@@ -26,6 +26,11 @@ class TestChubSweeper(TestCase):
 
         self.miners_amount = 5
         self.miners_mock = [Mock(Player) for _ in range(self.miners_amount)]
+
+        self.amount_safes = 5
+        self.safes = [dummy_bmp(300, 300) for _ in range(self.amount_safes)]
+        self.amount_mines = 2
+        self.mines = [dummy_bmp(300, 300) for _ in range(self.amount_mines)]
 
         self.chubsweeper_game = ChubSweeperGame(
             gamemaster_mock,
@@ -84,24 +89,28 @@ class TestChubSweeper(TestCase):
         self.assertFalse(self.chubsweeper_game.mines)
 
 
-    def test_can_set_safes(self):
-        amount_safes = 5
-        safes = [dummy_bmp(300, 300) for _ in range(amount_safes)]
+    def test_round_count_starts_at_zero(self):
+        self.assertHasAttr(self.chubsweeper_game, "current_round")
+        self.assertEqual(self.chubsweeper_game.current_round, 0)
 
-        self.chubsweeper_game.set_safes(safes)
+
+    def test_current_player_is_none_at_first(self):
+        self.assertHasAttr(self.chubsweeper_game, "current_player")
+        self.assertIsNone(self.chubsweeper_game.current_player)
+
+
+    def test_can_set_safes(self):
+        self.chubsweeper_game.set_safes(self.safes)
 
         self.assertTrue(self.chubsweeper_game.safes)
-        self.assertEqual(len(self.chubsweeper_game.safes), amount_safes)
+        self.assertEqual(len(self.chubsweeper_game.safes), self.amount_safes)
 
 
     def test_can_set_mines(self):
-        amount_mines = 2
-        mines = [dummy_bmp(300, 300) for _ in range(amount_mines)]
-
-        self.chubsweeper_game.set_mines(mines)
+        self.chubsweeper_game.set_mines(self.mines)
 
         self.assertTrue(self.chubsweeper_game.mines)
-        self.assertEqual(len(self.chubsweeper_game.mines), amount_mines)
+        self.assertEqual(len(self.chubsweeper_game.mines), self.amount_mines)
 
 
     def test_can_reblur_images(self):
@@ -122,3 +131,55 @@ class TestChubSweeper(TestCase):
                          len(self.chubsweeper_game.safes_blurred()))
         self.assertEqual(len(self.chubsweeper_game.mines),
                          len(self.chubsweeper_game.mines_blurred()))
+
+
+    def test_can_retrieve_current_player(self):
+        current_player = self.miners_mock[0]
+
+        self.chubsweeper_game.reset_round()
+
+        self.assertEqual(self.chubsweeper_game.current_player, current_player)
+
+
+    def test_can_reset_round(self):
+        self.chubsweeper_game.reset_round()
+        initial_round = 1
+        player_i = 0
+
+        self.chubsweeper_game.reset_round()
+
+        self.assertEqual(self.chubsweeper_game.current_round, initial_round + 1)
+        self.assertEqual(self.chubsweeper_game.current_player, self.miners_mock[player_i + 1])
+
+
+    def test_can_retrieve_current_deck(self):
+        self.chubsweeper_game.set_safes(self.safes)
+        self.chubsweeper_game.set_mines(self.mines)
+        self.chubsweeper_game.reset_round()
+
+        count = 0
+        for i, img in enumerate(self.chubsweeper_game.current_deck()):
+            with self.subTest(ind=i):
+                self.assertIsInstance(img, ImageType)
+                count += 1
+
+        self.assertEqual(count, self.amount_safes + self.amount_mines)
+
+
+    def test_can_walk_through_choices(self):
+        self.chubsweeper_game.set_safes(self.safes)
+        self.chubsweeper_game.set_mines(self.mines)
+        self.chubsweeper_game.reset_round()
+
+        count = 0
+        for i, choice in enumerate(self.chubsweeper_game.walk_choices()):
+            with self.subTest(choice=i):
+                self.assertIsInstance(choice, ImageChoice)
+                count += 1
+
+        self.assertEqual(count, self.amount_safes + self.amount_mines)
+
+
+    def test_iterator_is_empty_at_first(self):
+        choices = [choice for choice in self.chubsweeper_game.walk_choices()]
+        self.assertEqual(choices, [])
