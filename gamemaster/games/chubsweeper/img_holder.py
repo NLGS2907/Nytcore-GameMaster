@@ -91,20 +91,6 @@ class ImagePairHolder:
         return self._preferred_blur_lvl
 
 
-    @property
-    def number(self) -> Optional[int]:
-        """Retrieves the assigned number of this holder."""
-
-        return self._num
-
-
-    @number.setter
-    def number(self, new_num: Optional[int]):
-        """Assigns a new number to this holder."""
-
-        self._num = new_num
-
-
     @staticmethod
     def _load_properties(properties: Optional[ImageProperties], img: ImageType) -> ImageProperties:
         """Lazy loads the properties of an image and stores it.
