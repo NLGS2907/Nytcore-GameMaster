@@ -79,3 +79,11 @@ class TestImagePairHolder(TestCase):
         img_holder.reblur(new_blur_lvl)
 
         self.assertEqual(img_holder.blur_level, new_blur_lvl)
+
+
+    def test_can_generate_blur_with_number(self):
+        img_holder = ImagePairHolder(dummy_bmp(500, 500))
+        number = 10
+
+        # we have no good way to inspect the image content
+        self.assertIsInstance(img_holder.blurred_copy_with_number(number), ImageType)
