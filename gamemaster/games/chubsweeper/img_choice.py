@@ -18,6 +18,7 @@ class ImageChoice:
         self._holder: "ImagePairHolder" = holder
         self._mine: bool = is_mine
         self._uncovered: bool = False
+        self._num: int = number
         self._num_blur: "ImageType" = self._holder.blurred_copy_with_number(number)
 
 
@@ -33,6 +34,13 @@ class ImageChoice:
         """Checks if the choice was already made before."""
 
         return self._uncovered
+
+
+    @property
+    def number(self) -> int:
+        """Retrieves the identifying number of this choice."""
+
+        return self._num
 
 
     @property
