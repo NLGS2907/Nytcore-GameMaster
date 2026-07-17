@@ -1,3 +1,4 @@
+from itertools import batched
 from typing import TYPE_CHECKING, Optional
 
 from discord import File
@@ -9,6 +10,7 @@ from ...throwable_view import ThrowableView
 from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
 from .images_upload import ChubMinesUploadView
+from .round_gameplay import ImageSelectionButton
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -17,6 +19,8 @@ if TYPE_CHECKING:
 
     from ....gamemaster import GameMaster
     from ..game_view_base import PossibleMessage, PossibleUser
+
+BUTTONS_PER_ROW: int = 5
 
 
 class ChubSweeperView(BaseGameView[ChubSweeperGame]):
@@ -38,6 +42,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             self.bot, self.parent_msg, self.user, self.game, parent_view=self, timeout=timeout
         )
         self.batch_sender: Optional[BatchImageSender] = None
+        self._img_btns: list[ImageSelectionButton] = []
 
 
     async def pre_detach(self):
@@ -51,8 +56,14 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             await self._start_view()
             return
 
-        await self.cancel_game(title="Buttons for Images",
-                               reason="Here should be the btns for choosing an image")
+        self.add_item(TextDisplay(
+            f"{self.game.current_player.username}, it is your turn.\n"
+            f"Choose between these images and see if you land in a ChubMine™."
+        ))
+
+        self._regenerate_selection_btns()
+        for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
+            self.add_item(ActionRow(*btn_row))
 
 
     async def _start_view(self):
@@ -69,9 +80,15 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
 
     async def start_game(self, interaction: "Interaction"):
-        """Intializes the state of the game to the beginning."""
+        """Initializes the parameters of the game, and sets them to an initial state."""
 
         self.game.reset_round()
+        await self.reset_selection(interaction)
+
+
+    async def reset_selection(self, interaction: "Interaction"):
+        """Resets the current state of the game inside the same round."""
+
         await self.show_images(interaction)
         await self.reset()
 
@@ -105,3 +122,21 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
         await self._reset_batch_sender()
         await self.batch_sender.send(interaction, ephemeral=False)
+
+
+    def _regenerate_selection_btns(self):
+        """Generates the selection button list from the internal game deck."""
+
+        self._img_btns.clear()
+        for img_choice in self.game.walk_choices():
+            self._img_btns.append(ImageSelectionButton(self, img_choice))
+
+
+    async def renew(self, interaction: "Interaction"):
+        """Resets the current state of the view, and detaches it into a new message."""
+
+        await self.reset_selection(interaction)
+        await self.refresh(interaction, detach=True)
+
+        # necessarily last, since it only migrates to the new msg after the refresh
+        await self.batch_sender.cleanup(include_root=True)
