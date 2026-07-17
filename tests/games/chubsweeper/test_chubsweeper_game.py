@@ -99,6 +99,11 @@ class TestChubSweeper(TestCase):
         self.assertIsNone(self.chubsweeper_game.current_player)
 
 
+    def test_tracker_is_none_at_first(self):
+        self.assertHasAttr(self.chubsweeper_game, "tracker")
+        self.assertIsNone(self.chubsweeper_game.tracker)
+
+
     def test_can_set_safes(self):
         self.chubsweeper_game.set_safes(self.safes)
 

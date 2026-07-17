@@ -141,6 +141,13 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return (None if self._cur_miner_i is None else self._miners[self._cur_miner_i])
 
 
+    @property
+    def tracker(self) -> Optional[ChoiceTracker]:
+        """Retrieves the tracker for the current choices, if available."""
+
+        return self._choice_tracker
+
+
     def _generate_img_holders(self, files: FilesIter) -> HoldersList:
         """Generates a image holder for every element in the files iterable."""
 
