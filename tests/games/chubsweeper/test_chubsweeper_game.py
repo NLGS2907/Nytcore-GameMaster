@@ -104,15 +104,26 @@ class TestChubSweeper(TestCase):
         self.assertIsNone(self.chubsweeper_game.tracker)
 
 
+    def _prepare_game(self, *, safes: bool=False, mines: bool=False, reset_round: bool=True):
+        if safes:
+            self.chubsweeper_game.set_safes(self.safes)
+
+        if mines:
+            self.chubsweeper_game.set_mines(self.mines)
+
+        if reset_round:
+            self.chubsweeper_game.reset_round()
+
+
     def test_can_set_safes(self):
-        self.chubsweeper_game.set_safes(self.safes)
+        self._prepare_game(safes=True, reset_round=False)
 
         self.assertTrue(self.chubsweeper_game.safes)
         self.assertEqual(len(self.chubsweeper_game.safes), self.amount_safes)
 
 
     def test_can_set_mines(self):
-        self.chubsweeper_game.set_mines(self.mines)
+        self._prepare_game(mines=True, reset_round=False)
 
         self.assertTrue(self.chubsweeper_game.mines)
         self.assertEqual(len(self.chubsweeper_game.mines), self.amount_mines)
@@ -141,13 +152,13 @@ class TestChubSweeper(TestCase):
     def test_can_retrieve_current_player(self):
         current_player = self.miners_mock[0]
 
-        self.chubsweeper_game.reset_round()
+        self._prepare_game()
 
         self.assertEqual(self.chubsweeper_game.current_player, current_player)
 
 
     def test_can_reset_round(self):
-        self.chubsweeper_game.reset_round()
+        self._prepare_game()
         initial_round = 1
         player_i = 0
 
@@ -158,9 +169,7 @@ class TestChubSweeper(TestCase):
 
 
     def test_can_retrieve_current_deck(self):
-        self.chubsweeper_game.set_safes(self.safes)
-        self.chubsweeper_game.set_mines(self.mines)
-        self.chubsweeper_game.reset_round()
+        self._prepare_game(safes=True, mines=True)
 
         count = 0
         for i, img in enumerate(self.chubsweeper_game.current_deck()):
@@ -172,9 +181,7 @@ class TestChubSweeper(TestCase):
 
 
     def test_can_walk_through_choices(self):
-        self.chubsweeper_game.set_safes(self.safes)
-        self.chubsweeper_game.set_mines(self.mines)
-        self.chubsweeper_game.reset_round()
+        self._prepare_game(safes=True, mines=True)
 
         count = 0
         for i, choice in enumerate(self.chubsweeper_game.walk_choices()):
@@ -191,16 +198,14 @@ class TestChubSweeper(TestCase):
 
 
     def test_can_make_choices(self):
-        self.chubsweeper_game.set_mines(self.mines)
-        self.chubsweeper_game.reset_round()
+        self._prepare_game(mines=True)
         choice_ind = 1
 
         self.assertTrue(self.chubsweeper_game.make_choice(choice_ind))
 
 
     def test_can_get_current_player_score(self):
-        self.chubsweeper_game.set_safes(self.safes)
-        self.chubsweeper_game.reset_round()
+        self._prepare_game(safes=True)
 
         self.assertEqual(self.chubsweeper_game.current_score(), 0)
         self.chubsweeper_game.make_choice(1)
