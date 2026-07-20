@@ -169,4 +169,5 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             A boolean value indicating if the player has lost due to this choice.        
         """
 
-        self._play_finished = self.game.make_choice(n)
+        if self.game.make_choice(n) or self.game.exhausted_choices():
+            self._play_finished = True
