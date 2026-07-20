@@ -196,3 +196,12 @@ class TestChubSweeper(TestCase):
         choice_ind = 1
 
         self.assertTrue(self.chubsweeper_game.make_choice(choice_ind))
+
+
+    def test_can_get_current_player_score(self):
+        self.chubsweeper_game.set_safes(self.safes)
+        self.chubsweeper_game.reset_round()
+
+        self.assertEqual(self.chubsweeper_game.current_score(), 0)
+        self.chubsweeper_game.make_choice(1)
+        self.assertEqual(self.chubsweeper_game.current_score(), 1)

@@ -252,3 +252,12 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         """
 
         return self.tracker.uncover(n)
+
+
+    def current_score(self) -> int:
+        """Retrieves the score of the current player, or zero if the tracker is `None`."""
+
+        if self.tracker is None:
+            return 0
+
+        return self.tracker.score
