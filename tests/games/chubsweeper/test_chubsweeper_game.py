@@ -188,3 +188,11 @@ class TestChubSweeper(TestCase):
     def test_iterator_is_empty_at_first(self):
         choices = [choice for choice in self.chubsweeper_game.walk_choices()]
         self.assertEqual(choices, [])
+
+
+    def test_can_make_choices(self):
+        self.chubsweeper_game.set_mines(self.mines)
+        self.chubsweeper_game.reset_round()
+        choice_ind = 1
+
+        self.assertTrue(self.chubsweeper_game.make_choice(choice_ind))

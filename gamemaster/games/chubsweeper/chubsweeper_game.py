@@ -239,3 +239,16 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
             return
 
         yield from self._choice_tracker
+
+
+    def make_choice(self, n: int):
+        """Registers a choice with the underlying tracker.
+
+        Args:
+            n: The number of the choice to register.
+
+        Returns:
+            A boolean value indicating if the players has lost due to this choice.
+        """
+
+        return self.tracker.uncover(n)
