@@ -2,7 +2,7 @@ from itertools import batched
 from typing import TYPE_CHECKING, Optional
 
 from discord import File
-from discord.ui import ActionRow, TextDisplay
+from discord.ui import ActionRow, Container, TextDisplay
 
 from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
 from ...batch_sender import BatchImageSender
@@ -43,6 +43,9 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self.batch_sender: Optional[BatchImageSender] = None
         self._img_btns: list[ImageSelectionButton] = []
 
+        self._play_finished: bool = False
+        self._status_msg: Optional[str] = None
+
 
     async def pre_detach(self):
         content = (f"**[ROUND {self.game.current_round}]** "
@@ -55,14 +58,27 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             await self._start_view()
             return
 
-        self.add_item(TextDisplay(
-            f"{self.game.current_player.username}, it is your turn.\n"
-            f"Choose between these images and see if you land in a ChubMine™."
-        ))
+        if not self._play_finished:
+            self.add_item(TextDisplay(
+                f"{self.game.current_player.username}, it is your turn.\n"
+                f"Choose between these images and see if you land in a ChubMine™.\n\n"
+                f"You have currently guessed correctly a total of **{self.game.current_score()}** "
+                "times."
+            ))
 
-        self._regenerate_selection_btns()
-        for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
-            self.add_item(ActionRow(*btn_row))
+            self._regenerate_selection_btns()
+            for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
+                self.add_item(ActionRow(*btn_row))
+        else:
+            cur_score = self.game.current_score()
+            container = Container(TextDisplay("## Round Finished"))
+            container.add_item(TextDisplay(
+                f"The player **{self.game.current_player.username}** has guessed "
+                f"_{cur_score}_ out of _{len(self.game.tracker)}_ possible choices."
+                f"\n\n**Final Score:**\t`{cur_score}` points"
+            ))
+
+            self.add_item(container)
 
 
     async def _start_view(self):
@@ -153,4 +169,4 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             A boolean value indicating if the player has lost due to this choice.        
         """
 
-        return self.game.make_choice(n)
+        self._play_finished = self.game.make_choice(n)
