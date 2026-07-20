@@ -143,7 +143,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         await self.batch_sender.cleanup(include_root=True)
 
 
-    def make_choice(self, n: int) -> bool:
+    async def make_choice(self, n: int) -> bool:
         """Makes a choice in the underlying game.
 
         Args:

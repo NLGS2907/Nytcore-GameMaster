@@ -50,5 +50,5 @@ class ImageSelectionButton(Button):
                 await interaction.response.send_message(msg_content, ephemeral=True)
                 return
 
-            self.parent_view.make_choice(int(self.label))
+            await self.parent_view.make_choice(int(self.label))
             await self.parent_view.renew(interaction)
