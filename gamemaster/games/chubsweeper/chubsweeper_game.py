@@ -148,6 +148,15 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self._choice_tracker
 
 
+    def current_score(self) -> int:
+        """Retrieves the score of the current player, or zero if the tracker is `None`."""
+
+        if self.tracker is None:
+            return 0
+
+        return self.tracker.score
+
+
     def _generate_img_holders(self, files: FilesIter) -> HoldersList:
         """Generates a image holder for every element in the files iterable."""
 
@@ -254,10 +263,11 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self.tracker.uncover(n)
 
 
-    def current_score(self) -> int:
-        """Retrieves the score of the current player, or zero if the tracker is `None`."""
+    def exhausted_choices(self) -> bool:
+        """Checks if the tracker has no more safe choices to make."""
 
-        if self.tracker is None:
-            return 0
+        for choice in self.walk_choices():
+            if not choice.mine and not choice.uncovered:
+                return False
 
-        return self.tracker.score
+        return True

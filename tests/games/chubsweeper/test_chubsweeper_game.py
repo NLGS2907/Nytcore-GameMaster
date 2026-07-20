@@ -210,3 +210,15 @@ class TestChubSweeper(TestCase):
         self.assertEqual(self.chubsweeper_game.current_score(), 0)
         self.chubsweeper_game.make_choice(1)
         self.assertEqual(self.chubsweeper_game.current_score(), 1)
+
+
+    def test_can_exhaust_safe_choices(self):
+        self._prepare_game(safes=True)
+
+        for i in range(self.amount_safes - 1):
+            with self.subTest(safe_ind=i):
+                self.chubsweeper_game.make_choice(i + 1)
+                self.assertFalse(self.chubsweeper_game.exhausted_choices())
+            
+        self.chubsweeper_game.make_choice(self.amount_safes)
+        self.assertTrue(self.chubsweeper_game.exhausted_choices())
