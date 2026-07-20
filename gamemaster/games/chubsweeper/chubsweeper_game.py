@@ -248,7 +248,7 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
             n: The number of the choice to register.
 
         Returns:
-            A boolean value indicating if the players has lost due to this choice.
+            A boolean value indicating if the player has lost due to this choice.
         """
 
         return self.tracker.uncover(n)

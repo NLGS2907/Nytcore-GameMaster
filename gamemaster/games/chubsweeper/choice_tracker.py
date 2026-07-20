@@ -126,7 +126,7 @@ class ChoiceTracker:
             n: The number of the image to retrieve.
 
         Returns:
-            A boolean value indicating if the players has lost due to this choice.
+            A boolean value indicating if the player has lost due to this choice.
         """
 
         if self._get_choice(n).uncover():
