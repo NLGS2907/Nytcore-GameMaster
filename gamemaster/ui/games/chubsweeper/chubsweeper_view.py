@@ -141,3 +141,16 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
         # necessarily last, since it only migrates to the new msg after the refresh
         await self.batch_sender.cleanup(include_root=True)
+
+
+    def make_choice(self, n: int) -> bool:
+        """Makes a choice in the underlying game.
+
+        Args:
+            n: The index number of the choice.
+
+        Returns:
+            A boolean value indicating if the player has lost due to this choice.        
+        """
+
+        return self.game.make_choice(n)
