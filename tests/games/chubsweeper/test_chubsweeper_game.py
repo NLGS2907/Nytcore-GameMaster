@@ -212,6 +212,10 @@ class TestChubSweeper(TestCase):
         self.assertEqual(self.chubsweeper_game.current_score(), 1)
 
 
+    def test_score_is_zero_if_tracker_is_none(self):
+        self.assertEqual(self.chubsweeper_game.current_score(), 0)
+
+
     def test_can_exhaust_safe_choices(self):
         self._prepare_game(safes=True)
 
