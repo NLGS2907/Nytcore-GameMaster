@@ -297,3 +297,13 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         """Checks if the current player is the last in the list."""
 
         return self._cur_miner_i == (self.__miners_len - 1)
+
+
+    def winners(self) -> list["Player"]:
+        """Retrieves the list of players with the maximum score.
+
+        If only one player is present in this list, consider that player the overall winner.
+        """
+
+        max_score = max(self.get_score(player) for player in self.miners)
+        return [player for player in self.miners if self.get_score(player) == max_score]

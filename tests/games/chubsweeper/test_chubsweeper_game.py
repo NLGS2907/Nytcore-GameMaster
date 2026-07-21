@@ -231,15 +231,21 @@ class TestChubSweeper(TestCase):
         self.assertEqual(self.chubsweeper_game.get_score(player), score + 1)
 
 
+    def _make_choices(self, how_many: int, reset_turn: bool=True):
+        for i in range(1, how_many + 1):
+            self.chubsweeper_game.make_choice(i)
+
+        if reset_turn:
+            self.chubsweeper_game.reset_turn()
+
+
     def test_can_get_any_player_score(self):
         self._prepare_game(safes=True)
-        self.chubsweeper_game.make_choice(1)
         first_player = self.chubsweeper_game.current_player
+        self._make_choices(1)
 
-        self.chubsweeper_game.reset_turn()
-        self.chubsweeper_game.make_choice(1)
-        self.chubsweeper_game.make_choice(2)
         next_player = self.chubsweeper_game.current_player
+        self._make_choices(2)
 
         self.assertEqual(self.chubsweeper_game.get_score(first_player), 1)
         self.assertEqual(self.chubsweeper_game.get_score(next_player), 2)
@@ -271,3 +277,18 @@ class TestChubSweeper(TestCase):
 
         self.chubsweeper_game.reset_turn()
         self.assertTrue(self.chubsweeper_game.last_player())
+
+
+    def test_can_retrieve_winners(self):
+        self._prepare_game(safes=True)
+
+        for _ in range(self.miners_amount - 2):
+            self._make_choices(1)
+
+        almost_last_player = self.chubsweeper_game.current_player
+        self._make_choices(2)
+
+        last_player = self.chubsweeper_game.current_player
+        self._make_choices(2)
+
+        self.assertCountEqual(self.chubsweeper_game.winners(), [almost_last_player, last_player])
