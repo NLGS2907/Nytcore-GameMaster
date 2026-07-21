@@ -41,6 +41,7 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
                  options: ChubSweeperOptions):
         super().__init__(bot, host_user, players, options=options)
         self._dealer, self._miners = self._distinguish_players()
+        self.__miners_len: int = len(self._miners)
         self._safes: HoldersList = []
         self._mines: HoldersList = []
 
@@ -235,7 +236,7 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
             self._cur_miner_i = 0
             return
 
-        self._cur_miner_i = (self._cur_miner_i + 1) % len(self._miners)
+        self._cur_miner_i = (self._cur_miner_i + 1) % self.__miners_len
 
 
     def reset_round(self):
@@ -290,3 +291,9 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
                 return False
 
         return True
+
+
+    def last_player(self) -> bool:
+        """Checks if the current player is the last in the list."""
+
+        return self._cur_miner_i == (self.__miners_len - 1)

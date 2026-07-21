@@ -259,3 +259,15 @@ class TestChubSweeper(TestCase):
             
         self.chubsweeper_game.make_choice(self.amount_safes)
         self.assertTrue(self.chubsweeper_game.exhausted_choices())
+
+
+    def test_is_last_player(self):
+        self._prepare_game(reset_turn=False)
+
+        for i in range(self.miners_amount - 1):
+            with self.subTest(miner_ind=i):
+                self.chubsweeper_game.reset_turn()
+                self.assertFalse(self.chubsweeper_game.last_player())
+
+        self.chubsweeper_game.reset_turn()
+        self.assertTrue(self.chubsweeper_game.last_player())
