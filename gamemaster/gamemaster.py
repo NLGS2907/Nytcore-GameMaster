@@ -2,7 +2,6 @@
 
 from io import BytesIO
 from os import getenv
-from platform import system
 from typing import TYPE_CHECKING, TypeAlias, Union
 
 from discord import Intents, Permissions
@@ -12,7 +11,7 @@ from discord.utils import utcnow
 
 from .db import db, run_migrations
 from .files import search_files
-from .logger import LoggerManager, get_gamemaster_logger, log_lvl
+from .logger import LoggerManager, log_lvl
 from .models import IMG_FORMAT
 from .repositories import PlayerRepository, RepositoryConfiguration, RPSResultRepository
 
@@ -21,15 +20,6 @@ if TYPE_CHECKING:
     from logging import Logger
 
     from discord import Emoji
-
-# suppress weird Windows warning
-try:
-    from asyncio import WindowsSelectorEventLoopPolicy, set_event_loop_policy
-    if system() == "Windows":
-        set_event_loop_policy(WindowsSelectorEventLoopPolicy())
-except ImportError:
-    get_gamemaster_logger().warning("Could not import 'WindowsSelectorEventLoopPolicy', "
-                                    "probably because this is not Windows.")
 
 VersionTuple: TypeAlias = tuple[int, int, int]
 
