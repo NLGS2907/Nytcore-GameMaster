@@ -104,7 +104,12 @@ class TestChubSweeper(TestCase):
         self.assertIsNone(self.chubsweeper_game.tracker)
 
 
-    def _prepare_game(self, *, safes: bool=False, mines: bool=False, reset_turn: bool=True):
+    def _prepare_game(self,
+                      *,
+                      safes: bool=False,
+                      mines: bool=False,
+                      reset_turn: bool=True,
+                      reset_round: bool=False):
         if safes:
             self.chubsweeper_game.set_safes(self.safes)
 
@@ -113,6 +118,9 @@ class TestChubSweeper(TestCase):
 
         if reset_turn:
             self.chubsweeper_game.reset_turn()
+
+        if reset_round:
+            self.chubsweeper_game.reset_round()
 
 
     def test_can_set_safes(self):
@@ -159,13 +167,20 @@ class TestChubSweeper(TestCase):
 
     def test_can_reset_turn(self):
         self._prepare_game()
-        initial_round = 1
         player_i = 0
 
         self.chubsweeper_game.reset_turn()
 
-        self.assertEqual(self.chubsweeper_game.current_round, initial_round + 1)
         self.assertEqual(self.chubsweeper_game.current_player, self.miners_mock[player_i + 1])
+
+
+    def test_can_reset_round(self):
+        self._prepare_game(reset_turn=False, reset_round=True)
+        initial_round = 1
+
+        self.chubsweeper_game.reset_round()
+
+        self.assertEqual(self.chubsweeper_game.current_round, initial_round + 1)
 
 
     def test_can_retrieve_current_deck(self):

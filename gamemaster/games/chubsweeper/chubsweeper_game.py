@@ -227,10 +227,15 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         self._cur_miner_i = (self._cur_miner_i + 1) % len(self._miners)
 
 
+    def reset_round(self):
+        """Progress the game towards a new round of turns."""
+
+        self._cur_round += 1
+
+
     def reset_turn(self):
         """Runs the final arrangements just before starting a player's turn."""
 
-        self._cur_round += 1
         self._next_player()
         self._choice_tracker = ChoiceTracker(safes=self._safes, mines=self._mines)
 
