@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 HoldersList: TypeAlias = list[ImagePairHolder]
 FilesIter: TypeAlias = Iterable["BytesIO"]
 FilesList: TypeAlias = list["BytesIO"]
+PlayerScores: TypeAlias = dict[int, int]
 
 
 class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
@@ -46,6 +47,7 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         self._cur_round: int = 0
         self._cur_miner_i: Optional[int] = None
         self._choice_tracker: Optional[ChoiceTracker] = None
+        self._scores: PlayerScores = {}
 
 
     @staticmethod
@@ -157,6 +159,15 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         return self.tracker.score
 
 
+    def get_score(self, player: "Player") -> int:
+        """Retrieves the score of the given player."""
+
+        if player == self.current_player:
+            return self.current_score()
+
+        return self._scores[player.discord_user_id]
+
+
     def _generate_img_holders(self, files: FilesIter) -> HoldersList:
         """Generates a image holder for every element in the files iterable."""
 
@@ -235,6 +246,9 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
 
     def reset_turn(self):
         """Runs the final arrangements just before starting a player's turn."""
+
+        if self.current_player is not None:
+            self._scores[self.current_player.discord_user_id] = self.current_score()
 
         self._next_player()
         self._choice_tracker = ChoiceTracker(safes=self._safes, mines=self._mines)

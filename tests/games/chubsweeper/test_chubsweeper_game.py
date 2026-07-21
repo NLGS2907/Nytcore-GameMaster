@@ -221,10 +221,28 @@ class TestChubSweeper(TestCase):
 
     def test_can_get_current_player_score(self):
         self._prepare_game(safes=True)
+        player = self.chubsweeper_game.current_player
+        score = 0
 
-        self.assertEqual(self.chubsweeper_game.current_score(), 0)
+        self.assertEqual(self.chubsweeper_game.current_score(), score)
+        self.assertEqual(self.chubsweeper_game.get_score(player), score)
         self.chubsweeper_game.make_choice(1)
-        self.assertEqual(self.chubsweeper_game.current_score(), 1)
+        self.assertEqual(self.chubsweeper_game.current_score(), score + 1)
+        self.assertEqual(self.chubsweeper_game.get_score(player), score + 1)
+
+
+    def test_can_get_any_player_score(self):
+        self._prepare_game(safes=True)
+        self.chubsweeper_game.make_choice(1)
+        first_player = self.chubsweeper_game.current_player
+
+        self.chubsweeper_game.reset_turn()
+        self.chubsweeper_game.make_choice(1)
+        self.chubsweeper_game.make_choice(2)
+        next_player = self.chubsweeper_game.current_player
+
+        self.assertEqual(self.chubsweeper_game.get_score(first_player), 1)
+        self.assertEqual(self.chubsweeper_game.get_score(next_player), 2)
 
 
     def test_score_is_zero_if_tracker_is_none(self):
