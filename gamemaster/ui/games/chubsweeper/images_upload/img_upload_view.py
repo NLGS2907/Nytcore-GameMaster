@@ -33,6 +33,7 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
                  game: ChubSweeperGame,
                  *,
                  parent_view: "ChubSweeperView",
+                 first_time: bool=True,
                  timeout: Optional[float]=None):
         super().__init__(bot, parent_msg, origin_user, game, timeout=timeout)
         self.chubsweeper_view: "ChubSweeperView" = parent_view
@@ -43,7 +44,9 @@ class ChubMinesUploadView(BaseGameView[ChubSweeperGame]):
         self._upload_btn: ImagesUploadButton = ImagesUploadButton(self, "Upload Images")
         self._blur_edit_btn: BlurEditButton = BlurEditButton(self)
         self._preview_btn: ImagePreviewButton = ImagePreviewButton(self)
-        self._round_begin_btn: RoundBeginButton = RoundBeginButton(self, self.chubsweeper_view)
+        self._round_begin_btn: RoundBeginButton = RoundBeginButton(
+            self, self.chubsweeper_view, begin_game=first_time
+        )
 
 
     def _not_uploaded_yet(self) -> bool:

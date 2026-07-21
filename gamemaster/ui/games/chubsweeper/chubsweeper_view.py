@@ -8,6 +8,7 @@ from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
 from ...batch_sender import BatchImageSender
 from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
+from .confirmation import NextTurnConfirmationButton, ReuploadTurnImagesButton
 from .images_upload import ChubMinesUploadView
 from .round_gameplay import ImageSelectionButton
 
@@ -37,14 +38,15 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self.__started: bool = False
         self.__chubsweeper_start_btn: ChubSweeperStartButton = ChubSweeperStartButton(self)
 
-        self.chubmines_upload_view: ChubMinesUploadView = ChubMinesUploadView(
-            self.bot, self.parent_msg, self.user, self.game, parent_view=self, timeout=timeout
+        self.chubmines_upload_view: ChubMinesUploadView = self._create_upload_view(
+            first_time=True, timeout=timeout
         )
         self.batch_sender: Optional[BatchImageSender] = None
         self._img_btns: list[ImageSelectionButton] = []
+        self._next_turn_btn: NextTurnConfirmationButton = NextTurnConfirmationButton(self)
+        self._reupload_img_btn: ReuploadTurnImagesButton = ReuploadTurnImagesButton(self)
 
         self._play_finished: bool = False
-        self._status_msg: Optional[str] = None
 
 
     async def pre_detach(self):
@@ -58,11 +60,12 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             await self._start_view()
             return
 
+        cur_score = self.game.current_score()
         if not self._play_finished:
             self.add_item(TextDisplay(
                 f"{self.game.current_player.username}, it is your turn.\n"
                 f"Choose between these images and see if you land in a ChubMine™.\n\n"
-                f"You have currently guessed correctly a total of **{self.game.current_score()}** "
+                f"You have currently guessed correctly a total of **{cur_score}** "
                 "times."
             ))
 
@@ -70,7 +73,6 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
                 self.add_item(ActionRow(*btn_row))
         else:
-            cur_score = self.game.current_score()
             container = Container(TextDisplay("## Round Finished"))
             container.add_item(TextDisplay(
                 f"The player **{self.game.current_player.username}** has guessed "
@@ -79,6 +81,28 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             ))
 
             self.add_item(container)
+            self.add_item(TextDisplay(
+                f"Dealer **{self.game.dealer.username}**, do you wish to use the same images "
+                "for the next player's turn, or reupload new ones?"
+            ))
+            self.add_item(ActionRow(self._reupload_img_btn, self._next_turn_btn))
+
+
+    def _create_upload_view(self,
+                            *,
+                            first_time: bool=True,
+                            timeout: Optional[float]=None) -> ChubMinesUploadView:
+        """Creates an upload view instance, ready for use.
+
+        Args:
+            first_time: Wether we should tell the view this is the first time it is being used.
+            timeout: Seconds until the view stops responding to interactions.
+        """
+
+        return ChubMinesUploadView(
+            self.bot, self.parent_msg, self.user, self.game,
+            parent_view=self, first_time=first_time, timeout=timeout
+        )
 
 
     async def _start_view(self):
@@ -98,6 +122,11 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """Initializes the parameters of the game, and sets them to an initial state."""
 
         await self.throw_message("_Initiating game..._")
+        await self.reset_game(interaction)
+
+
+    async def reset_game(self, interaction: "Interaction"):
+        """Resets the state of the game."""
 
         self.game.reset_round()
         await self.reset_selection(interaction)
@@ -108,6 +137,15 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
         await self.show_images(interaction)
         await self.reset()
+
+
+    def update_upload_view(self):
+        """Resets the upload view to a new instance.
+
+        However, it will no longer count as the first time being created.
+        """
+
+        self.chubmines_upload_view = self._create_upload_view(first_time=False)
 
 
     @staticmethod
