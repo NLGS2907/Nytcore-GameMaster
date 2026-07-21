@@ -46,7 +46,8 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self._next_turn_btn: NextTurnConfirmationButton = NextTurnConfirmationButton(self)
         self._reupload_img_btn: ReuploadTurnImagesButton = ReuploadTurnImagesButton(self)
 
-        self._play_finished: bool = False
+        self._turn_finished: bool = False
+        self._round_finished: bool = False
 
 
     async def pre_detach(self):
@@ -57,30 +58,42 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
     async def reset(self):
         if not self.__started:
-            await self._start_view()
+            self._start_view()
+            return
+
+        if not self._turn_finished and not self._round_finished:
+            self._turn_view()
             return
 
         cur_score = self.game.current_score()
-        if not self._play_finished:
+        container = Container(TextDisplay("## Turn Finished"))
+        container.add_item(TextDisplay(
+            f"The player **{self.game.current_player.username}** has guessed "
+            f"_{cur_score}_ out of _{len(self.game.tracker)}_ possible choices."
+            f"\n\n**Final Score:**\t`{cur_score}` points"
+        ))
+        self.add_item(container)
+
+        if self._round_finished:
+            winners = self.game.winners()
+            winners_names = [f"**{winner.username}**" for winner in winners]
+            win_msg = (
+                (f"The player **{winners_names[0]}** has more points than most. "
+                 "_They are the winner!_")
+                if len(winners) == 1
+                else (f"The players {', '.join(winners_names)} have tied in score. _We'll have to "
+                      "do another round to decide the winner..._")
+            )
+            scores = [
+                f"**{player.username}**\t`{self.game.get_score(player)}`"
+                for player in self.game.miners
+            ]
             self.add_item(TextDisplay(
-                f"{self.game.current_player.username}, it is your turn.\n"
-                f"Choose between these images and see if you land in a ChubMine™.\n\n"
-                f"You have currently guessed correctly a total of **{cur_score}** "
-                "times."
+                "That's the end of this round! Here are the current scores:"
+                f"\n\n{'\n'.join(scores)}\n\n"
+                f"{win_msg}"
             ))
-
-            self._regenerate_selection_btns()
-            for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
-                self.add_item(ActionRow(*btn_row))
-        else:
-            container = Container(TextDisplay("## Round Finished"))
-            container.add_item(TextDisplay(
-                f"The player **{self.game.current_player.username}** has guessed "
-                f"_{cur_score}_ out of _{len(self.game.tracker)}_ possible choices."
-                f"\n\n**Final Score:**\t`{cur_score}` points"
-            ))
-
-            self.add_item(container)
+        elif self._turn_finished:
             self.add_item(TextDisplay(
                 f"Dealer **{self.game.dealer.username}**, do you wish to use the same images "
                 "for the next player's turn, or reupload new ones?"
@@ -105,7 +118,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         )
 
 
-    async def _start_view(self):
+    def _start_view(self):
         """Shows a mini-view for starting the ChubSweeper game."""
 
         self.__started = True
@@ -116,6 +129,22 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             "Upload them, preview them, and see if they are okay before starting the game."
         ))
         self.add_item(ActionRow(self.__chubsweeper_start_btn))
+
+
+    def _turn_view(self):
+        """Resets the view with the components of a normal turn."""
+
+        cur_score = self.game.current_score()
+        self.add_item(TextDisplay(
+            f"{self.game.current_player.username}, it is your turn.\n"
+            f"Choose between these images and see if you land in a ChubMine™.\n\n"
+            f"You have currently guessed correctly a total of **{cur_score}** "
+            "times."
+        ))
+
+        self._regenerate_selection_btns()
+        for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
+            self.add_item(ActionRow(*btn_row))
 
 
     async def start_game(self, interaction: "Interaction"):
@@ -208,4 +237,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """
 
         if self.game.make_choice(n) or self.game.exhausted_choices():
-            self._play_finished = True
+            self._turn_finished = True
+
+        if self._turn_finished and self.game.last_player():
+            self._round_finished = True
