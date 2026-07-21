@@ -128,7 +128,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
     async def reset_game(self, interaction: "Interaction"):
         """Resets the state of the game."""
 
-        self.game.reset_round()
+        self.game.reset_turn()
         await self.reset_selection(interaction)
 
 
