@@ -110,15 +110,15 @@ class BaseView(LayoutView):
 
 
     async def update_parent_msg(self,
-                                interaction: Optional["Interaction"]=None) -> PossibleMessage:
+                                interaction: Optional["Interaction"]=None,
+                                *,
+                                delete_old: bool=True):
         """Creates a new message and assigns this view to it.
 
         Args:
             interaction: The interaction that triggered the response. If not present, it will try
                          to send a message from previous parent message context.
-
-        Returns:
-            The old message that was just replace by the new one.
+            delete_old: If `True`, delete the old message after replacing it.
         """
 
         if interaction is not None and not interaction.response.is_done():
@@ -130,20 +130,17 @@ class BaseView(LayoutView):
         old_msg = self.parent_msg
         self.parent_msg = msg
 
-        return old_msg
+        if delete_old:
+            await old_msg.delete()
 
 
     async def refresh_parent_msg(self,
-                                 interaction: Optional["Interaction"]=None) -> PossibleMessage:
+                                 interaction: Optional["Interaction"]=None):
         """Refreshes the message that contains the view.
         
         Args:
             interaction: The interaction that triggered the response. If not present, it will try
                          to edit the message as-is.
-
-        Returns:
-            A reference to the message that was just edited. This is just for convenience and
-            consistency with the sendable counterpart of this function.
         """
 
         if interaction is not None and not interaction.response.is_done():
@@ -152,26 +149,22 @@ class BaseView(LayoutView):
 
         await self._edit_parent_msg(view=self)
 
-        return self.parent_msg
-
 
     async def refresh(self,
                       interaction: Optional["Interaction"]=None,
                       *,
-                      detach: bool=False) -> PossibleMessage:
+                      detach: bool=False,
+                      delete_old: bool=True):
         """Refreshes the elements of this view, then the message itself.
         
         Args:
             interaction: The interaction that triggered the response. If not present, it will try
                          to edit the message as-is.
             detach: If `True`, migrate this to a new, freshly created parent message.
+            delete_old: If `detach` is set, then delete the message previous to the new one.
 
         Raises:
             ValueError: If `detach` is `True` but the relevant interaction is `None`.
-
-        Returns:
-            The message that was just edited, or in the case of sending a new one, a reference to
-            the message that was just abandoned.
         """
 
         self.clear_items()
@@ -182,9 +175,9 @@ class BaseView(LayoutView):
                 raise ValueError("Interaction cannot be None if detaching view")
 
             await self.pre_detach()
-            return await self.update_parent_msg(interaction)
+            await self.update_parent_msg(interaction, delete_old=delete_old)
         else:
-            return await self.refresh_parent_msg(interaction)
+            await self.refresh_parent_msg(interaction)
 
 
     async def destroy(self, interaction: Optional["Interaction"]=None):

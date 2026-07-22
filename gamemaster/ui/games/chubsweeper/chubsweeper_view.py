@@ -249,10 +249,21 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         Args:
             files: The list of files to convert to their library wrappers.
             name: The name prefix to use for each file.
+
+        Returns:
+            A list of the library wrappers with the files inside.
         """
 
-        return [File(file, filename=f"{name}_{i}.{PREFERRED_IMG_FORMAT}")
-                for i, file in enumerate(files, start=1)]
+        ds_files = []
+
+        for i, file in enumerate(files, start=1):
+            file.seek(0)
+            ds_files.append(
+                File(file,
+                     filename=f"{name}_{i}.{PREFERRED_IMG_FORMAT}")
+            )
+
+        return ds_files
 
 
     async def _reset_batch_sender(self):
@@ -284,11 +295,10 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
     async def renew(self, interaction: "Interaction"):
         """Resets the current state of the view, and detaches it into a new message."""
 
+        await self.batch_sender.cleanup()
         await self.reset_selection(interaction)
         await self.refresh(interaction, detach=True)
 
-        # necessarily last, since it only migrates to the new msg after the refresh
-        await self.batch_sender.cleanup(include_root=True)
 
 
     async def make_choice(self, n: int) -> bool:
