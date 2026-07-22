@@ -8,7 +8,7 @@ from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
 from ...batch_sender import BatchImageSender
 from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
-from .confirmation import NextTurnConfirmationButton, ReuploadTurnImagesButton
+from .confirmation import NextConfirmationButton, ReuploadTurnImagesButton
 from .images_upload import ChubMinesUploadView
 from .rounds import ChubFinishButton, ImageSelectionButton
 
@@ -43,8 +43,13 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         )
         self.batch_sender: Optional[BatchImageSender] = None
         self._img_btns: list[ImageSelectionButton] = []
-        self._next_turn_btn: NextTurnConfirmationButton = NextTurnConfirmationButton(self)
+        self._next_turn_btn: NextConfirmationButton = NextConfirmationButton(
+            self, label="Yes, begin next turn"
+        )
         self._reupload_img_btn: ReuploadTurnImagesButton = ReuploadTurnImagesButton(self)
+        self._next_round_btn: NextConfirmationButton = NextConfirmationButton(
+            self, label="Yes, begin next round"
+        )
         self._game_end_btn: ChubFinishButton = ChubFinishButton(self)
 
         self._turn_finished: bool = False

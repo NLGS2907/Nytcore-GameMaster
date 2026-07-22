@@ -9,18 +9,19 @@ if TYPE_CHECKING:
     from ..chubsweeper_view import ChubSweeperView
 
 
-class NextTurnConfirmationButton(Button):
-    """UI Button for the Dealer to confirm to proceed to the next player in the round."""
+class NextConfirmationButton(Button):
+    """UI Button for the Dealer to confirm to proceed to the next phase in the game."""
 
-    def __init__(self, parent_view: "ChubSweeperView"):
+    def __init__(self, parent_view: "ChubSweeperView", *, label: str):
         """Initializes the next turn button.
-        
+
         Args:
             parent_view: The parent view of this button.
+            label: The text of the button.
         """
 
         super().__init__(style=ButtonStyle.green,
-                         label="Yes, begin next turn",
+                         label=label,
                          disabled=False)
         self.parent_view: "ChubSweeperView" = parent_view
 
@@ -30,7 +31,7 @@ class NextTurnConfirmationButton(Button):
             dealer = self.parent_view.game.dealer
             if not self.parent_view.is_host(interaction.user.id):
                 msg_content = (f"{interaction.user.mention}, only **{dealer.username}**, the "
-                               f"Dealer, can begin the next turn.")
+                               f"Dealer, can begin the next turn or round.")
                 await interaction.response.send_message(msg_content, ephemeral=True)
                 return
 

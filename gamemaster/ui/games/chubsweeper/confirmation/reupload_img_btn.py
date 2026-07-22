@@ -14,7 +14,7 @@ class ReuploadTurnImagesButton(Button):
 
     def __init__(self, parent_view: "ChubSweeperView"):
         """Initializes the turn reupload button.
-        
+
         Args:
             parent_view: The parent view of this button.
         """
@@ -30,7 +30,7 @@ class ReuploadTurnImagesButton(Button):
             dealer = self.parent_view.game.dealer
             if not self.parent_view.is_host(interaction.user.id):
                 msg_content = (f"{interaction.user.mention}, only **{dealer.username}**, the "
-                               f"Dealer, can reupload images for next turn.")
+                               f"Dealer, can reupload images for next turn or round.")
                 await interaction.response.send_message(msg_content, ephemeral=True)
                 return
 
