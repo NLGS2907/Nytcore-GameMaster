@@ -75,30 +75,9 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self.add_item(container)
 
         if self._round_finished:
-            winners = self.game.winners()
-            winners_names = [f"**{winner.username}**" for winner in winners]
-            win_msg = (
-                (f"The player **{winners_names[0]}** has more points than most. "
-                 "_They are the winner!_")
-                if len(winners) == 1
-                else (f"The players {', '.join(winners_names)} have tied in score. _We'll have to "
-                      "do another round to decide the winner..._")
-            )
-            scores = [
-                f"**{player.username}**\t`{self.game.get_score(player)}`"
-                for player in self.game.miners
-            ]
-            self.add_item(TextDisplay(
-                "That's the end of this round! Here are the current scores:"
-                f"\n\n{'\n'.join(scores)}\n\n"
-                f"{win_msg}"
-            ))
+            self._round_end_view()
         elif self._turn_finished:
-            self.add_item(TextDisplay(
-                f"Dealer **{self.game.dealer.username}**, do you wish to use the same images "
-                "for the next player's turn, or reupload new ones?"
-            ))
-            self.add_item(ActionRow(self._reupload_img_btn, self._next_turn_btn))
+            self._turn_end_view()
 
 
     def _create_upload_view(self,
@@ -145,6 +124,43 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self._regenerate_selection_btns()
         for btn_row in batched(self._img_btns, BUTTONS_PER_ROW):
             self.add_item(ActionRow(*btn_row))
+
+
+    def _turn_end_view(self):
+        """Modifies the view with the components of the end of a turn."""
+
+        self.add_item(TextDisplay(
+            f"Dealer **{self.game.dealer.username}**, do you wish to use the same images "
+            "for the next player's turn, or reupload new ones?"
+        ))
+        self.add_item(ActionRow(self._reupload_img_btn, self._next_turn_btn))
+
+
+    def _round_end_view(self):
+        """Modifies the view with the components of the end of a round."""
+
+        scores = [
+            f"**{player.username}**\t`{self.game.get_score(player)}`"
+            for player in self.game.miners
+        ]
+        self.add_item(TextDisplay(
+            "That's the end of this round! Here are the current scores:"
+            f"\n\n{'\n'.join(scores)}\n\n"
+        ))
+
+        winners = self.game.winners()
+        winners_names = [f"**{winner.username}**" for winner in winners]
+
+        if len(winners) == 1:
+            self.add_item(TextDisplay(
+                f"The player **{winners_names[0]}** has more points than most. "
+                "_They are the winner!_"
+            ))
+        else:
+            self.add_item(TextDisplay(
+                f"The players {', '.join(winners_names)} have tied in score. _We'll have to "
+                "do another round to decide the winner..._"
+            ))
 
 
     async def start_game(self, interaction: "Interaction"):
