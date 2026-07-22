@@ -19,7 +19,7 @@ class ChubFinishButton(Button):
             parent_view: The parent view where the ChubSweeper game is.
         """
 
-        super().__init__(style=ButtonStyle.green,
+        super().__init__(style=ButtonStyle.blurple,
                          label="End Game",
                          disabled=False)
 
