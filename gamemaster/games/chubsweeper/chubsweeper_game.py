@@ -247,6 +247,8 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         self._choice_tracker = None
         self._scores.clear()
 
+        self._miners = self.winners()
+
 
     def reset_turn(self):
         """Runs the final arrangements just before starting a player's turn."""
