@@ -243,6 +243,9 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         """Progress the game towards a new round of turns."""
 
         self._cur_round += 1
+        self._cur_miner_i = None
+        self._choice_tracker = None
+        self._scores.clear()
 
 
     def reset_turn(self):
