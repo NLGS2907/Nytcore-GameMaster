@@ -162,6 +162,9 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
                 f"The player **{winners_names[0]}** has more points than most. "
                 "_They are the winner!_"
             ))
+            self.add_item(TextDisplay(
+                f"\nDealer **{self.game.dealer.username}**, you can now end this game."
+            ))
             self.add_item(ActionRow(self._game_end_btn))
         else:
             self.add_item(TextDisplay(
@@ -298,7 +301,6 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         await self.batch_sender.cleanup()
         await self.reset_selection(interaction)
         await self.refresh(interaction, detach=True)
-
 
 
     async def make_choice(self, n: int) -> bool:
