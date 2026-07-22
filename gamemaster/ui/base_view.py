@@ -154,7 +154,7 @@ class BaseView(LayoutView):
                       interaction: Optional["Interaction"]=None,
                       *,
                       detach: bool=False,
-                      delete_old: bool=True):
+                      delete_old: bool=False):
         """Refreshes the elements of this view, then the message itself.
         
         Args:

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from discord import File, SeparatorSpacing
 from discord.ui import ActionRow, Container, Separator, TextDisplay
 
-from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
+from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame, ImageType
 from ...batch_sender import BatchImageSender
 from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
@@ -13,7 +13,6 @@ from .images_upload import ChubMinesUploadView
 from .rounds import ChubFinishButton, ImageSelectionButton
 
 if TYPE_CHECKING:
-    from io import BytesIO
 
     from discord import Interaction
 
@@ -212,10 +211,10 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """Initializes the parameters of the game, and sets them to an initial state."""
 
         await self.throw_message("_Initiating game..._")
-        await self.reset_game(interaction)
+        await self.reset_game(interaction, first_time=True)
 
 
-    async def reset_game(self, interaction: "Interaction"):
+    async def reset_game(self, interaction: "Interaction", *, first_time: bool=False):
         """Resets the state of the game."""
 
         if self._round_finished:
@@ -226,13 +225,13 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             self._turn_finished = False
 
         self.game.reset_turn()
-        await self.reset_selection(interaction)
+        await self.reset_selection(interaction, first_time=first_time)
 
 
-    async def reset_selection(self, interaction: "Interaction"):
+    async def reset_selection(self, interaction: "Interaction", *, first_time: bool=False):
         """Resets the current state of the game inside the same round."""
 
-        await self.show_images(interaction)
+        await self.show_images(interaction, first_time=first_time)
         await self.reset()
 
 
@@ -246,7 +245,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
 
 
     @staticmethod
-    def convert_to_ds_files(files: list["BytesIO"], name: str="file") -> list[File]:
+    def convert_to_ds_files(files: list[ImageType], name: str="file") -> list[File]:
         """Takes a sequence of attachments, and converts them to their Discord counterparts.
 
         Args:
@@ -257,20 +256,17 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
             A list of the library wrappers with the files inside.
         """
 
-        ds_files = []
-
-        for i, file in enumerate(files, start=1):
-            file.seek(0)
-            ds_files.append(
-                File(file,
-                     filename=f"{name}_{i}.{PREFERRED_IMG_FORMAT}")
-            )
-
-        return ds_files
+        return [
+            File(ImageType(file.getvalue()), filename=f"{name}_{i}.{PREFERRED_IMG_FORMAT}")
+            for i, file in enumerate(files, start=1)
+        ]
 
 
-    async def _reset_batch_sender(self):
+    async def _reset_batch_sender(self, *, first_time: bool=False):
         """Resets the internal batch sender."""
+
+        if self.batch_sender is not None:
+            self.batch_sender.cleanup(include_root=not first_time)
 
         self.batch_sender = BatchImageSender(
             self.bot, self.parent_msg,
@@ -280,10 +276,10 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         )
 
 
-    async def show_images(self, interaction: "Interaction"):
+    async def show_images(self, interaction: "Interaction", *, first_time: bool=False):
         """Shows the images in many messages if necessary."""
 
-        await self._reset_batch_sender()
+        await self._reset_batch_sender(first_time=first_time)
         await self.batch_sender.send(interaction, ephemeral=False)
 
 
@@ -298,7 +294,6 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
     async def renew(self, interaction: "Interaction"):
         """Resets the current state of the view, and detaches it into a new message."""
 
-        await self.batch_sender.cleanup()
         await self.reset_selection(interaction)
         await self.refresh(interaction, detach=True)
 

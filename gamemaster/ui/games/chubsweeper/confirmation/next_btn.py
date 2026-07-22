@@ -36,5 +36,4 @@ class NextConfirmationButton(Button):
                 return
 
             await self.parent_view.reset_game(interaction)
-            await self.parent_view.batch_sender.cleanup()
             await self.parent_view.refresh(interaction, detach=True)
