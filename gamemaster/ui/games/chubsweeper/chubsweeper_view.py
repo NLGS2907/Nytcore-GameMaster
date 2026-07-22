@@ -184,6 +184,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """
 
         self.clear_items()
+        await self.batch_sender.cleanup(include_root=True)
         winner = self.game.winners()[0]
 
         container = Container(
