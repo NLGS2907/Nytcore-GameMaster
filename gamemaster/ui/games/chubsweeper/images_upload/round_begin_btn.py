@@ -44,7 +44,6 @@ class RoundBeginButton(Button):
                 return
 
             await interaction.response.defer()
-            self.parent_view.stop()
 
             reset_func = (self.target_view.start_game
                           if self.begin_game
