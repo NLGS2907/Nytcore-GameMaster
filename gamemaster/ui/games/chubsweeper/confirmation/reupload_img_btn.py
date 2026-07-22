@@ -35,4 +35,5 @@ class ReuploadTurnImagesButton(Button):
                 return
 
             self.parent_view.update_upload_view()
+            await self.parent_view.batch_sender.cleanup()
             self.parent_view.chubmines_upload_view.refresh(interaction)

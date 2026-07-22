@@ -168,6 +168,11 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
                 f"The players {', '.join(winners_names)} have tied in score. _We'll have to "
                 "do another round to decide the winner..._"
             ))
+            self.add_item(TextDisplay(
+                f"\nDealer **{self.game.dealer.username}**, do you wish to use the same images "
+                "for the next round, or reupload new ones?"
+            ))
+            self.add_item(ActionRow(self._reupload_img_btn, self._next_round_btn))
 
 
     async def finish_view(self):
