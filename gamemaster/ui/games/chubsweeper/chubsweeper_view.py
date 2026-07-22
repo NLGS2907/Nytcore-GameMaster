@@ -266,7 +266,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         """Resets the internal batch sender."""
 
         if self.batch_sender is not None:
-            self.batch_sender.cleanup(include_root=not first_time)
+            await self.batch_sender.cleanup(include_root=not first_time)
 
         self.batch_sender = BatchImageSender(
             self.bot, self.parent_msg,
