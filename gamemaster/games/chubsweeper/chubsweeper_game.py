@@ -166,7 +166,7 @@ class ChubSweeperGame(BaseGame[ChubSweeperOptions]):
         if player == self.current_player:
             return self.current_score()
 
-        return self._scores[player.discord_user_id]
+        return self._scores.get(player.discord_user_id, 0)
 
 
     def _generate_img_holders(self, files: FilesIter) -> HoldersList:
