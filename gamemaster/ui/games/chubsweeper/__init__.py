@@ -3,4 +3,4 @@ from .chubsweeper_start_btn import *
 from .chubsweeper_view import *
 from .confirmation import *
 from .images_upload import *
-from .round_gameplay import *
+from .rounds import *

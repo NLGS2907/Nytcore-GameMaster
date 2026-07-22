@@ -10,7 +10,7 @@ from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
 from .confirmation import NextTurnConfirmationButton, ReuploadTurnImagesButton
 from .images_upload import ChubMinesUploadView
-from .round_gameplay import ImageSelectionButton
+from .rounds import ImageSelectionButton
 
 if TYPE_CHECKING:
     from io import BytesIO
