@@ -1,8 +1,8 @@
 from itertools import batched
 from typing import TYPE_CHECKING, Optional
 
-from discord import File
-from discord.ui import ActionRow, Container, TextDisplay
+from discord import File, SeparatorSpacing
+from discord.ui import ActionRow, Container, Separator, TextDisplay
 
 from ....games import PREFERRED_IMG_FORMAT, ChubSweeperGame
 from ...batch_sender import BatchImageSender
@@ -10,7 +10,7 @@ from ..game_view_base import BaseGameView
 from .chubsweeper_start_btn import ChubSweeperStartButton
 from .confirmation import NextTurnConfirmationButton, ReuploadTurnImagesButton
 from .images_upload import ChubMinesUploadView
-from .rounds import ImageSelectionButton
+from .rounds import ChubFinishButton, ImageSelectionButton
 
 if TYPE_CHECKING:
     from io import BytesIO
@@ -45,6 +45,7 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
         self._img_btns: list[ImageSelectionButton] = []
         self._next_turn_btn: NextTurnConfirmationButton = NextTurnConfirmationButton(self)
         self._reupload_img_btn: ReuploadTurnImagesButton = ReuploadTurnImagesButton(self)
+        self._game_end_btn: ChubFinishButton = ChubFinishButton(self)
 
         self._turn_finished: bool = False
         self._round_finished: bool = False
@@ -156,11 +157,42 @@ class ChubSweeperView(BaseGameView[ChubSweeperGame]):
                 f"The player **{winners_names[0]}** has more points than most. "
                 "_They are the winner!_"
             ))
+            self.add_item(ActionRow(self._game_end_btn))
         else:
             self.add_item(TextDisplay(
                 f"The players {', '.join(winners_names)} have tied in score. _We'll have to "
                 "do another round to decide the winner..._"
             ))
+
+
+    async def finish_view(self):
+        """Resets this view to show the ending of the game, and stops any interactions to it.
+
+        The game should have only one winner by this point.
+        """
+
+        self.clear_items()
+        winner = self.game.winners()[0]
+
+        container = Container(
+            TextDisplay("## ChubSweeper Game Finished"),
+            Separator(spacing=SeparatorSpacing.large),
+
+            TextDisplay(
+                f"The player **{winner.username}** has won with a score of "
+                f"{self.game.get_score(winner)} last round."
+            ),
+
+            TextDisplay(
+                f"\n-# _Last round had {len(self.game.safes)} safes and "
+                f"{len(self.game.mines)} ChubMines™._"
+            )
+        )
+        self.add_item(container)
+
+        await self.refresh_parent_msg()
+        self.chubmines_upload_view.stop()
+        self.stop()
 
 
     async def start_game(self, interaction: "Interaction"):
