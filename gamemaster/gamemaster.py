@@ -44,7 +44,7 @@ class GameMaster(Bot):
             **options: Extra options to pass on to the parent initializer.
         """
 
-        super().__init__("!", # Deprecated, but legacy syntax requires it
+        super().__init__("!?|-gamemaster_prefix-|?!", # Deprecated, but legacy syntax requires it
                          help_command=None,
                          intents=GameMaster.preferred_intents(),
                          application_id=getenv("BOT_ID"),
