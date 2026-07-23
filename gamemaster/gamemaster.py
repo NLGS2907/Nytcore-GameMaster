@@ -45,6 +45,7 @@ class GameMaster(Bot):
         """
 
         super().__init__("!", # Deprecated, but legacy syntax requires it
+                         help_command=None,
                          intents=GameMaster.preferred_intents(),
                          application_id=getenv("BOT_ID"),
                          options=options)
