@@ -20,6 +20,7 @@ class EventsCog(_BaseCog):
         """The bot has finished the setup and is ready to use."""
 
         await self.bot.fetch_emojis()
+        await self.bot.set_owner()
         self.bot.log.info(f"{self.bot.user} is ready!")
 
 

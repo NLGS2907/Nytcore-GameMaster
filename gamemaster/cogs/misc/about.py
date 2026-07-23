@@ -27,11 +27,6 @@ class AboutCog(_BaseCog):
         await interaction.followup.send(view=about_view, ephemeral=True)
 
 
-
-
-
-
-
 async def setup(bot: "GameMaster"):
     """Adds this cog to the bot."""
 

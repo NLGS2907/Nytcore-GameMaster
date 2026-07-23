@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from datetime import datetime, timedelta
     from logging import Logger
 
-    from discord import Emoji
+    from discord import AppInfo, Emoji
 
 VersionTuple: TypeAlias = tuple[int, int, int]
 
@@ -166,6 +166,15 @@ class GameMaster(Bot):
         """Fetches and stores all the emojis of the application."""
 
         self._emojis = {emoji.name: emoji for emoji in await self.fetch_application_emojis()}
+
+
+    async def set_owner(self):
+        """Fetches and saves the owner of this bot."""
+
+        app_info: "AppInfo" = await self.application_info()
+
+        if not app_info.team:
+            self.owner_id = app_info.owner.id
 
 
     async def shutdown(self):
