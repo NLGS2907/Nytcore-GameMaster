@@ -74,7 +74,7 @@ class GameMaster(Bot):
         * Z is a small fix
         """
 
-        return (0, 2, 0)
+        return (0, 3, 0)
 
     @staticmethod
     def preferred_intents() -> Intents:

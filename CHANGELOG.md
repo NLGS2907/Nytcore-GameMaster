@@ -4,6 +4,7 @@ Details about the changes between verisons.
 
 |      Version     |
 |:----------------:|
+|[**0.3.0**](#v030)|
 |[**0.2.0**](#v020)|
 |[**0.1.0**](#v010)|
 
@@ -11,6 +12,19 @@ Details about the changes between verisons.
 <!--hr style="height:4px" /-->
 
 <hr/>
+
+### v0.3.0
+
+* **NEW CHUBSWEEPER GAME**
+    - Only singleplayer tested
+    - Private mode on WIP
+* **Disabled the `!` prefix**
+    - _Changed it to something less likely to collide with._
+    - Removed the text help command also.
+* **New asyncio loop initialization**
+    - Instead of `discord.Client.run()`, we start the bot manually with `asyncio.Runner`.
+
+<hr style="height:4px" />
 
 ### v0.2.0
 
