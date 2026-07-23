@@ -12,7 +12,6 @@ from discord.utils import utcnow
 from .db import db, run_migrations
 from .files import search_files
 from .logger import LoggerManager, log_lvl
-from .models import IMG_FORMAT
 from .repositories import PlayerRepository, RepositoryConfiguration, RPSResultRepository
 
 if TYPE_CHECKING:
@@ -213,7 +212,7 @@ class GameMaster(Bot):
         return self.logs.gamemaster
 
 
-    async def fetch_avatar(self, candidate: Union[int, User], img_fmt: str=IMG_FORMAT) -> BytesIO:
+    async def fetch_avatar(self, candidate: Union[int, User]) -> BytesIO:
         """Returns an in-memory file that is the avatar image of a user.
         
         If the avatar URL is needed, use `User.avatar.url` instead.
@@ -221,7 +220,6 @@ class GameMaster(Bot):
         Args:
             candidate: The Discord user to retrieve the image from.
                        It can be either a `User` object or its ID.
-            img_fmt: The image format that the image will have.
         """
 
         user = (candidate if isinstance(candidate, User) else await self.fetch_user(candidate))
